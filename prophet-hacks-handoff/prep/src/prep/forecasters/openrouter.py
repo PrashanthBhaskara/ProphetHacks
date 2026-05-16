@@ -41,6 +41,10 @@ def forecast(config: ForecasterConfig, packet: MarketPacket):
     }
     if config.reasoning_effort:
         payload["extra_body"] = {"reasoning": {"effort": config.reasoning_effort}}
+    if config.fallback_models:
+        # OpenRouter auto-routes through this list if the primary model errors.
+        # https://openrouter.ai/docs/features/model-routing
+        payload["models"] = [config.model, *config.fallback_models]
 
     resp = requests.post(
         OPENROUTER_CHAT_COMPLETIONS,

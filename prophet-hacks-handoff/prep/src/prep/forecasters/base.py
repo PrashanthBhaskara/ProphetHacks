@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from prep.schemas import (
@@ -29,7 +29,8 @@ supervisor can inspect.
 def build_user_prompt(packet: MarketPacket) -> str:
     schema = {
         "forecast": {
-            "p_yes": "float from 0.01 to 0.99",
+            "p_yes": "float 0.01-0.99 — your P(YES); reason about this direction first",
+            "p_no": "float 0.01-0.99 — your P(NO), reasoned independently as a fresh frame. Should be close to (1 - p_yes); we average them to remove primary-direction bias",
             "confidence": "float from 0 to 1",
             "uncertainty": "float from 0 to 1",
             "fair_yes_price": "float from 0.01 to 0.99",
@@ -88,8 +89,21 @@ def forecast_from_response(
     reasoning = response.get("reasoning_track") or {}
     diagnostics = response.get("diagnostics") or {}
 
+    # Bi-direction averaging: if the model returned a separate P(NO), treat it
+    # as an independent estimate of (1 - p_yes) and average. Removes the
+    # primary-direction bias most LLMs exhibit when asked one-sided questions.
+    raw_p_yes = forecast.get("p_yes", packet.kalshi.market_mid)
+    raw_p_no = forecast.get("p_no")
+    if raw_p_no is not None:
+        try:
+            p_yes_effective = (float(raw_p_yes) + (1.0 - float(raw_p_no))) / 2.0
+        except (TypeError, ValueError):
+            p_yes_effective = raw_p_yes
+    else:
+        p_yes_effective = raw_p_yes
+
     values = ForecastValues(
-        p_yes=forecast.get("p_yes", packet.kalshi.market_mid),
+        p_yes=p_yes_effective,
         confidence=forecast.get("confidence", 0.5),
         uncertainty=forecast.get("uncertainty", 0.5),
         fair_yes_price=forecast.get("fair_yes_price"),
@@ -136,6 +150,10 @@ class ForecasterConfig:
     max_tokens: int = 1400
     reasoning_effort: str | None = None
     mock_edge_bps: float = 0.0
+    # OpenRouter-only: ordered list of fallback model IDs. If the primary model
+    # errors or is unavailable, OR auto-routes to the next one in the list.
+    # Other providers ignore this.
+    fallback_models: list[str] = field(default_factory=list)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "ForecasterConfig":
@@ -149,6 +167,7 @@ class ForecasterConfig:
             temperature=float(data.get("temperature", 0.1)),
             max_tokens=int(data.get("max_tokens", 1400)),
             reasoning_effort=data.get("reasoning_effort"),
+            fallback_models=list(data.get("fallback_models") or []),
             mock_edge_bps=float(data.get("mock_edge_bps", 0.0)),
         )
 
