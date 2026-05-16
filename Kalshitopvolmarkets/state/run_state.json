@@ -1,0 +1,251 @@
+{
+  "weeks": [
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 0
+      },
+      "exclusions": {},
+      "selected": 300,
+      "traded_tickers": 126574,
+      "week_end": "2026-01-08",
+      "week_start": "2026-01-01"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 0
+      },
+      "exclusions": {},
+      "selected": 300,
+      "traded_tickers": 140463,
+      "week_end": "2026-01-15",
+      "week_start": "2026-01-08"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 0
+      },
+      "exclusions": {},
+      "selected": 300,
+      "traded_tickers": 174428,
+      "week_end": "2026-01-22",
+      "week_start": "2026-01-15"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 0
+      },
+      "exclusions": {},
+      "selected": 300,
+      "traded_tickers": 186533,
+      "week_end": "2026-01-29",
+      "week_start": "2026-01-22"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 0
+      },
+      "exclusions": {},
+      "selected": 300,
+      "traded_tickers": 181838,
+      "week_end": "2026-02-05",
+      "week_start": "2026-01-29"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 0
+      },
+      "exclusions": {},
+      "selected": 300,
+      "traded_tickers": 176630,
+      "week_end": "2026-02-12",
+      "week_start": "2026-02-05"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 0
+      },
+      "exclusions": {},
+      "selected": 300,
+      "traded_tickers": 167055,
+      "week_end": "2026-02-19",
+      "week_start": "2026-02-12"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 0
+      },
+      "exclusions": {},
+      "selected": 300,
+      "traded_tickers": 186284,
+      "week_end": "2026-02-26",
+      "week_start": "2026-02-19"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 0
+      },
+      "exclusions": {},
+      "selected": 300,
+      "traded_tickers": 194134,
+      "week_end": "2026-03-05",
+      "week_start": "2026-02-26"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 0
+      },
+      "exclusions": {},
+      "selected": 300,
+      "traded_tickers": 196830,
+      "week_end": "2026-03-12",
+      "week_start": "2026-03-05"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 0
+      },
+      "exclusions": {},
+      "selected": 300,
+      "traded_tickers": 189460,
+      "week_end": "2026-03-19",
+      "week_start": "2026-03-12"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 0
+      },
+      "exclusions": {},
+      "selected": 300,
+      "traded_tickers": 228163,
+      "week_end": "2026-03-26",
+      "week_start": "2026-03-19"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 0
+      },
+      "exclusions": {},
+      "selected": 300,
+      "traded_tickers": 294046,
+      "week_end": "2026-04-02",
+      "week_start": "2026-03-26"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 0
+      },
+      "exclusions": {},
+      "selected": 300,
+      "traded_tickers": 291449,
+      "week_end": "2026-04-09",
+      "week_start": "2026-04-02"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 0
+      },
+      "exclusions": {},
+      "selected": 300,
+      "traded_tickers": 293515,
+      "week_end": "2026-04-16",
+      "week_start": "2026-04-09"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 0
+      },
+      "exclusions": {},
+      "selected": 300,
+      "traded_tickers": 290781,
+      "week_end": "2026-04-23",
+      "week_start": "2026-04-16"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 0
+      },
+      "exclusions": {},
+      "selected": 300,
+      "traded_tickers": 298294,
+      "week_end": "2026-04-30",
+      "week_start": "2026-04-23"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 0
+      },
+      "exclusions": {},
+      "selected": 300,
+      "traded_tickers": 296225,
+      "week_end": "2026-05-07",
+      "week_start": "2026-04-30"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 0
+      },
+      "exclusions": {},
+      "selected": 300,
+      "traded_tickers": 123971,
+      "week_end": "2026-05-10",
+      "week_start": "2026-05-07"
+    }
+  ]
+}
