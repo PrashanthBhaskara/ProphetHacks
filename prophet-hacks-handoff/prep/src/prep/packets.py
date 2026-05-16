@@ -30,6 +30,9 @@ def packet_from_sample(sample: Sample) -> MarketPacket:
         snapshot_time=as_of,
     )
     event = sample.event
+    # Propagate outcomes if the event carries them (Prophet Arena dataset tasks),
+    # otherwise default to binary YES/NO (Kalshi historical snapshots).
+    outcomes = event.get("outcomes") or ["YES", "NO"]
     return MarketPacket(
         as_of=as_of,
         event_ticker=event.get("event_ticker") or "",
@@ -40,5 +43,28 @@ def packet_from_sample(sample: Sample) -> MarketPacket:
         category=event.get("category") or "Other",
         close_time=event.get("close_time"),
         kalshi=quote,
+        outcomes=list(outcomes),
+        retrieval={},
+    )
+
+
+def packet_from_arena_event(arena_event: dict) -> MarketPacket:
+    """Build a MarketPacket from a Prophet Arena `Event` JSON (POST /predict body).
+
+    Arena events don't include Kalshi quote data — set an empty KalshiQuote.
+    Trading-track code that reads .kalshi.* should null-check; forecasting
+    only needs the event fields + outcomes.
+    """
+    return MarketPacket(
+        as_of=datetime.now(timezone.utc).isoformat(),
+        event_ticker=arena_event.get("event_ticker") or arena_event.get("task_id") or "",
+        market_ticker=arena_event.get("market_ticker") or arena_event.get("task_id") or "",
+        title=arena_event.get("title") or "",
+        subtitle=arena_event.get("subtitle"),
+        rules=arena_event.get("rules") or arena_event.get("context"),
+        category=arena_event.get("category") or (arena_event.get("metadata") or {}).get("category") or "Other",
+        close_time=arena_event.get("close_time") or arena_event.get("predict_by"),
+        kalshi=KalshiQuote(),
+        outcomes=list(arena_event.get("outcomes") or ["YES", "NO"]),
         retrieval={},
     )

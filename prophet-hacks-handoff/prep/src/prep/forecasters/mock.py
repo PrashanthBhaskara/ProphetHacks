@@ -21,11 +21,35 @@ def _jitter_bps(config: ForecasterConfig, packet: MarketPacket) -> float:
     return (bucket - 0.5) * 300.0
 
 
+def _build_distribution(packet: MarketPacket, p_yes: float) -> dict[str, float]:
+    """Build a probabilities dict over packet.outcomes from a single edge-adjusted p_yes.
+
+    Binary case: {"YES": p_yes, "NO": 1-p_yes}.
+    Multi-outcome: split the (1 - p_yes) mass uniformly across remaining outcomes
+    when YES is in the outcomes set; otherwise distribute uniformly (mock has no
+    independent reasoning per outcome, so this is just an infrastructure stub).
+    """
+    outs = packet.outcomes
+    if not outs:
+        return {"YES": p_yes, "NO": 1.0 - p_yes}
+    if tuple(outs) == ("YES", "NO"):
+        return {"YES": p_yes, "NO": 1.0 - p_yes}
+    if "YES" in outs:
+        rest = [o for o in outs if o != "YES"]
+        share = (1.0 - p_yes) / max(1, len(rest))
+        return {"YES": p_yes, **{o: share for o in rest}}
+    # Pure multi-outcome — mock has no per-outcome signal; uniform with first-outcome bias
+    bias = p_yes
+    others_share = (1.0 - bias) / max(1, len(outs) - 1)
+    return {o: (bias if i == 0 else others_share) for i, o in enumerate(outs)}
+
+
 def forecast(config: ForecasterConfig, packet: MarketPacket):
     p_yes = clamped_market_plus_edge(packet, config.mock_edge_bps + _jitter_bps(config, packet))
+    probabilities = _build_distribution(packet, p_yes)
     response = {
         "forecast": {
-            "p_yes": p_yes,
+            "probabilities": probabilities,
             "confidence": 0.45,
             "uncertainty": 0.35,
             "fair_yes_price": p_yes,

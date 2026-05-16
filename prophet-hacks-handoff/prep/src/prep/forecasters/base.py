@@ -27,22 +27,30 @@ supervisor can inspect.
 
 
 def build_user_prompt(packet: MarketPacket) -> str:
+    """Build the user prompt asking for a per-outcome probability distribution.
+
+    Per Prophet Arena dev docs, predictions are a distribution over the
+    event's `outcomes` list (binary events use ["YES", "NO"]). Probabilities
+    don't have to sum to 1 — the scorer normalizes — but we ask for a coherent
+    distribution to keep reasoning interpretable.
+    """
+    probabilities_schema = {
+        outcome: "float 0.01-0.99 — your P(this outcome)"
+        for outcome in packet.outcomes
+    }
     schema = {
         "forecast": {
-            "p_yes": "float from 0.01 to 0.99",
-            "confidence": "float from 0 to 1",
-            "uncertainty": "float from 0 to 1",
-            "fair_yes_price": "float from 0.01 to 0.99",
-            "max_yes_buy_price": "float from 0.01 to 0.99",
-            "max_no_buy_price": "float from 0.01 to 0.99",
-            "trade_recommendation": "BUY_YES, BUY_NO, BUY_YES_SMALL, BUY_NO_SMALL, or NO_TRADE",
+            "probabilities": probabilities_schema,
+            "confidence": "float 0-1 — how confident you are in this distribution overall",
+            "uncertainty": "float 0-1 — residual uncertainty after your reasoning",
+            "trade_recommendation": "BUY_YES, BUY_NO, BUY_YES_SMALL, BUY_NO_SMALL, or NO_TRADE (binary-market trading only)",
         },
         "reasoning_track": {
-            "summary": "short thesis",
+            "summary": "short thesis covering the whole distribution",
             "base_rate": "base-rate reasoning",
-            "market_analysis": "how Kalshi price influenced your estimate",
-            "key_evidence": [{"claim": "...", "source": "...", "impact": "+0.03 YES"}],
-            "counterarguments": [{"claim": "...", "impact": "-0.02 YES"}],
+            "market_analysis": "how Kalshi price (if available) influenced your estimate",
+            "key_evidence": [{"claim": "...", "source": "...", "impact": "+0.03 to <outcome>"}],
+            "counterarguments": [{"claim": "...", "impact": "-0.02 to <outcome>"}],
             "assumptions": ["..."],
             "information_gaps": ["..."],
             "what_would_change_my_mind": ["..."],
@@ -52,12 +60,15 @@ def build_user_prompt(packet: MarketPacket) -> str:
             "rules_clarity": "low, medium, or high",
             "liquidity_quality": "low, medium, or high",
             "market_disagreement_reason": "short string",
-            "should_defer_to_market": "boolean",
+            "should_defer_to_market": "boolean (binary markets only)",
         },
     }
+    outcome_list = ", ".join(repr(o) for o in packet.outcomes)
     return (
-        "Forecast this Kalshi binary market. Estimate fair probability, not just "
-        "whether to trade.\n\n"
+        f"Forecast this market. The event has {len(packet.outcomes)} possible outcomes: {outcome_list}. "
+        "Estimate the probability of each outcome. For mutually-exclusive outcomes the probabilities "
+        "should be coherent (roughly sum to 1.0). For non-exclusive outcomes (rare) treat each as an "
+        "independent binary.\n\n"
         f"MARKET_PACKET:\n{json.dumps(packet.to_dict(), indent=2, sort_keys=True)}\n\n"
         f"REQUIRED_JSON_SCHEMA:\n{json.dumps(schema, indent=2)}"
     )
@@ -88,8 +99,37 @@ def forecast_from_response(
     reasoning = response.get("reasoning_track") or {}
     diagnostics = response.get("diagnostics") or {}
 
+    # Multi-outcome distribution is canonical. Accept three input forms in
+    # priority order: (1) `probabilities` dict, (2) legacy `p_yes` only, (3)
+    # market-mid fallback for binary if model returned nothing usable.
+    raw_probs = forecast.get("probabilities")
+    cleaned_probs: dict[str, float] = {}
+    if isinstance(raw_probs, dict):
+        for k, v in raw_probs.items():
+            try:
+                cleaned_probs[str(k)] = float(v)
+            except (TypeError, ValueError):
+                continue
+
+    if not cleaned_probs:
+        # Legacy binary path: model returned `p_yes` only. Build a 2-outcome
+        # distribution against the packet's outcomes (which should be ["YES","NO"]).
+        p_yes_raw = forecast.get("p_yes")
+        if p_yes_raw is None:
+            p_yes_raw = packet.kalshi.market_mid
+        try:
+            py = float(p_yes_raw)
+        except (TypeError, ValueError):
+            py = 0.5
+        # Use packet.outcomes labels; default ["YES","NO"] if multi-outcome
+        # event got a one-direction response (suboptimal but won't crash).
+        if len(packet.outcomes) >= 2:
+            cleaned_probs = {packet.outcomes[0]: py, packet.outcomes[1]: 1.0 - py}
+        else:
+            cleaned_probs = {(packet.outcomes[0] if packet.outcomes else "YES"): py}
+
     values = ForecastValues(
-        p_yes=forecast.get("p_yes", packet.kalshi.market_mid),
+        probabilities=cleaned_probs,
         confidence=forecast.get("confidence", 0.5),
         uncertainty=forecast.get("uncertainty", 0.5),
         fair_yes_price=forecast.get("fair_yes_price"),
