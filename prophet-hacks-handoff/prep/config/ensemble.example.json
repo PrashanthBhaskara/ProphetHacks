@@ -1,6 +1,27 @@
 {
   "models": [
     {
+      "name": "claude_agent_live",
+      "provider": "claude_agent",
+      "model": "claude-opus-4-7",
+      "api_key_env": "ANTHROPIC_API_KEY",
+      "enabled": false,
+      "weight": 1.2,
+      "max_tokens": 4000,
+      "backtest_mode": false
+    },
+    {
+      "name": "claude_agent_backtest",
+      "provider": "claude_agent",
+      "model": "claude-opus-4-7",
+      "api_key_env": "ANTHROPIC_API_KEY",
+      "enabled": false,
+      "weight": 1.2,
+      "max_tokens": 4000,
+      "backtest_mode": true,
+      "evidence_cutoff": "auto"
+    },
+    {
       "name": "gemini_flash_mock",
       "provider": "mock",
       "model": "gemini-3-flash-preview-mock",

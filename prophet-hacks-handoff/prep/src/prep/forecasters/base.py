@@ -136,6 +136,8 @@ class ForecasterConfig:
     max_tokens: int = 1400
     reasoning_effort: str | None = None
     mock_edge_bps: float = 0.0
+    backtest_mode: bool = False
+    evidence_cutoff: str | None = None  # ISO-8601 UTC or "auto" (uses packet.as_of)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "ForecasterConfig":
@@ -150,6 +152,8 @@ class ForecasterConfig:
             max_tokens=int(data.get("max_tokens", 1400)),
             reasoning_effort=data.get("reasoning_effort"),
             mock_edge_bps=float(data.get("mock_edge_bps", 0.0)),
+            backtest_mode=bool(data.get("backtest_mode", False)),
+            evidence_cutoff=data.get("evidence_cutoff"),
         )
 
 
@@ -184,6 +188,9 @@ def forecast_from_config(config: ForecasterConfig, packet: MarketPacket) -> Mode
         return forecast(config, packet)
     if config.provider == "openrouter":
         from .openrouter import forecast
+        return forecast(config, packet)
+    if config.provider == "claude_agent":
+        from .claude_agent import forecast
         return forecast(config, packet)
     raise ValueError(f"Unknown forecaster provider: {config.provider}")
 
