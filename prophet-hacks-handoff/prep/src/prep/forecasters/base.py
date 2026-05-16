@@ -185,6 +185,9 @@ def forecast_from_config(config: ForecasterConfig, packet: MarketPacket) -> Mode
     if config.provider == "openrouter":
         from .openrouter import forecast
         return forecast(config, packet)
+    if config.provider == "xai":
+        from .xai import forecast
+        return forecast(config, packet)
     raise ValueError(f"Unknown forecaster provider: {config.provider}")
 
 
