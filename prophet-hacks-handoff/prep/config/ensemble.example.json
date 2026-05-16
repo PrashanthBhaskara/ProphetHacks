@@ -67,6 +67,28 @@
       "weight": 0.75,
       "temperature": 0.1,
       "max_tokens": 1600
+    },
+    {
+      "name": "grok_lane",
+      "provider": "openrouter",
+      "model": "x-ai/grok-4.3",
+      "api_key_env": "OPENROUTER_API_KEY_GROK_LANE",
+      "enabled": false,
+      "weight": 1.0,
+      "temperature": 0.1,
+      "max_tokens": 1800,
+      "reasoning_effort": "medium"
+    },
+    {
+      "name": "grok_lane_xai_direct",
+      "provider": "xai",
+      "model": "grok-4.3",
+      "api_key_env": "XAI_API_KEY",
+      "enabled": false,
+      "weight": 1.0,
+      "temperature": 0.1,
+      "max_tokens": 1800,
+      "reasoning_effort": "medium"
     }
   ],
   "ensemble": {
