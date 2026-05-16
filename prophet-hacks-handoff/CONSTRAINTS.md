@@ -92,6 +92,18 @@ Buy YES fills at `best_ask`. Buy NO fills at `1 - best_bid`.
 
 ---
 
+## Quick peek at live markets (no Python needed)
+
+`/candidates/asof` with no params returns the latest tick's market universe:
+
+```bash
+curl -H "X-API-Key: $PA_SERVER_API_KEY" https://api.aiprophet.dev/candidates/asof
+```
+
+Useful for sanity-checking what's tradeable right now, eyeballing spreads, or grepping for a specific market_id without spinning up the SDK. Pipe through `jq '.markets[] | {market_id, question, quote}'` for a readable listing.
+
+---
+
 ## Market data you actually get
 
 This is the single most important constraint for strategy design. Per-market quote returned by `get_candidates()` / `get_market_snapshot()` ([client_models.py:139](ai-prophet/packages/core/ai_prophet_core/client_models.py:139)):
