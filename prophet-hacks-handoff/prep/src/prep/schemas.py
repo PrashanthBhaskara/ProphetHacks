@@ -3,6 +3,13 @@
 These dataclasses intentionally stay dependency-free. They are strict enough
 to keep every model adapter interoperable, but simple enough to serialize into
 JSONL for backtests and live audit logs.
+
+Schema follows the Prophet Arena dev docs (prophetarena.co/developer):
+  - Each Event carries `outcomes: list[str]` (binary cases use ["YES", "NO"]).
+  - Each Prediction returns `probabilities: dict[outcome_label, probability]`.
+
+For binary back-compat (Kalshi YES/NO), `ForecastValues.p_yes` stays as a
+derived property so trading code that reads it keeps working.
 """
 
 from __future__ import annotations
@@ -12,6 +19,8 @@ from typing import Any, Literal
 
 
 TradeRecommendation = Literal["BUY_YES", "BUY_NO", "NO_TRADE", "BUY_YES_SMALL", "BUY_NO_SMALL"]
+
+BINARY_OUTCOMES = ("YES", "NO")
 
 
 def clamp_prob(value: float, lo: float = 0.01, hi: float = 0.99) -> float:
@@ -58,7 +67,14 @@ class MarketPacket:
     category: str
     close_time: str | None
     kalshi: KalshiQuote
+    # New for multi-outcome support. Defaults to binary YES/NO so existing
+    # Kalshi-derived packets work unchanged.
+    outcomes: list[str] = field(default_factory=lambda: list(BINARY_OUTCOMES))
     retrieval: dict[str, Any] = field(default_factory=dict)
+
+    @property
+    def is_binary(self) -> bool:
+        return tuple(self.outcomes) == BINARY_OUTCOMES
 
     def to_dict(self) -> dict[str, Any]:
         data = asdict(self)
@@ -66,9 +82,31 @@ class MarketPacket:
         return data
 
 
+def normalize_distribution(probs: dict[str, float]) -> dict[str, float]:
+    """Clamp each prob into [0.01, 0.99] then renormalize so they sum to 1.0.
+
+    The Prophet Arena scorer normalizes before scoring anyway, but doing it
+    locally keeps reasoning interpretable and tests deterministic.
+    """
+    if not probs:
+        return {}
+    clamped = {k: clamp_prob(v) for k, v in probs.items()}
+    s = sum(clamped.values())
+    if s <= 0:
+        return clamped
+    return {k: v / s for k, v in clamped.items()}
+
+
 @dataclass
 class ForecastValues:
-    p_yes: float
+    """Per-event forecast values.
+
+    `probabilities` is the canonical multi-outcome distribution. For binary
+    events it carries {"YES": p, "NO": 1-p}. `p_yes` is a derived shim for
+    back-compat with trading code that reads it directly.
+    """
+
+    probabilities: dict[str, float] = field(default_factory=dict)
     confidence: float = 0.5
     uncertainty: float = 0.5
     fair_yes_price: float | None = None
@@ -77,18 +115,39 @@ class ForecastValues:
     trade_recommendation: TradeRecommendation = "NO_TRADE"
 
     def __post_init__(self) -> None:
-        self.p_yes = clamp_prob(self.p_yes)
+        if self.probabilities:
+            self.probabilities = normalize_distribution(self.probabilities)
         self.confidence = max(0.0, min(1.0, float(self.confidence)))
         self.uncertainty = max(0.0, min(1.0, float(self.uncertainty)))
+        py = self.p_yes
         if self.fair_yes_price is None:
-            self.fair_yes_price = self.p_yes
+            self.fair_yes_price = py
         if self.max_yes_buy_price is None:
-            self.max_yes_buy_price = clamp_prob(self.p_yes - self.uncertainty * 0.25)
+            self.max_yes_buy_price = clamp_prob(py - self.uncertainty * 0.25)
         if self.max_no_buy_price is None:
-            self.max_no_buy_price = clamp_prob((1.0 - self.p_yes) - self.uncertainty * 0.25)
+            self.max_no_buy_price = clamp_prob((1.0 - py) - self.uncertainty * 0.25)
+
+    @property
+    def p_yes(self) -> float:
+        """Back-compat scalar for trading code. Returns YES probability for
+        binary events, the first outcome's probability for multi-outcome."""
+        if "YES" in self.probabilities:
+            return self.probabilities["YES"]
+        if self.probabilities:
+            return next(iter(self.probabilities.values()))
+        return 0.5
+
+    @classmethod
+    def from_p_yes(cls, p_yes: float, **kwargs) -> "ForecastValues":
+        """Build a binary ForecastValues from a single p_yes (back-compat
+        for code that hasn't migrated to passing a full distribution)."""
+        p = clamp_prob(p_yes)
+        return cls(probabilities={"YES": p, "NO": 1.0 - p}, **kwargs)
 
     def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
+        d = asdict(self)
+        d["p_yes"] = self.p_yes  # keep wire-format consumers happy
+        return d
 
 
 @dataclass
@@ -133,6 +192,10 @@ class ModelForecast:
     def p_yes(self) -> float:
         return self.forecast.p_yes
 
+    @property
+    def probabilities(self) -> dict[str, float]:
+        return self.forecast.probabilities
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "model_id": self.model_id,
@@ -149,8 +212,8 @@ class ModelForecast:
 @dataclass
 class SupervisorForecast:
     market_ticker: str
-    raw_p_yes: float
-    calibrated_p_yes: float
+    raw_probabilities: dict[str, float]
+    calibrated_probabilities: dict[str, float]
     confidence: float
     model_assessment: list[dict[str, Any]]
     disagreement_summary: str
@@ -158,9 +221,21 @@ class SupervisorForecast:
     risk_notes: list[str] = field(default_factory=list)
 
     def __post_init__(self) -> None:
-        self.raw_p_yes = clamp_prob(self.raw_p_yes)
-        self.calibrated_p_yes = clamp_prob(self.calibrated_p_yes)
+        self.raw_probabilities = normalize_distribution(self.raw_probabilities)
+        self.calibrated_probabilities = normalize_distribution(self.calibrated_probabilities)
         self.confidence = max(0.0, min(1.0, float(self.confidence)))
 
+    # Back-compat scalars for trading code that reads `.raw_p_yes` / `.calibrated_p_yes`.
+    @property
+    def raw_p_yes(self) -> float:
+        return self.raw_probabilities.get("YES", next(iter(self.raw_probabilities.values()), 0.5))
+
+    @property
+    def calibrated_p_yes(self) -> float:
+        return self.calibrated_probabilities.get("YES", next(iter(self.calibrated_probabilities.values()), 0.5))
+
     def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
+        d = asdict(self)
+        d["raw_p_yes"] = self.raw_p_yes
+        d["calibrated_p_yes"] = self.calibrated_p_yes
+        return d
