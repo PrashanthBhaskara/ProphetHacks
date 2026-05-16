@@ -1,4 +1,21 @@
-"""Deterministic trade decision and sizing rules."""
+"""Deterministic trade decision and sizing rules.
+
+⚠️  DEPRECATION NOTE (per STRATEGY_FINDINGS.md):
+
+The Kelly-fraction sizing logic in this module is **NOT** what we should use
+for the live trading-track run. Per backtests on the official `subset_1200`
+benchmark, `kelly_lite` is consistently the worst-performing strategy
+(`noisy + kelly_lite` = −$640 aggregate, `inverse_market + kelly_lite` =
+full $10k ruin). It over-sizes bets when probabilities are noisy.
+
+For the live agent, use `prep.trading.strategies.build_recommended_strategy()`
+which returns `RebalancingStrategy(max_spread=1.02)` wrapped to skip Crypto
+markets. That's the universal winner across forecasters in the benchmark.
+
+This module is kept because the forecasting harness (`backtest_ensemble.py`)
+reads `RiskConfig.from_dict(cfg.get("risk"))` to size diagnostic bets during
+ensemble dry-runs. Don't remove until that path is migrated.
+"""
 
 from __future__ import annotations
 
