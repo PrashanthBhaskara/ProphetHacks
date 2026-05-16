@@ -80,6 +80,41 @@ def filter_by_category(samples: Iterable[Sample], category: str) -> list[Sample]
     return [s for s in samples if s.event["category"] == category]
 
 
+SUBSET_1200_CSV = Path(__file__).resolve().parents[2] / "data" / "external" / "subset_1200.csv"
+
+
+def load_subset_1200(csv_path: Path = SUBSET_1200_CSV) -> list[Sample]:
+    """Load the OFFICIAL hackathon-hosts benchmark (Prophet Arena Subset 1200).
+
+    Same structure as the 100-subset but 12x bigger (1,200 submissions
+    spanning 897 unique events, June–Nov 2025). The 'market_data' column
+    has full bid/ask/liquidity for each market in an event.
+
+    This is the most authoritative backtest we have — curated by the
+    actual organizers, representing exactly the distribution they think
+    is fair to evaluate on.
+    """
+    df = pd.read_csv(csv_path)
+    samples: list[Sample] = []
+    for _, row in df.iterrows():
+        outcomes = _safe_literal_eval(row["market_outcome"]) or {}
+        market_data_all = _safe_literal_eval(row["market_data"]) or {}
+        for market_name, outcome in outcomes.items():
+            md = market_data_all.get(market_name) or {}
+            event = {
+                "event_ticker": row["event_ticker"],
+                "market_ticker": f"{row['event_ticker']}-{market_name.replace(' ', '_')}",
+                "title": row.get("title") or "",
+                "subtitle": market_name,
+                "description": None,
+                "category": row.get("category") or "Other",
+                "rules": row.get("rules") or None,
+                "close_time": row.get("close_time") or "",
+            }
+            samples.append(Sample(event=event, market_info=md, outcome=int(outcome)))
+    return samples
+
+
 def load_eval_pack(jsonl_path: Path = EVAL_PACK_PATH, *, snapshot: str = "latest") -> list[Sample]:
     """Load the consolidated local eval pack created by scripts/consolidate.py.
 
