@@ -1,0 +1,18 @@
+{
+  "market_count": 2,
+  "notes": [
+    "Kalshi official L1 history is trades and candlesticks; official L2 is current orderbook only.",
+    "Oddpool historical Kalshi data starts 2026-03-19 per docs.",
+    "OddsPipe free tier advertises 30 days history; paid archive may go back further.",
+    "pmxt provides current orderbook and OHLCV/trades abstractions, not historical L2 snapshots."
+  ],
+  "pulled_at": "2026-05-16T17:02:41.754048Z",
+  "since": "2023-01-01T00:00:00Z",
+  "sources": {
+    "kalshi_official": true,
+    "oddpool": false,
+    "oddspipe": false,
+    "pmxt": false
+  },
+  "until": "2026-05-16T17:02:41.610037Z"
+}

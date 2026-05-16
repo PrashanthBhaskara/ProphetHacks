@@ -152,6 +152,50 @@ breakfast and dinner. With a 0.3s pause between paginated pages it takes
 least one of `yes_ask_dollars` / `no_ask_dollars` populated. MVE
 multi-leg combos are filtered out (use `--keep-mve` to override).
 
+## Backfilling Kalshi training data
+
+For larger training sets, use the historical collector. It writes raw JSONL
+under `data/kalshi_training/` with source tags so downstream feature builders
+can choose between official Kalshi, Oddpool, OddsPipe, and optional pmxt data.
+
+```bash
+# Official Kalshi only: market metadata, trades, L1 candles.
+python scripts/collect_kalshi_training_data.py \
+  --series-ticker KXFEDDECISION --max-markets 25
+
+# Add current official L2 books.
+python scripts/collect_kalshi_training_data.py \
+  --series-ticker KXFEDDECISION --max-markets 25 --l2
+
+# Add Oddpool historical L1/L2/trades when ODDPOOL_API_KEY is set.
+export ODDPOOL_API_KEY=...
+python scripts/collect_kalshi_training_data.py \
+  --series-ticker KXFEDDECISION --max-markets 0 --oddpool --l2
+
+# Optional normalized candle sources.
+export ODDSPIPE_API_KEY=...
+python scripts/collect_kalshi_training_data.py \
+  --tickers KXFEDDECISION-26JUN-H0 --oddspipe --pmxt
+```
+
+Source coverage notes:
+
+| Source | Use | Practical history |
+|---|---|---|
+| Kalshi official | Market metadata, trades, 1m/1h/1d L1 candles, current full book | Live tier plus `/historical/*`; target live window is about 3 months |
+| Oddpool | Historical Kalshi top-of-book, trades, full-depth orderbook snapshots | Docs say Kalshi history from 2026-03-19 onward |
+| OddsPipe | Normalized cross-venue candles/search | Free tier advertises 30 days; paid archive may be longer |
+| pmxt | Unified SDK for current books/OHLCV/trades | Useful abstraction, but not a historical L2 archive |
+| Dome API | Legacy historical orderbook/trades | Acquired/EOL; use pmxt or Oddpool unless an old key still works |
+
+Official Kalshi does not provide historical full-depth L2 books. To build our
+own archive from now forward, run:
+
+```bash
+python scripts/record_kalshi_orderbooks.py \
+  --series-ticker KXFEDDECISION --seconds 30
+```
+
 ## Open questions for the team
 
 - Does an ensemble of zero-shot Sonnet + market-price (e.g. 0.5·LLM + 0.5·market) beat either alone on ECE?
