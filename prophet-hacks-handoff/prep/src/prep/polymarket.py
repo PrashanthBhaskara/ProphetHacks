@@ -48,6 +48,7 @@ FAMILY_QUERY = {
     "KXOSCARNOMINTERFILM":  "Best International Feature Film Oscar nominee",
     "KXOSCARNOMBCASTING":   "Best Casting Oscar nominee",
     "KXGAMEAWARDS":         "Game of the Year",
+    "KXEUROVISION":         "Eurovision 2026 winner",
     "KXPRESNOMR":           "2028 Republican presidential nomination",
     "KXPRESPERSON":         "2028 US Presidential Election",
     "KXNEXTAG":             "next Attorney General",
@@ -55,6 +56,20 @@ FAMILY_QUERY = {
     "KXVPRESNOMD":          "2028 Democratic Vice Presidential nominee",
     "KXSTATE51":            "51st state",
     "KXROLEATEVENTCOACHELLA": "Coachella 2027",
+    # hackathon-day macro families (events.json)
+    "KXHOUSINGSTART":       "housing starts April 2026",
+    "KXDEGDPQOQF":          "Germany GDP Q1 2026",
+    "KXECONSTATCPIYOY":     "US CPI year over year May 2026",
+    "KXECONSTATCPICORE":    "US core CPI May 2026",
+    "KXCBDECISIONJAPAN":    "Bank of Japan June 2026 rate",
+    "KXCBDECISIONAUSTRALIA": "Reserve Bank of Australia June 2026",
+    "KXESGDPQOQF":          "Spain GDP Q1 2026",
+    "KXUSTYLD":             "US Treasury 10 year yield June 2026",
+    "KXECONSTATCORECPIYOY": "US core CPI year over year June 2026",
+    "KXECONSTATCPI":        "US CPI month over month June 2026",
+    "KXCBDECISIONCANADA":   "Bank of Canada July 2026 rate",
+    "KXFED":                "fed funds rate September 2026 FOMC",
+    "KXAAAGASED":           "US gas price November 2026",
 }
 
 SHORT_LABEL_ALIASES = {
@@ -190,7 +205,7 @@ def active_search(query: str, limit: int = 200) -> list[dict]:
     except requests.RequestException:
         return []
 
-    now = datetime.now(timezone.utc)
+    today = datetime.now(timezone.utc).date()
     out: list[dict] = []
     for ev in rs.json().get("events", []):
         for m in ev.get("markets", []):
@@ -199,7 +214,8 @@ def active_search(query: str, limit: int = 200) -> list[dict]:
             ed = m.get("endDateIso") or (m.get("endDate") or "")[:10]
             if ed:
                 try:
-                    if datetime.fromisoformat(ed).replace(tzinfo=timezone.utc) < now:
+                    end_day = datetime.fromisoformat(ed[:10]).date()
+                    if end_day < today:
                         continue
                 except ValueError:
                     pass
@@ -288,18 +304,127 @@ def _senate_match(
     return chosen, outcome
 
 
+_MACRO_PREFIXES = (
+    "KXECON", "KXHOUSING", "KXFED", "KXCB", "KXESGDP", "KXUSTYLD",
+    "KXAAAGAS", "KXDEGDP", "KX30Y",
+)
+
+
+def _is_macro_family(family: str) -> bool:
+    fam = (family or "").upper()
+    return any(fam.startswith(p) for p in _MACRO_PREFIXES)
+
+
+def _label_core(label: str) -> str:
+    t = _norm(label or "").strip()
+    for prefix in (
+        "above ", "exactly ", "cut ", "hike ", "maintain current rate ",
+        "maintains rate ", "cut more than ", "hike more than ",
+    ):
+        if t.startswith(prefix):
+            t = t[len(prefix):].strip()
+    return t
+
+
+def _short_label_in_poly_question(short_label: str, poly_question: str, family: str) -> bool:
+    sl = _norm(short_label).strip()
+    sl = SHORT_LABEL_ALIASES.get(sl, sl)
+    pq = _norm(poly_question or "")
+    if sl and sl in pq:
+        return True
+    if _is_macro_family(family):
+        core = _label_core(short_label)
+        if core and len(core) >= 2 and core in pq:
+            return True
+    return False
+
+
+_MONTH_NUM = {
+    "january": 1, "february": 2, "march": 3, "april": 4, "may": 5, "june": 6,
+    "july": 7, "august": 8, "september": 9, "october": 10, "november": 11, "december": 12,
+    "jan": 1, "feb": 2, "mar": 3, "apr": 4, "jun": 6, "jul": 7, "aug": 8,
+    "sep": 9, "sept": 9, "oct": 10, "nov": 11, "dec": 12,
+}
+
+
+def _months_mentioned(text: str) -> set[int]:
+    t = _norm(text)
+    out: set[int] = set()
+    for name, num in _MONTH_NUM.items():
+        if re.search(r"\b" + re.escape(name) + r"\b", t):
+            out.add(num)
+    return out
+
+
+def _poly_semantic_mismatch(
+    short_label: str,
+    kalshi_question: str,
+    poly_question: str,
+    poly_market: dict,
+) -> bool:
+    """True when Poly market is a different contract or time horizon than Kalshi."""
+    kq = _norm(kalshi_question)
+    pq = _norm(poly_question)
+    sl = _norm(short_label)
+
+    # Kalshi threshold bucket "Above 3.75%" vs Poly exact level "be 3.75%"
+    if sl.startswith("above "):
+        if re.search(r"\bbe \d", pq) and not any(
+            w in pq for w in ("above", "greater", "higher", "exceed", "over ")
+        ):
+            return True
+    if sl.startswith("exactly "):
+        if any(w in pq for w in ("above", "below", "greater", "less than", "under ")):
+            return True
+
+    kalshi_months = _months_mentioned(kq)
+    poly_months = _months_mentioned(pq)
+
+    # Both name a month but not the same (e.g. Kalshi June CPI vs Poly May CPI)
+    if kalshi_months and poly_months and not kalshi_months.intersection(poly_months):
+        return True
+
+    # Kalshi: specific FOMC meeting month; Poly: unrelated year-end market
+    if kalshi_months and ("fomc" in kq or "meeting" in kq):
+        if "end of 2026" in pq or "end of the year" in pq:
+            return True
+        if "end of" in pq and not poly_months.intersection(kalshi_months):
+            if not re.search(r"\b(fomc|september|sep)\b", pq):
+                return True
+
+    ed = poly_market.get("endDateIso") or (poly_market.get("endDate") or "")[:10]
+    if kalshi_months and ed and len(ed) >= 7 and ("fomc" in kq or "meeting" in kq):
+        try:
+            em = int(ed[5:7])
+            if max(kalshi_months) <= 9 and em >= 11:
+                return True
+        except ValueError:
+            pass
+    return False
+
+
 def _match(
     candidates: list[dict],
     kalshi_question: str,
     short_label: str,
     ticker: str,
     kalshi_description: str,
+    *,
+    family: str | None = None,
 ) -> dict | None:
     if not short_label:
         return None
-    sl = _norm(short_label).strip()
-    sl = SHORT_LABEL_ALIASES.get(sl, sl)
-    hits = [m for m in candidates if sl in _norm(m.get("question") or "")]
+    fam = family or ticker.split("-")[0]
+    hits = [
+        m for m in candidates
+        if _short_label_in_poly_question(short_label, m.get("question") or "", fam)
+    ]
+    hits = [
+        m for m in hits
+        if not _poly_semantic_mismatch(
+            short_label, kalshi_question, m.get("question") or "", m,
+        )
+    ]
 
     kal_years = _all_years(kalshi_question)
     ty = _ticker_year(ticker)
@@ -342,8 +467,13 @@ def _match(
 
 def resolve_mapping(
     meta: dict,
+    *,
+    candidates: list[dict] | None = None,
 ) -> tuple[dict | None, str, str, int]:
-    """Returns (chosen_market, outcome, query, n_candidates)."""
+    """Returns (chosen_market, outcome, query, n_candidates).
+
+    Pass `candidates` to reuse one Gamma search pool per parent event.
+    """
     ticker = meta["ticker"]
     family = meta.get("family") or ticker.split("-")[0]
     short_label = meta.get("short_label") or ""
@@ -354,20 +484,22 @@ def resolve_mapping(
     state = SENATE_STATE.get(family)
     if state:
         q = f"{state} Senate race 2026"
-        cands = active_search(q)
+        cands = candidates if candidates is not None else active_search(q)
         sm = _senate_match(cands, ticker, short_label)
         chosen = sm[0] if sm else None
         senate_outcome = sm[1] if sm else None
     else:
-        family_q = FAMILY_QUERY.get(family)
+        family_q = meta.get("search_query") or FAMILY_QUERY.get(family)
         q = (
             family_q
             or _keywords(question, drop=short_label)
             or _keywords(question)
             or question
         )
-        cands = active_search(q)
-        chosen = _match(cands, question, short_label, ticker, description)
+        cands = candidates if candidates is not None else active_search(q)
+        chosen = _match(
+            cands, question, short_label, ticker, description, family=family,
+        )
 
     if chosen is None:
         return None, "", q, len(cands)

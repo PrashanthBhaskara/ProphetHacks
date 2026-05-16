@@ -1,0 +1,46 @@
+{
+  "KXECONSTATCPICORE-26MAY": {
+    "Exactly 0.1%": {
+      "kalshi_ticker": "KXECONSTATCPICORE-26MAY-T0.1",
+      "poly_condition_id": "0x1238975c24547156c288a645a7d9e4bd3bc46bbb3790f0bbc6332c31c30250f0",
+      "poly_outcome": "Yes"
+    },
+    "Exactly 0.2%": {
+      "kalshi_ticker": "KXECONSTATCPICORE-26MAY-T0.2",
+      "poly_condition_id": "0x47084ccf0484680371b0055a122446081b1a81d6ddfecf2ca4b46d218a9fc92c",
+      "poly_outcome": "Yes"
+    },
+    "Exactly 0.3%": {
+      "kalshi_ticker": "KXECONSTATCPICORE-26MAY-T0.3",
+      "poly_condition_id": "0xc642575bea233d94818da50c43b93578b99b3976e05d9db528d5f99205d73a50",
+      "poly_outcome": "Yes"
+    },
+    "Exactly 0.4%": {
+      "kalshi_ticker": "KXECONSTATCPICORE-26MAY-T0.4",
+      "poly_condition_id": "0xe2d112ac92d94c29edfc66bd39be876d298966eae73e815a377fc2decf8291a7",
+      "poly_outcome": "Yes"
+    },
+    "Exactly 0.5%": {
+      "kalshi_ticker": "KXECONSTATCPICORE-26MAY-T0.5",
+      "poly_condition_id": "0x6ad572256da9fbebdf401cdd368618424644077700b5e1d1461236112d18bffa",
+      "poly_outcome": "Yes"
+    }
+  },
+  "KXECONSTATCPIYOY-26MAY": {
+    "Exactly 3.3%": {
+      "kalshi_ticker": "KXECONSTATCPIYOY-26MAY-T3.3",
+      "poly_condition_id": "0xa4478fcbfa9da68bcc7210e80a8156581bf2a499e1a9e4547f3d94a55deaaf18",
+      "poly_outcome": "Yes"
+    },
+    "Exactly 3.4%": {
+      "kalshi_ticker": "KXECONSTATCPIYOY-26MAY-T3.4",
+      "poly_condition_id": "0xe296ac5add962fd47fa1e6c0b72b0916cbe933ae7ef9436d0758fa844bc67ff1",
+      "poly_outcome": "Yes"
+    },
+    "Exactly 3.5%": {
+      "kalshi_ticker": "KXECONSTATCPIYOY-26MAY-T3.5",
+      "poly_condition_id": "0x5a3e61b44034cbce9de2de8427af285e13202d106e1608c43ffffa06e99cba7b",
+      "poly_outcome": "Yes"
+    }
+  }
+}
