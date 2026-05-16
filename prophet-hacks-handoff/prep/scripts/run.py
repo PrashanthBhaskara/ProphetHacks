@@ -17,7 +17,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from prep.data import filter_by_category, load_local_snapshots, load_subset_100  # noqa: E402
+from prep.data import filter_by_category, load_eval_pack, load_local_snapshots, load_subset_100  # noqa: E402
 from prep.eval import evaluate  # noqa: E402
 
 
@@ -31,18 +31,25 @@ BASELINES = {
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("baseline", choices=BASELINES.keys())
-    parser.add_argument("--source", choices=("hf", "local"), default="hf",
-                        help="hf = 100-event HF subset; local = our own Kalshi snapshots")
+    parser.add_argument("--source", choices=("hf", "local", "eval_pack"), default="hf",
+                        help="hf = 100-event HF subset; local = raw snapshots; eval_pack = consolidated JSONL")
+    parser.add_argument("--snapshot", choices=("latest", "first"), default="latest",
+                        help="for eval_pack, choose latest or first captured quote")
     parser.add_argument("--category", default=None, help="filter to one category")
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--limit", type=int, default=None, help="cap sample count")
     args = parser.parse_args()
 
-    samples = load_subset_100() if args.source == "hf" else load_local_snapshots()
+    if args.source == "hf":
+        samples = load_subset_100()
+    elif args.source == "eval_pack":
+        samples = load_eval_pack(snapshot=args.snapshot)
+    else:
+        samples = load_local_snapshots()
     if args.source == "local" and not samples:
         print("No local snapshots with resolved outcomes yet. "
-              "Run scripts/snapshot.py and (after markets close) scripts/resolve.py.")
-        return 0
+              "Run scripts/snapshot.py and scripts/resolve.py, or use --source eval_pack.")
+        samples = load_eval_pack(snapshot=args.snapshot)
     if args.category:
         samples = filter_by_category(samples, args.category)
     if args.limit:

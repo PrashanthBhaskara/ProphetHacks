@@ -62,6 +62,47 @@ Wire it into `BASELINES` in `scripts/run.py` and you can run it the same way.
 
 The harness also supports `predict(event, market_info)` if your agent wants the Kalshi snapshot (yes_ask, no_ask, last_price, volume, etc.) — see `baselines/market.py`. **The production agent never sees market_info directly**, but it can fetch it via `KalshiForecastClient.get_market(ticker)` (no auth required — see `ai-prophet/packages/core/ai_prophet_core/forecast/kalshi_client.py`).
 
+## Ensemble trading infrastructure
+
+The repo now has a first-pass ensemble/trading stack under `src/prep/`:
+
+```
+src/prep/
+├── schemas.py              # MarketPacket, ModelForecast, SupervisorForecast
+├── packets.py              # build canonical model input packets
+├── forecasters/
+│   ├── gemini.py           # direct Gemini API adapter
+│   ├── openrouter.py       # OpenRouter adapter for teammate lanes
+│   └── mock.py             # deterministic no-key adapter for tests
+├── ensemble.py             # supervisor weighted-logit aggregation
+├── calibration.py          # shrink model edge toward market by category/horizon
+└── trading/
+    ├── risk.py             # final deterministic trade/no-trade decision
+    ├── simulator.py        # conservative taker-fill simulator
+    └── metrics.py          # PnL/ROI/trade-rate summaries
+```
+
+Run the no-key smoke backtest:
+
+```bash
+python scripts/backtest_ensemble.py --limit 200
+```
+
+The default config is `config/ensemble.example.json`. It enables two mock
+Gemini lanes and leaves real Gemini/OpenRouter lanes disabled. To turn on real
+models, copy `.env.example` to `.env` locally or export the variables, then set
+the relevant model's `"enabled": true` in the config:
+
+```bash
+export GEMINI_API_KEY=...
+export OPENROUTER_API_KEY_CLAUDE_LANE=...
+python scripts/backtest_ensemble.py --config config/ensemble.example.json --limit 20
+```
+
+Each model returns the same contract: forecast values, auditable reasoning
+track, and diagnostics. The supervisor aggregates model probabilities and
+reasoning, but the final trade decision stays deterministic in `trading/risk.py`.
+
 ## What to know before reading the numbers
 
 **The 100-event subset is easier than the live evaluation.** Market prices are snapshotted at first-submission time, and 75% of the events are sports markets that often resolve cleanly. The paper reports market baseline Brier 0.187 over their full 1,367-event eval; we get 0.0654 here. The ECE matches the paper almost exactly (0.0707 vs 0.069), so the scorer is right — it's the data distribution that's softer.
@@ -99,7 +140,7 @@ python scripts/snapshot.py --window-days 7
 python scripts/resolve.py
 
 # Then any agent can be scored on our fresh local data:
-python scripts/run.py market --source local
+python scripts/run.py market --source eval_pack
 ```
 
 Schedule it however — `cron`, `launchd`, or just running it before/after

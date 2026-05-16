@@ -23,6 +23,7 @@ from typing import Iterable
 import pandas as pd
 
 DEFAULT_CSV = Path(__file__).resolve().parents[2] / "reference" / "subset_data_100.csv"
+EVAL_PACK_PATH = Path(__file__).resolve().parents[2] / "data" / "eval_pack.jsonl"
 
 
 @dataclass
@@ -77,6 +78,46 @@ def load_subset_100(csv_path: Path = DEFAULT_CSV) -> list[Sample]:
 
 def filter_by_category(samples: Iterable[Sample], category: str) -> list[Sample]:
     return [s for s in samples if s.event["category"] == category]
+
+
+def load_eval_pack(jsonl_path: Path = EVAL_PACK_PATH, *, snapshot: str = "latest") -> list[Sample]:
+    """Load the consolidated local eval pack created by scripts/consolidate.py.
+
+    This is the reproducible loader for this checkout: raw snapshot
+    directories are intentionally not required. `snapshot` may be "latest" or
+    "first" to evaluate against the latest/earliest captured price per market.
+    """
+    import json
+
+    if snapshot not in {"latest", "first"}:
+        raise ValueError("snapshot must be 'latest' or 'first'")
+    if not jsonl_path.exists():
+        return []
+
+    samples: list[Sample] = []
+    for line in jsonl_path.read_text().splitlines():
+        if not line.strip():
+            continue
+        row = json.loads(line)
+        snaps = row.get("snapshots") or []
+        if not snaps:
+            continue
+        snap = snaps[-1] if snapshot == "latest" else snaps[0]
+        market_info = {
+            "ticker": row["event"].get("market_ticker"),
+            "event_ticker": row["event"].get("event_ticker"),
+            "yes_ask": None if snap.get("yes_ask") is None else float(snap["yes_ask"]) * 100,
+            "no_ask": None if snap.get("no_ask") is None else float(snap["no_ask"]) * 100,
+            "last_price": None if snap.get("last_price") is None else float(snap["last_price"]) * 100,
+            "snapshot_time": snap.get("t"),
+            "snapshots": snaps,
+        }
+        samples.append(Sample(
+            event=dict(row["event"]),
+            market_info=market_info,
+            outcome=int(row["outcome"]),
+        ))
+    return samples
 
 
 # ---------------------------------------------------------------------------
