@@ -2,3 +2,8 @@ Kalshitopvolmarkets/ohlcv/**/*.csv.gz filter=lfs diff=lfs merge=lfs -text
 Kalshitopvolmarkets/markets/*.jsonl filter=lfs diff=lfs merge=lfs -text
 Kalshitopvolmarkets/rankings/*.csv filter=lfs diff=lfs merge=lfs -text
 Kalshitopvolmarkets/weekly_top_markets.csv filter=lfs diff=lfs merge=lfs -text
+NonBinaryMarkets/ohlcv/**/*.csv.gz filter=lfs diff=lfs merge=lfs -text
+NonBinaryMarkets/markets/*.jsonl filter=lfs diff=lfs merge=lfs -text
+NonBinaryMarkets/rankings/*.csv filter=lfs diff=lfs merge=lfs -text
+NonBinaryMarkets/indexes/*.jsonl filter=lfs diff=lfs merge=lfs -text
+NonBinaryMarkets/weekly_top_groups.csv filter=lfs diff=lfs merge=lfs -text

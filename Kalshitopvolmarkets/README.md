@@ -54,3 +54,15 @@ python3 collect_kalshi_top_volume.py \
   --period-interval 1 \
   --candles-from-rankings
 ```
+
+## Sparse LLM Test Points
+
+To keep LLM calls sparse, sample `x` random market-time points per week:
+
+```bash
+python3 sample_llm_test_points.py --calls-per-week 1 --seed 42
+```
+
+With this dataset's 19 weekly windows, `--calls-per-week 1` creates 19 planned
+LLM calls. Increase `--calls-per-week` to sweep larger budgets. The sampler
+writes JSONL model packets and a CSV summary under `samples/`.

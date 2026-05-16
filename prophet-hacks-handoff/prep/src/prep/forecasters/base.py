@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 from prep.schemas import (
@@ -49,6 +50,7 @@ def build_user_prompt(packet: MarketPacket) -> str:
             "summary": "short thesis covering the whole distribution",
             "base_rate": "base-rate reasoning",
             "market_analysis": "how Kalshi price (if available) influenced your estimate",
+            "context_market_analysis": "how related/sibling markets influenced your estimate, if provided",
             "key_evidence": [{"claim": "...", "source": "...", "impact": "+0.03 to <outcome>"}],
             "counterarguments": [{"claim": "...", "impact": "-0.02 to <outcome>"}],
             "assumptions": ["..."],
@@ -147,6 +149,7 @@ def forecast_from_response(
             summary=str(reasoning.get("summary", "")),
             base_rate=str(reasoning.get("base_rate", "")),
             market_analysis=str(reasoning.get("market_analysis", "")),
+            context_market_analysis=str(reasoning.get("context_market_analysis", "")),
             key_evidence=list(reasoning.get("key_evidence") or []),
             counterarguments=list(reasoning.get("counterarguments") or []),
             assumptions=list(reasoning.get("assumptions") or []),
@@ -175,6 +178,8 @@ class ForecasterConfig:
     temperature: float = 0.1
     max_tokens: int = 1400
     reasoning_effort: str | None = None
+    system_prompt: str | None = None
+    system_prompt_path: str | None = None
     mock_edge_bps: float = 0.0
 
     @classmethod
@@ -189,16 +194,40 @@ class ForecasterConfig:
             temperature=float(data.get("temperature", 0.1)),
             max_tokens=int(data.get("max_tokens", 1400)),
             reasoning_effort=data.get("reasoning_effort"),
+            system_prompt=data.get("system_prompt"),
+            system_prompt_path=data.get("system_prompt_path"),
             mock_edge_bps=float(data.get("mock_edge_bps", 0.0)),
         )
 
 
+def _prep_root() -> Path:
+    return Path(__file__).resolve().parents[3]
+
+
+def _read_prompt_file(path_value: str) -> str:
+    path = Path(path_value)
+    candidates = [path] if path.is_absolute() else [Path.cwd() / path, _prep_root() / path]
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate.read_text(encoding="utf-8").strip()
+    raise FileNotFoundError(f"system_prompt_path not found: {path_value}")
+
+
+def system_prompt_for_config(config: ForecasterConfig) -> str:
+    if config.system_prompt_path:
+        return _read_prompt_file(config.system_prompt_path)
+    if config.system_prompt:
+        return config.system_prompt
+    return SYSTEM_PROMPT
+
+
 def stable_prompt_hash(packet: MarketPacket, config: ForecasterConfig) -> str:
+    system_prompt = system_prompt_for_config(config)
     payload = {
         "packet": packet.to_dict(),
         "model": config.model,
         "provider": config.provider,
-        "prompt": SYSTEM_PROMPT,
+        "prompt": system_prompt,
     }
     return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
 

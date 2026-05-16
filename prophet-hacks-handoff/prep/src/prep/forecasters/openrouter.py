@@ -7,12 +7,12 @@ import os
 import requests
 
 from .base import (
-    SYSTEM_PROMPT,
     ForecasterConfig,
     build_user_prompt,
     extract_json_object,
     forecast_from_response,
     stable_prompt_hash,
+    system_prompt_for_config,
 )
 from prep.schemas import MarketPacket
 
@@ -29,10 +29,11 @@ def _api_key(config: ForecasterConfig) -> str:
 
 
 def forecast(config: ForecasterConfig, packet: MarketPacket):
+    system_prompt = system_prompt_for_config(config)
     payload = {
         "model": config.model,
         "messages": [
-            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "system", "content": system_prompt},
             {"role": "user", "content": build_user_prompt(packet)},
         ],
         "temperature": config.temperature,

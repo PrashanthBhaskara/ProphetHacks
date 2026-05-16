@@ -7,12 +7,12 @@ import os
 import requests
 
 from .base import (
-    SYSTEM_PROMPT,
     ForecasterConfig,
     build_user_prompt,
     extract_json_object,
     forecast_from_response,
     stable_prompt_hash,
+    system_prompt_for_config,
 )
 from prep.schemas import MarketPacket
 
@@ -30,8 +30,9 @@ def _api_key(config: ForecasterConfig) -> str:
 
 def forecast(config: ForecasterConfig, packet: MarketPacket):
     url = GEMINI_ENDPOINT.format(model=config.model)
+    system_prompt = system_prompt_for_config(config)
     payload = {
-        "systemInstruction": {"parts": [{"text": SYSTEM_PROMPT}]},
+        "systemInstruction": {"parts": [{"text": system_prompt}]},
         "contents": [{"role": "user", "parts": [{"text": build_user_prompt(packet)}]}],
         "generationConfig": {
             "temperature": config.temperature,

@@ -155,6 +155,7 @@ class ReasoningTrack:
     summary: str
     base_rate: str = ""
     market_analysis: str = ""
+    context_market_analysis: str = ""
     key_evidence: list[dict[str, Any]] = field(default_factory=list)
     counterarguments: list[dict[str, Any]] = field(default_factory=list)
     assumptions: list[str] = field(default_factory=list)

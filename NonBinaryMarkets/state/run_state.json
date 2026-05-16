@@ -1,0 +1,251 @@
+{
+  "weeks": [
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 56
+      },
+      "component_markets": 56,
+      "groups": 25,
+      "live_supplement_markets": 0,
+      "week_end": "2026-01-08",
+      "week_start": "2026-01-01"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 92
+      },
+      "component_markets": 92,
+      "groups": 25,
+      "live_supplement_markets": 0,
+      "week_end": "2026-01-15",
+      "week_start": "2026-01-08"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 80
+      },
+      "component_markets": 80,
+      "groups": 25,
+      "live_supplement_markets": 0,
+      "week_end": "2026-01-22",
+      "week_start": "2026-01-15"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 68
+      },
+      "component_markets": 68,
+      "groups": 25,
+      "live_supplement_markets": 0,
+      "week_end": "2026-01-29",
+      "week_start": "2026-01-22"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 62
+      },
+      "component_markets": 62,
+      "groups": 25,
+      "live_supplement_markets": 0,
+      "week_end": "2026-02-05",
+      "week_start": "2026-01-29"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 104
+      },
+      "component_markets": 104,
+      "groups": 25,
+      "live_supplement_markets": 0,
+      "week_end": "2026-02-12",
+      "week_start": "2026-02-05"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 81
+      },
+      "component_markets": 81,
+      "groups": 25,
+      "live_supplement_markets": 0,
+      "week_end": "2026-02-19",
+      "week_start": "2026-02-12"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 74
+      },
+      "component_markets": 74,
+      "groups": 25,
+      "live_supplement_markets": 0,
+      "week_end": "2026-02-26",
+      "week_start": "2026-02-19"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 58
+      },
+      "component_markets": 58,
+      "groups": 25,
+      "live_supplement_markets": 0,
+      "week_end": "2026-03-05",
+      "week_start": "2026-02-26"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 64
+      },
+      "component_markets": 64,
+      "groups": 25,
+      "live_supplement_markets": 0,
+      "week_end": "2026-03-12",
+      "week_start": "2026-03-05"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 101
+      },
+      "component_markets": 101,
+      "groups": 25,
+      "live_supplement_markets": 0,
+      "week_end": "2026-03-19",
+      "week_start": "2026-03-12"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 62
+      },
+      "component_markets": 62,
+      "groups": 25,
+      "live_supplement_markets": 0,
+      "week_end": "2026-03-26",
+      "week_start": "2026-03-19"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 62
+      },
+      "component_markets": 62,
+      "groups": 25,
+      "live_supplement_markets": 0,
+      "week_end": "2026-04-02",
+      "week_start": "2026-03-26"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 59
+      },
+      "component_markets": 59,
+      "groups": 25,
+      "live_supplement_markets": 0,
+      "week_end": "2026-04-09",
+      "week_start": "2026-04-02"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 61
+      },
+      "component_markets": 61,
+      "groups": 25,
+      "live_supplement_markets": 0,
+      "week_end": "2026-04-16",
+      "week_start": "2026-04-09"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 56
+      },
+      "component_markets": 56,
+      "groups": 25,
+      "live_supplement_markets": 0,
+      "week_end": "2026-04-23",
+      "week_start": "2026-04-16"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 52
+      },
+      "component_markets": 52,
+      "groups": 25,
+      "live_supplement_markets": 0,
+      "week_end": "2026-04-30",
+      "week_start": "2026-04-23"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 57
+      },
+      "component_markets": 57,
+      "groups": 25,
+      "live_supplement_markets": 0,
+      "week_end": "2026-05-07",
+      "week_start": "2026-04-30"
+    },
+    {
+      "candles": {
+        "downloaded": 0,
+        "errors": 0,
+        "rows": 0,
+        "skipped": 67
+      },
+      "component_markets": 67,
+      "groups": 25,
+      "live_supplement_markets": 0,
+      "week_end": "2026-05-10",
+      "week_start": "2026-05-07"
+    }
+  ]
+}
