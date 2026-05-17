@@ -3,3 +3,6 @@ anthropic>=0.40
 requests>=2.31
 ai-prophet
 python-dotenv
+fastapi>=0.110
+uvicorn>=0.27
+pydantic>=2.5
