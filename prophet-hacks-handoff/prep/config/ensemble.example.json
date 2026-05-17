@@ -25,6 +25,7 @@
       "weight": 0.8,
       "temperature": 0.1,
       "max_tokens": 1400,
+      "enable_google_search": true,
       "system_prompt_path": "src/prep/forecasters/prompts/gemini_context_forecasting_system.txt"
     },
     {
@@ -36,6 +37,7 @@
       "weight": 1.15,
       "temperature": 0.1,
       "max_tokens": 1800,
+      "enable_google_search": true,
       "system_prompt_path": "src/prep/forecasters/prompts/gemini_context_forecasting_system.txt"
     },
     {

@@ -40,7 +40,7 @@ class ModelConfig:
     temperature: float = 0.1
     max_tokens: int = 900
     enabled: bool = True
-    native_search_grounding_enabled: bool = False
+    native_search_grounding_enabled: bool = True
     native_search_grounding_live_only: bool = True
     search_grounding_engine: str = "native"
     search_grounding_max_results: int = 5
@@ -59,7 +59,7 @@ class ModelConfig:
             temperature=float(data.get("temperature", 0.1)),
             max_tokens=int(data.get("max_tokens", 900)),
             enabled=bool(data.get("enabled", True)),
-            native_search_grounding_enabled=bool(search.get("enabled", False)),
+            native_search_grounding_enabled=bool(search.get("enabled", True)),
             native_search_grounding_live_only=bool(search.get("live_only", True)),
             search_grounding_engine=str(search.get("engine", "native")),
             search_grounding_max_results=int(search.get("max_results", 5)),

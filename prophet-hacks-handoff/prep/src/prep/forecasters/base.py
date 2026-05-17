@@ -242,7 +242,7 @@ class ForecasterConfig:
     reasoning_effort: str | None = None
     system_prompt: str | None = None
     system_prompt_path: str | None = None
-    enable_google_search: bool = False
+    enable_google_search: bool = True
     mock_edge_bps: float = 0.0
     # Claude agent fields
     backtest_mode: bool = False
@@ -268,7 +268,7 @@ class ForecasterConfig:
             reasoning_effort=data.get("reasoning_effort"),
             system_prompt=data.get("system_prompt"),
             system_prompt_path=data.get("system_prompt_path"),
-            enable_google_search=bool(data.get("enable_google_search", False)),
+            enable_google_search=bool(data.get("enable_google_search", True)),
             mock_edge_bps=float(data.get("mock_edge_bps", 0.0)),
             backtest_mode=bool(data.get("backtest_mode", False)),
             evidence_cutoff=data.get("evidence_cutoff"),

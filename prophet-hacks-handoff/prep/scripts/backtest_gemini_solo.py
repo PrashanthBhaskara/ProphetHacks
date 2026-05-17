@@ -435,7 +435,7 @@ def _event_traits(event: ArenaBacktestEvent, args: argparse.Namespace) -> dict[s
         "horizon_bucket": _horizon_bucket(event),
         "outcome_count": len(event.outcomes),
         "sample_mode": "binary_nonbinary" if args.stratified else args.sample_mode,
-        "google_search_enabled": bool(args.enable_google_search),
+        "google_search_enabled": not bool(args.disable_google_search),
         "market_blend_weight": float(getattr(args, "market_blend_weight", 0.0)),
     }
 
@@ -743,7 +743,17 @@ def main() -> int:
     )
     parser.add_argument("--out", type=Path, default=None)
     parser.add_argument("--overwrite", action="store_true")
-    parser.add_argument("--enable-google-search", action="store_true", help="enable Gemini Google Search grounding; prompt enforces source dates before as_of")
+    parser.add_argument(
+        "--enable-google-search",
+        action="store_true",
+        default=True,
+        help="enable Gemini Google Search grounding; on by default",
+    )
+    parser.add_argument(
+        "--disable-google-search",
+        action="store_true",
+        help="disable Gemini Google Search grounding",
+    )
     parser.add_argument(
         "--group-report-by",
         choices=("none", "horizon_bucket", "category", "outcome_count", "source_week", "is_binary"),
@@ -792,8 +802,7 @@ def main() -> int:
     configs = []
     for name in args.models:
         config = ForecasterConfig.from_dict(MODEL_PRESETS[name])
-        if args.enable_google_search:
-            config = replace(config, enable_google_search=True)
+        config = replace(config, enable_google_search=not bool(args.disable_google_search))
         if args.max_tokens:
             config = replace(config, max_tokens=args.max_tokens)
         configs.append((name, config))
