@@ -8,6 +8,13 @@ old logit-pool of a single p_yes.
 Market anchor only applies when the packet has a Kalshi quote (binary YES/NO).
 For multi-outcome events without market data, we anchor toward a uniform prior
 with a small weight (so a single noisy model can't dominate).
+
+CHANGE vs. original: when a fitted `RecommendedPredictor` is passed in via
+`data_baseline=`, the binary YES/NO anchor uses its calibrated p_yes
+(Platt + event-size + logit-shrink α=0.5) instead of raw market_mid.
+The same calibrated anchor is reused as the shrink target so we're not
+anchoring to two different prices. Falls back to old behavior when
+`data_baseline=None`.
 """
 
 from __future__ import annotations
@@ -15,6 +22,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from .baselines.fair_price import RecommendedPredictor  # NEW
 from .calibration import CalibrationConfig, calibrate_to_market, inv_logit, logit
 from .schemas import (
     MarketPacket,
@@ -40,16 +48,43 @@ class EnsembleMember:
         return max(0.01, self.configured_weight * quality * clarity * defer * (0.5 + f.confidence / 2.0))
 
 
-def _anchor_distribution(packet: MarketPacket) -> dict[str, float]:
+def _resolve_binary_anchor(
+    packet: MarketPacket,
+    data_baseline: RecommendedPredictor | None,
+) -> float:
+    """Anchor p_yes for binary Kalshi events.
+
+    If a fitted data baseline is provided, run market_mid through it
+    (event_size_platt + α=0.5 logit-shrink). Otherwise return market_mid raw.
+    """
+    if data_baseline is None:
+        return packet.kalshi.market_mid
+    # Preflight: RecommendedPredictor's _q_of reads only yes_ask/no_ask.
+    # If either is missing, fall back to packet.kalshi.market_mid, which
+    # has a last_price fallback. Avoids Platt-correcting from 0.5 on
+    # illiquid markets.
+    if packet.kalshi.yes_ask is None or packet.kalshi.no_ask is None:
+        return packet.kalshi.market_mid
+    event_dict = {
+        "event_ticker": packet.event_ticker,
+        "market_ticker": packet.market_ticker,
+    }
+    return data_baseline.predict(event_dict, packet.kalshi.to_dict())
+
+
+def _anchor_distribution(
+    packet: MarketPacket,
+    data_baseline: RecommendedPredictor | None = None,  # CHANGED: new optional arg
+) -> dict[str, float]:
     """Prior distribution used as the market-anchor in the logit pool.
 
-    Binary Kalshi events: YES = market_mid, NO = 1 - market_mid.
+    Binary Kalshi events: YES = anchor_p_yes, NO = 1 - anchor_p_yes.
     Multi-outcome: uniform over the listed outcomes.
     """
     outs = packet.outcomes or ["YES", "NO"]
     if tuple(outs) == ("YES", "NO") and packet.kalshi is not None:
-        mid = packet.kalshi.market_mid
-        return {"YES": mid, "NO": 1.0 - mid}
+        p = _resolve_binary_anchor(packet, data_baseline)  # CHANGED: was packet.kalshi.market_mid
+        return {"YES": p, "NO": 1.0 - p}
     n = max(1, len(outs))
     return {o: 1.0 / n for o in outs}
 
@@ -58,12 +93,7 @@ def _pool_distributions(
     distributions: list[tuple[dict[str, float], float]],
     outcomes: list[str],
 ) -> dict[str, float]:
-    """Weighted logit-pool, per outcome.
-
-    `distributions` is a list of (probs, weight). For each outcome label we
-    average weighted logits, then inv-logit, then renormalize across outcomes.
-    Missing outcomes in a lane's distribution fall back to uniform (1/N).
-    """
+    """Weighted logit-pool, per outcome. (Unchanged from original.)"""
     if not outcomes:
         return {}
     n = len(outcomes)
@@ -91,9 +121,20 @@ def aggregate_forecasts(
     calibration: CalibrationConfig | None = None,
     *,
     market_anchor_weight: float = 1.5,
+    data_baseline: RecommendedPredictor | None = None,  # NEW
 ) -> SupervisorForecast:
     outcomes = packet.outcomes or ["YES", "NO"]
-    anchor = _anchor_distribution(packet)
+    is_binary_kalshi = (
+        tuple(outcomes) == ("YES", "NO") and packet.kalshi is not None
+    )
+
+    # NEW: compute the anchor p_yes once so the pool and the shrinkage
+    # both target the same number (no double-anchoring to two different prices).
+    anchor_p_yes = _resolve_binary_anchor(packet, data_baseline) if is_binary_kalshi else None
+    if is_binary_kalshi:
+        anchor = {"YES": anchor_p_yes, "NO": 1.0 - anchor_p_yes}
+    else:
+        anchor = _anchor_distribution(packet)  # uniform path; baseline doesn't apply
 
     if not members:
         raw_dist = dict(anchor)
@@ -119,14 +160,15 @@ def aggregate_forecasts(
         raw_dist = _pool_distributions(contributions, outcomes)
 
     calibration = calibration or CalibrationConfig()
-    # Calibration shrinks each outcome toward the market anchor by the same
-    # per-event weight. Multi-outcome non-Kalshi events get the uniform anchor.
-    if tuple(outcomes) == ("YES", "NO") and packet.kalshi is not None:
-        # Reuse existing binary calibrate_to_market on YES side, mirror to NO
-        cal_yes, shrink_weight = calibrate_to_market(raw_dist.get("YES", 0.5), packet, calibration)
+    if is_binary_kalshi:
+        shrink_weight = calibration.shrink_weight(packet)
+        # CHANGED: shrink toward the same anchor_p_yes used in the pool above,
+        # rather than calling calibrate_to_market which re-reads market_mid.
+        cal_yes = clamp_prob(
+            anchor_p_yes + shrink_weight * (raw_dist.get("YES", 0.5) - anchor_p_yes)
+        )
         calibrated_dist = normalize_distribution({"YES": cal_yes, "NO": 1.0 - cal_yes})
     else:
-        # Multi-outcome shrinkage: pull each prob toward uniform by shrink_weight
         shrink_weight = calibration.shrink_weight(packet)
         anchor_share = 1.0 / max(1, len(outcomes))
         calibrated_dist = normalize_distribution({
@@ -134,7 +176,6 @@ def aggregate_forecasts(
             for o in outcomes
         })
 
-    # Disagreement: max range of p across lanes, for the most-likely outcome
     if members:
         top_outcome = max(raw_dist, key=raw_dist.get)
         ps = [m.forecast.probabilities.get(top_outcome, 1.0 / len(outcomes)) for m in members]
