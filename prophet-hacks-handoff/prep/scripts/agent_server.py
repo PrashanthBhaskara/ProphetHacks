@@ -138,14 +138,24 @@ def predict_endpoint(event: ArenaEvent) -> PredictionResponse:
                 logger.warning("lane %s failed: %s", model_cfg.name, exc)
 
     if not forecasts:
-        raise HTTPException(status_code=502, detail=f"All lanes failed: {'; '.join(errors)}")
-
-    supervisor = aggregate_forecasts(
-        packet,
-        forecasts,
-        calibration=_calibration,
-        market_anchor_weight=_market_anchor_weight,
-    )
+        # All lanes failed (provider outage, bad key, etc). Don't 502 the eval —
+        # degrade to the anchor distribution that the empty-members path in
+        # aggregate_forecasts already produces (market_mid for binary Kalshi,
+        # uniform otherwise). Strictly better than returning no answer.
+        logger.warning("all lanes failed for %s: %s", packet.market_ticker, "; ".join(errors))
+        supervisor = aggregate_forecasts(
+            packet,
+            [],
+            calibration=_calibration,
+            market_anchor_weight=_market_anchor_weight,
+        )
+    else:
+        supervisor = aggregate_forecasts(
+            packet,
+            forecasts,
+            calibration=_calibration,
+            market_anchor_weight=_market_anchor_weight,
+        )
 
     # Map calibrated distribution onto the event's outcomes exactly (preserve order).
     dist = supervisor.calibrated_probabilities

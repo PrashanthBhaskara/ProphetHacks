@@ -63,17 +63,31 @@ def _pool_distributions(
     `distributions` is a list of (probs, weight). For each outcome label we
     average weighted logits, then inv-logit, then renormalize across outcomes.
     Missing outcomes in a lane's distribution fall back to uniform (1/N).
+
+    For binary YES/NO events specifically, a case-insensitive secondary
+    lookup is used if the exact-case match misses, so a lane that returned
+    {"Yes": 0.7} against canonical ["YES", "NO"] still contributes its
+    signal rather than being silently substituted with uniform. Multi-
+    outcome events are untouched (avoids collision risk on labels that
+    differ only by case).
     """
     if not outcomes:
         return {}
     n = len(outcomes)
     uniform = 1.0 / n
+    is_binary = tuple(outcomes) == ("YES", "NO")
     raw: dict[str, float] = {}
     for outcome in outcomes:
         weighted_sum = 0.0
         total_w = 0.0
         for probs, w in distributions:
             p = probs.get(outcome)
+            if p is None and is_binary:
+                folded = outcome.casefold()
+                for k, v in probs.items():
+                    if isinstance(k, str) and k.casefold() == folded:
+                        p = v
+                        break
             if p is None or p <= 0 or p >= 1:
                 p = clamp_prob(p if p is not None else uniform)
             weighted_sum += w * logit(p)
