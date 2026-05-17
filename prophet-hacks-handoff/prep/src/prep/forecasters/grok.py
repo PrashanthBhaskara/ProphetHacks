@@ -9,19 +9,20 @@ post-Grok-training-cutoff): Brier 0.203 vs market 0.212 (Δ -0.85pp,
 P(better)=98%) when combined with a noise-removal filter (high-volume,
 extreme-priced, or ATP tennis markets fall through to market price).
 
-The trust-extreme system prompt is the actual lift. The filter is an
-ensemble-layer concern (which markets get LLM calls vs fall through to
-market mid) and belongs upstream of this file — see README for the full
-pipeline integration.
+Three pieces produce that win, all in this file:
+1. Trust-extreme system prompt (TRUST_EXTREME_SYSTEM)
+2. Bidirectional prompting on binary markets (ask P(YES) + P(NO), average)
+3. Noise-removal filter that short-circuits the API call on markets where
+   Grok historically underperforms market price (high-volume, extreme-priced,
+   or ATP-tennis series) — returns a market-mirror forecast with
+   should_defer_to_market=True so the ensemble downweights it.
 
 Pinned settings that produced the validated numbers:
 - model: x-ai/grok-4.20
 - temperature: 0.7
-- bidir: ask P(YES) and separately P(NO), then average. On by default for
-  binary YES/NO markets, off for multi-outcome.
-
-Set bidir=false in the ForecasterConfig (via a `bidir` key in the from_dict
-JSON) to disable bidirectional prompting and save the second API call.
+- GROK_BIDIR=1   (env, on by default for binary)
+- GROK_FILTER=1  (env, on by default — disable to A/B against unfiltered)
+- GROK_VOLUME_SKIP=4000, GROK_EXTREME_SKIP=0.15 (env, filter thresholds)
 """
 
 from __future__ import annotations
@@ -110,6 +111,97 @@ def _bidir_enabled(config: ForecasterConfig, packet: MarketPacket) -> bool:
     return True
 
 
+# Noise-removal filter thresholds. Defaults match what we validated against
+# the 2026 KTV holdout. Skipping Grok on these markets and falling through
+# to market price is the OTHER half of the validated -0.85pp Brier win.
+DEFAULT_VOLUME_SKIP = 4000.0
+DEFAULT_EXTREME_SKIP = 0.15
+SKIP_SERIES_PREFIXES = ("KXATPMATCH", "KXATPCHALLENGERMATCH")
+
+
+def _should_skip_grok(packet: MarketPacket) -> tuple[bool, str | None]:
+    """Decide whether to skip the Grok call and let the market speak.
+
+    Three skip rules, validated independently and stackable:
+    - High-volume markets (Grok's prior < market's micro-structure signal)
+    - Extreme-priced markets (Grok hedges 0.99→0.15 on confident markets)
+    - ATP tennis (Grok consistently underforecasts favorites in this series)
+
+    Returns (skip, reason). When skip=True, the caller short-circuits with
+    a market-mirror forecast that signals should_defer_to_market=True.
+    """
+    vol_thr = float(os.environ.get("GROK_VOLUME_SKIP", DEFAULT_VOLUME_SKIP))
+    extreme_thr = float(os.environ.get("GROK_EXTREME_SKIP", DEFAULT_EXTREME_SKIP))
+
+    ticker = (packet.market_ticker or "").upper()
+    if any(ticker.startswith(p) for p in SKIP_SERIES_PREFIXES):
+        return True, "atp_tennis_series"
+
+    kalshi = getattr(packet, "kalshi", None)
+    if kalshi is None:
+        return False, None
+
+    vol = getattr(kalshi, "volume", None)
+    if vol is not None and float(vol) > vol_thr:
+        return True, f"high_volume_{int(vol)}>{int(vol_thr)}"
+
+    try:
+        mid = float(kalshi.market_mid)
+    except (TypeError, ValueError, AttributeError):
+        return False, None
+    if mid <= extreme_thr or mid >= (1.0 - extreme_thr):
+        return True, f"extreme_mid_{mid:.3f}"
+
+    return False, None
+
+
+def _market_mirror_response(packet: MarketPacket, reason: str) -> dict:
+    """Build a parsed-response dict that mirrors market mid, deferring to it.
+    Used when the filter skips the Grok call entirely."""
+    outs = tuple(packet.outcomes) if packet.outcomes else ("YES", "NO")
+    kalshi = getattr(packet, "kalshi", None)
+    mid = 0.5
+    if kalshi is not None:
+        try:
+            mid = float(kalshi.market_mid)
+        except (TypeError, ValueError, AttributeError):
+            mid = 0.5
+
+    if outs == ("YES", "NO"):
+        probs = {"YES": mid, "NO": 1.0 - mid}
+    else:
+        n = max(1, len(outs))
+        probs = {o: 1.0 / n for o in outs}
+
+    return {
+        "forecast": {
+            "probabilities": probs,
+            "confidence": 0.30,
+            "uncertainty": 0.70,
+        },
+        "reasoning_track": {
+            "summary": f"Grok skipped by noise-removal filter ({reason}); mirroring market.",
+            "base_rate": "",
+            "market_analysis": "Filter rule triggered: deferring to market price.",
+            "context_market_analysis": "",
+            "key_evidence": [],
+            "source_audit": [],
+            "counterarguments": [],
+            "assumptions": [f"Filter rule: {reason}"],
+            "information_gaps": [],
+            "what_would_change_my_mind": [],
+        },
+        "diagnostics": {
+            "evidence_quality": "low",
+            "rules_clarity": "medium",
+            "liquidity_quality": "high",
+            "market_disagreement_reason": "",
+            "should_defer_to_market": True,
+        },
+        "filter_skip": {"reason": reason},
+    }
+
+
 def _single_call(
     config: ForecasterConfig,
     packet: MarketPacket,
@@ -195,6 +287,22 @@ def _average_bidir(yes_parsed: dict, no_parsed: dict, packet: MarketPacket) -> d
 
 
 def forecast(config: ForecasterConfig, packet: MarketPacket):
+    # Noise-removal filter: skip the API call entirely on markets where Grok
+    # systematically underperforms market price. Returns a deferring forecast
+    # the ensemble will weight down. Disable with GROK_FILTER=0.
+    if os.environ.get("GROK_FILTER", "1") not in ("0", "false", "False", ""):
+        skip, reason = _should_skip_grok(packet)
+        if skip:
+            parsed = _market_mirror_response(packet, reason)
+            parsed["prompt_hash"] = stable_prompt_hash(packet, config)
+            return forecast_from_response(
+                provider="grok",
+                model_id=config.model,
+                packet=packet,
+                response=parsed,
+                raw_response={"filter_skip": {"reason": reason}},
+            )
+
     system_prompt = _resolve_system_prompt(config)
 
     yes_parsed, yes_raw = _single_call(config, packet, system_prompt)
