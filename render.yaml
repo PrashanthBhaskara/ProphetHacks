@@ -1,16 +1,25 @@
-# Render Blueprint: Prophet Hacks forecast API.
+# Render Blueprint: Prophet Hacks forecast agent.
 # Docs: https://render.com/docs/blueprint-spec
 #
-# Tradeoffs on the Free plan we chose:
-#   - plan: free -> $0. BUT free instances spin down after 15 min of inactivity,
-#     so the first request after a quiet stretch incurs a 30-60s cold start.
-#     Mitigation: configure an external uptime monitor (UptimeRobot free tier,
-#     cron-job.org, or a GitHub Action) to hit /healthz every 10 minutes during
-#     the 2-week eval. See DEPLOY.md.
-#   - --workers 1 -> Free instances have 512MB RAM; one uvicorn worker is enough
-#     for the cached Kalshi GETs we're serving and avoids OOMing on cold start.
-#   - healthCheckPath: /healthz -> Render uses this for zero-downtime restarts.
-#   - autoDeploy: true -> push to this branch and Render rebuilds.
+# Deploys prophet-hacks-handoff/prep/scripts/agent_server.py — the real
+# ensemble forecaster (Gemini + Claude + Grok + GPT judge) that matches
+# the Prophet Arena wire contract: POST /predict returns
+#   {"probabilities": [{"market": <str>, "probability": <float>}, ...]}
+#
+# Tradeoffs on the Free plan:
+#   - plan: free -> $0. Spins down after 15 min idle; render-keepalive.yml
+#     pings /health every 10 min to keep it warm.
+#   - --workers 1 -> 512MB RAM is tight; one uvicorn worker leaves room
+#     for parallel forecaster threads (ThreadPoolExecutor in agent_server).
+#   - healthCheckPath: /health -> agent_server defines /health.
+#   - autoDeploy: true -> render-deploy.yml GitHub Action pings the
+#     Deploy Hook on every push to main.
+#
+# IMPORTANT: API keys must be added in the Render dashboard (Settings ->
+# Environment) and are NOT in this file. Required:
+#   - OPENROUTER_API_KEY  (for Claude lane, Grok lane, GPT judge)
+#   - GEMINI_API_KEY      (for Gemini lane)
+# Optional fallbacks: OPENROUTER_API_KEY2, GOOGLE_API_KEY.
 
 services:
   - type: web
@@ -19,14 +28,15 @@ services:
     region: oregon
     plan: free
     branch: main
+    rootDir: prophet-hacks-handoff/prep
     autoDeploy: true
-    healthCheckPath: /healthz
-    buildCommand: pip install --upgrade pip && pip install -r server/requirements.txt
-    startCommand: uvicorn server.main:app --host 0.0.0.0 --port $PORT --workers 1 --log-level info
+    healthCheckPath: /health
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: uvicorn scripts.agent_server:app --host 0.0.0.0 --port $PORT --workers 1 --log-level info
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.9
-      - key: CACHE_TTL_SECONDS
-        value: "60"
-      - key: MAX_BATCH
-        value: "200"
+      - key: PROPHET_CONFIG
+        value: config/FINAL.json
+      - key: ENSEMBLE_TIMEOUT_SECONDS
+        value: "570"

@@ -2,10 +2,12 @@ name: Render auto-deploy
 
 # Pings Render's Deploy Hook on every push to main so the live
 # https://prophet-hacks-forecast.onrender.com service rebuilds from
-# the new HEAD. Long-form curl flags are used here because the secret
-# URL happens to contain substrings like `-sS`, `-o`, `-w`, `-X`,
-# which makes GitHub's secret-masking corrupt the actual command in
-# weird ways; long flags avoid the collision.
+# the new HEAD.
+#
+# Uses Python's urllib (not curl) because the deploy-hook secret
+# contains substrings that match curl short flags (-sS, -o, -w, -X),
+# which makes GitHub Actions secret-masking corrupt argv on the
+# command line. Python sidesteps that entirely.
 
 on:
   push:
@@ -26,24 +28,25 @@ jobs:
         env:
           HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK }}
         run: |
-          if [ "${HOOK_URL:-}" = "" ]; then
-            echo "RENDER_DEPLOY_HOOK secret is not configured" >&2
-            exit 1
-          fi
-          status=$(curl \
-            --silent \
-            --show-error \
-            --request POST \
-            --output /dev/null \
-            --write-out "%{http_code}" \
-            "$HOOK_URL")
-          echo "Render Deploy Hook responded: HTTP $status"
-          case "$status" in
-            200|201|202)
-              echo "Deploy queued."
-              ;;
-            *)
-              echo "Unexpected HTTP $status from Render" >&2
-              exit 1
-              ;;
-          esac
+          python3 - <<'PY'
+          import os, sys, urllib.request, urllib.error
+          url = os.environ.get("HOOK_URL", "")
+          if not url:
+              print("RENDER_DEPLOY_HOOK secret is not configured", file=sys.stderr)
+              sys.exit(1)
+          req = urllib.request.Request(url, method="POST")
+          try:
+              with urllib.request.urlopen(req, timeout=30) as resp:
+                  status = resp.status
+          except urllib.error.HTTPError as e:
+              status = e.code
+          except Exception as e:
+              print(f"Request to Render failed: {type(e).__name__}: {e}", file=sys.stderr)
+              sys.exit(1)
+          print(f"Render Deploy Hook responded: HTTP {status}")
+          if status in (200, 201, 202):
+              print("Deploy queued.")
+          else:
+              print(f"Unexpected HTTP {status} from Render", file=sys.stderr)
+              sys.exit(1)
+          PY
