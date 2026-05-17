@@ -28,6 +28,7 @@ Pinned settings that produced the validated numbers:
 from __future__ import annotations
 
 import os
+import time
 
 import requests
 
@@ -43,6 +44,11 @@ from prep.schemas import MarketPacket
 
 
 OPENROUTER_CHAT_COMPLETIONS = "https://openrouter.ai/api/v1/chat/completions"
+
+# Wall-clock budget for the whole Grok lane (covers bidir's two calls + parsing).
+# On timeout we fall back to a market-mirror forecast so the ensemble still has
+# a valid distribution to aggregate. Override with GROK_TIMEOUT_SECONDS.
+DEFAULT_TIMEOUT_BUDGET_SECONDS = 480.0
 
 
 # Trust-extreme calibration guidance. Composed with the team's structured user
@@ -206,8 +212,15 @@ def _single_call(
     config: ForecasterConfig,
     packet: MarketPacket,
     system_prompt: str,
+    *,
+    remaining_budget: float = 180.0,
 ) -> tuple[dict, dict]:
-    """One OpenRouter call. Returns (parsed_response, raw_api_response)."""
+    """One OpenRouter call. Returns (parsed_response, raw_api_response).
+
+    `remaining_budget` caps this HTTP request so the whole lane stays under the
+    wall-clock budget enforced by `forecast()`. Always at least 1 second so we
+    don't accidentally pass a 0/negative timeout to `requests`.
+    """
     payload = {
         "model": config.model,
         "messages": [
@@ -221,6 +234,7 @@ def _single_call(
     if config.reasoning_effort:
         payload["extra_body"] = {"reasoning": {"effort": config.reasoning_effort}}
 
+    per_call_timeout = max(1.0, min(180.0, remaining_budget))
     resp = requests.post(
         OPENROUTER_CHAT_COMPLETIONS,
         headers={
@@ -230,7 +244,7 @@ def _single_call(
             "X-Title": "ProphetHacks Ensemble (grok)",
         },
         json=payload,
-        timeout=180,
+        timeout=per_call_timeout,
     )
     resp.raise_for_status()
     raw = resp.json()
@@ -286,6 +300,19 @@ def _average_bidir(yes_parsed: dict, no_parsed: dict, packet: MarketPacket) -> d
     return yes_parsed
 
 
+def _timeout_fallback(config: ForecasterConfig, packet: MarketPacket, reason: str):
+    """Build a market-mirror forecast for the timeout/error path."""
+    parsed = _market_mirror_response(packet, reason)
+    parsed["prompt_hash"] = stable_prompt_hash(packet, config)
+    return forecast_from_response(
+        provider="grok",
+        model_id=config.model,
+        packet=packet,
+        response=parsed,
+        raw_response={"timeout_fallback": {"reason": reason}},
+    )
+
+
 def forecast(config: ForecasterConfig, packet: MarketPacket):
     # Noise-removal filter: skip the API call entirely on markets where Grok
     # systematically underperforms market price. Returns a deferring forecast
@@ -303,14 +330,35 @@ def forecast(config: ForecasterConfig, packet: MarketPacket):
                 raw_response={"filter_skip": {"reason": reason}},
             )
 
+    # 8-minute wall-clock budget across the whole lane. On timeout (or any
+    # transport-level failure during a call), fall back to market mirror so the
+    # ensemble still gets a valid distribution.
+    budget = float(os.environ.get("GROK_TIMEOUT_SECONDS", DEFAULT_TIMEOUT_BUDGET_SECONDS))
+    deadline = time.monotonic() + budget
+
     system_prompt = _resolve_system_prompt(config)
 
-    yes_parsed, yes_raw = _single_call(config, packet, system_prompt)
+    try:
+        yes_parsed, yes_raw = _single_call(
+            config, packet, system_prompt,
+            remaining_budget=deadline - time.monotonic(),
+        )
+    except (requests.Timeout, requests.RequestException) as exc:
+        return _timeout_fallback(config, packet, f"grok_timeout_yes:{type(exc).__name__}")
 
     raw_bundle: dict = {"yes_direction": yes_raw}
 
     if _bidir_enabled(config, packet):
-        no_parsed, no_raw = _single_call(config, packet, TRUST_EXTREME_SYSTEM_NO)
+        remaining = deadline - time.monotonic()
+        if remaining <= 1.0:
+            return _timeout_fallback(config, packet, "grok_timeout_before_no_direction")
+        try:
+            no_parsed, no_raw = _single_call(
+                config, packet, TRUST_EXTREME_SYSTEM_NO,
+                remaining_budget=remaining,
+            )
+        except (requests.Timeout, requests.RequestException) as exc:
+            return _timeout_fallback(config, packet, f"grok_timeout_no:{type(exc).__name__}")
         raw_bundle["no_direction"] = no_raw
         parsed = _average_bidir(yes_parsed, no_parsed, packet)
     else:
