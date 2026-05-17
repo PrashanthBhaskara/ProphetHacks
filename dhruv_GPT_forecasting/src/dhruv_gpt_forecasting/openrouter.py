@@ -1,7 +1,8 @@
-"""OpenRouter client with local validation and cost logging."""
+"""LLM clients with local JSON validation and cost logging."""
 
 from __future__ import annotations
 
+import json
 import os
 import time
 from typing import Any
@@ -11,8 +12,7 @@ import requests
 from .config import BudgetConfig, ModelConfig, resolve_api_key
 from .key_utils import key_fingerprint
 from .prompts import prompt_hash
-from .schemas import ApiCallLog, FeaturePacket, LaneForecast
-from .validation import extract_json_object, lane_from_payload
+from .schemas import ApiCallLog
 
 
 OPENROUTER_CHAT_COMPLETIONS = "https://openrouter.ai/api/v1/chat/completions"
@@ -23,25 +23,6 @@ GEMINI_MODELS_URL = "https://generativelanguage.googleapis.com/v1beta/models"
 
 class OpenRouterError(RuntimeError):
     pass
-
-
-def call_openrouter_lane(
-    *,
-    model: ModelConfig,
-    messages: list[dict[str, str]],
-    packet: FeaturePacket,
-    budget: BudgetConfig,
-    cache_key: str | None = None,
-    timeout_seconds: float | None = None,
-) -> tuple[LaneForecast, ApiCallLog]:
-    payload, call_log = call_openrouter_json(
-        model=model,
-        messages=messages,
-        budget=budget,
-        cache_key=cache_key,
-        timeout_seconds=timeout_seconds,
-    )
-    return lane_from_payload(payload, packet), call_log
 
 
 def call_openrouter_json(
@@ -90,7 +71,7 @@ def call_openrouter_json(
             "Authorization": f"Bearer {key}",
             "Content-Type": "application/json",
             "HTTP-Referer": "https://localhost/prophet-hacks",
-            "X-Title": "Dhruv GPT Forecasting Lane",
+            "X-Title": "Dhruv GPT Arena Forecasting Agent",
         },
         json=payload,
         timeout=timeout_seconds,
@@ -159,10 +140,25 @@ def call_gemini_json(
     text = _gemini_text(candidate)
     if not text.strip():
         raise OpenRouterError("Gemini returned empty message content")
-    parsed = extract_json_object(text)
+    json_repaired = False
+    repair_usage: dict[str, Any] = {}
+    repair_response_id = None
+    try:
+        parsed = extract_json_object(text)
+    except Exception as exc:
+        if not tools:
+            raise
+        parsed, repair_usage, repair_response_id = _repair_gemini_json(
+            key=key,
+            model=model,
+            malformed_text=text,
+            timeout_seconds=timeout_seconds,
+            parse_error=exc,
+        )
+        json_repaired = True
     usage = raw.get("usageMetadata") or {}
-    input_tokens = usage.get("promptTokenCount")
-    output_tokens = usage.get("candidatesTokenCount")
+    input_tokens = _sum_optional_ints(usage.get("promptTokenCount"), repair_usage.get("promptTokenCount"))
+    output_tokens = _sum_optional_ints(usage.get("candidatesTokenCount"), repair_usage.get("candidatesTokenCount"))
     grounding = candidate.get("groundingMetadata") if isinstance(candidate, dict) else None
     annotations = _gemini_grounding_count(grounding)
     call_log = ApiCallLog(
@@ -176,11 +172,15 @@ def call_gemini_json(
         output_tokens=output_tokens,
         estimated_cost_usd=estimate_cost(model.model, input_tokens, output_tokens, budget),
         cache_key=cache_key,
-        fallback_path=None if key_env == model.api_key_env else key_env,
+        fallback_path="gemini_json_repair_after_parse_error" if json_repaired else (None if key_env == model.api_key_env else key_env),
         search_grounding_enabled=bool(tools),
         search_grounding_engine="google_search" if tools else None,
         response_annotation_count=annotations,
-        provider_response_id=raw.get("responseId"),
+        provider_response_id=",".join(
+            str(value)
+            for value in (raw.get("responseId"), repair_response_id)
+            if value
+        ) or None,
     )
     return parsed, call_log
 
@@ -212,6 +212,77 @@ def _gemini_tools(model: ModelConfig, *, search_grounding: bool) -> list[dict[st
     if not search_grounding or not model.native_search_grounding_enabled:
         return []
     return [{"google_search": {}}]
+
+
+def _repair_gemini_json(
+    *,
+    key: str,
+    model: ModelConfig,
+    malformed_text: str,
+    timeout_seconds: float,
+    parse_error: Exception,
+) -> tuple[dict[str, Any], dict[str, Any], str | None]:
+    repair_payload = {
+        "contents": [{
+            "role": "user",
+            "parts": [{
+                "text": (
+                    "Repair the following malformed JSON-like response into one valid JSON object. "
+                    "Do not add new factual claims. Preserve fields and values that are clearly present. "
+                    "If a list or field is incomplete, return the salvageable prefix or an empty value. "
+                    "Return JSON only.\n\n"
+                    f"Parse error: {type(parse_error).__name__}: {parse_error}\n\n"
+                    f"Malformed response:\n{malformed_text[:12000]}"
+                )
+            }],
+        }],
+        "generationConfig": {
+            "temperature": 0.0,
+            "maxOutputTokens": max(1024, min(4096, int(os.environ.get("GEMINI_JSON_REPAIR_MAX_TOKENS", "2048")))),
+            "responseMimeType": "application/json",
+        },
+    }
+    response = requests.post(
+        f"{GEMINI_MODELS_URL}/{model.model}:generateContent",
+        headers={"x-goog-api-key": key, "Content-Type": "application/json"},
+        json=repair_payload,
+        timeout=timeout_seconds,
+    )
+    response.raise_for_status()
+    raw = response.json()
+    candidate = (raw.get("candidates") or [{}])[0]
+    text = _gemini_text(candidate)
+    if not text.strip():
+        return _minimal_unusable_grounded_payload("empty_repair_response"), raw.get("usageMetadata") or {}, raw.get("responseId")
+    try:
+        return extract_json_object(text), raw.get("usageMetadata") or {}, raw.get("responseId")
+    except Exception as exc:  # noqa: BLE001 - caller still needs a valid evidence object.
+        return (
+            _minimal_unusable_grounded_payload(f"repair_parse_failed:{type(exc).__name__}:{exc}"),
+            raw.get("usageMetadata") or {},
+            raw.get("responseId"),
+        )
+
+
+def _minimal_unusable_grounded_payload(reason: str) -> dict[str, Any]:
+    return {
+        "targeted_questions": [],
+        "macroeconomic_drivers": [],
+        "breaking_news": [],
+        "qualitative_sentiment": [],
+        "contract_specific_factors": [],
+        "source_notes": [],
+        "excluded_sources": [{"source": "gemini_native_search", "reason": "malformed_json"}],
+        "evidence_quality": {
+            "overall": 0.0,
+            "freshness": 0.0,
+            "source_quality": 0.0,
+            "event_match": 0.0,
+            "conflict_level": 0.0,
+        },
+        "information_gaps": [f"Grounded search response could not be converted to usable PIT evidence: {reason}"[:300]],
+        "summary": "",
+    }
 
 
 def _gemini_payload(
@@ -253,6 +324,20 @@ def _gemini_payload(
     return payload
 
 
+def _sum_optional_ints(*values: Any) -> int | None:
+    total = 0
+    seen = False
+    for value in values:
+        if value is None:
+            continue
+        try:
+            total += int(value)
+            seen = True
+        except (TypeError, ValueError):
+            continue
+    return total if seen else None
+
+
 def _gemini_text(candidate: dict[str, Any]) -> str:
     content = candidate.get("content") if isinstance(candidate, dict) else None
     parts = content.get("parts") if isinstance(content, dict) else None
@@ -272,6 +357,19 @@ def _gemini_grounding_count(grounding: Any) -> int:
         return len(supports)
     queries = grounding.get("webSearchQueries")
     return len(queries) if isinstance(queries, list) else 0
+
+
+def extract_json_object(text: str) -> dict[str, Any]:
+    raw = text.strip()
+    if raw.startswith("```"):
+        raw = raw.split("\n", 1)[1]
+    if raw.endswith("```"):
+        raw = raw.rsplit("```", 1)[0]
+    start = raw.find("{")
+    end = raw.rfind("}")
+    if start >= 0 and end >= start:
+        raw = raw[start:end + 1]
+    return json.loads(raw)
 
 
 def estimate_cost(

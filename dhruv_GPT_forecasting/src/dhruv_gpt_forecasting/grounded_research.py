@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 import time
+from dataclasses import replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -33,7 +34,7 @@ def gather_grounded_research_evidence(
         return []
     if _env_bool("ARENA_OFFLINE", False) or _env_bool("ARENA_DISABLE_GPT", False):
         return []
-    if not cfg.cheap_model.native_search_grounding_enabled:
+    if not cfg.model.native_search_grounding_enabled:
         return []
     is_live = _is_live_as_of(packet, cfg)
     backtest_internet = _backtest_internet_enabled(cfg)
@@ -46,17 +47,18 @@ def gather_grounded_research_evidence(
             "claim": "Gemini native-search research was skipped because the evidence budget was too small.",
             "error": "deadline_budget_before_grounded_research",
         }]
-    if resolve_api_key(cfg.cheap_model)[0] is None:
+    if resolve_api_key(cfg.model)[0] is None:
         return [{
             "source": "gemini_native_search_grounded_research",
             "timestamp": _now(),
-            "claim": "Gemini native-search research was skipped because the OpenRouter key is missing.",
-            "error": f"missing_api_key:{cfg.cheap_model.api_key_env}",
+            "claim": "Gemini native-search research was skipped because the Gemini key is missing.",
+            "error": f"missing_api_key:{cfg.model.api_key_env}",
         }]
 
     questions = targeted_research_questions(packet)
     messages = grounded_research_messages(packet, questions, existing_evidence or [])
-    p_hash = prompt_hash(messages, cfg.cheap_model.model)
+    research_model = _grounded_research_model(cfg)
+    p_hash = prompt_hash(messages, research_model.model)
     cache_path = _cache_path(cfg, p_hash)
     cached = _read_cache(cache_path)
     if cached:
@@ -72,7 +74,7 @@ def gather_grounded_research_evidence(
 
     try:
         payload, call_log = call_openrouter_json(
-            model=cfg.cheap_model,
+            model=research_model,
             messages=messages,
             budget=cfg.budget,
             cache_key="grounded_research",
@@ -128,7 +130,8 @@ def grounded_research_messages(
             "Use native search grounding to read current sources for this exact contract. "
             "Before using any source, verify its own publish/update timestamp is at or before contract.as_of. "
             "Drop undated, ambiguous-date, and post-as_of sources. "
-            "Return the required JSON digest only; do not forecast probabilities."
+            "Return a compact JSON digest only; do not forecast probabilities. "
+            "Keep each string under 180 characters and do not use Markdown."
         ),
     }
     return [
@@ -370,8 +373,20 @@ def _discarded_source_note(note: dict[str, Any], *, reason: str) -> dict[str, An
 
 
 def _cache_path(cfg: ForecastConfig, p_hash: str) -> Path:
-    model_part = cfg.cheap_model.model.replace("/", "_")
+    model_part = cfg.model.model.replace("/", "_")
     return Path(cfg.budget.log_dir) / "llm_cache" / f"grounded_research_{model_part}_{p_hash}.json"
+
+
+def _grounded_research_model(cfg: ForecastConfig):
+    max_tokens = int(os.environ.get(
+        "ARENA_GROUNDED_RESEARCH_MAX_TOKENS",
+        str(max(int(cfg.model.max_tokens), 2200)),
+    ))
+    temperature = float(os.environ.get(
+        "ARENA_GROUNDED_RESEARCH_TEMPERATURE",
+        str(min(float(cfg.model.temperature), 0.05)),
+    ))
+    return replace(cfg.model, max_tokens=max_tokens, temperature=temperature)
 
 
 def _read_cache(path: Path) -> dict[str, Any] | None:

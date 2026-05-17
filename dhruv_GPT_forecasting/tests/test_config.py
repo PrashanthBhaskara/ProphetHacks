@@ -4,22 +4,19 @@ from dhruv_gpt_forecasting.config import ENV_ALIASES
 
 def test_default_models_are_direct_gemini_3_flash_with_native_grounding():
     cfg = load_config()
-    assert cfg.cheap_model.provider == "gemini"
-    assert cfg.supervisor_model.provider == "gemini"
-    assert cfg.cheap_model.model == "gemini-3-flash-preview"
-    assert cfg.supervisor_model.model == "gemini-3-flash-preview"
-    assert cfg.cheap_model.api_key_env == "GEMINI_API_KEY"
-    assert cfg.supervisor_model.api_key_env == "GEMINI_API_KEY"
-    assert cfg.cheap_model.native_search_grounding_enabled is True
-    assert cfg.cheap_model.native_search_grounding_live_only is True
-    assert cfg.cheap_model.search_grounding_engine == "native"
-    assert "OPENROUTER_API_KEY_2" not in cfg.cheap_model.api_key_fallback_envs
-    assert "OPENROUTER_API_KEY_3" not in cfg.cheap_model.api_key_fallback_envs
-    assert "OPENROUTER_API_KEY_4" not in cfg.cheap_model.api_key_fallback_envs
-    assert "OPENROUTER_API_KEY_1" not in cfg.cheap_model.api_key_fallback_envs
+    assert cfg.model.provider == "gemini"
+    assert cfg.model.name == "arena_probability_model"
+    assert cfg.model.model == "gemini-3-flash-preview"
+    assert cfg.model.api_key_env == "GEMINI_API_KEY"
+    assert cfg.model.native_search_grounding_enabled is True
+    assert cfg.model.native_search_grounding_live_only is True
+    assert cfg.model.search_grounding_engine == "native"
+    assert "OPENROUTER_API_KEY_2" not in cfg.model.api_key_fallback_envs
+    assert "OPENROUTER_API_KEY_3" not in cfg.model.api_key_fallback_envs
+    assert "OPENROUTER_API_KEY_4" not in cfg.model.api_key_fallback_envs
+    assert "OPENROUTER_API_KEY_1" not in cfg.model.api_key_fallback_envs
     assert cfg.arena.gpt_enabled_default is True
     assert cfg.arena.probability_floor == 0.001
-    assert cfg.stat.near_close_brier_enabled is True
     assert cfg.arena.prior_shrink_weight == 0.0
     assert cfg.arena.pit_external_enabled_default is False
     assert "reddit" in cfg.arena.pit_external_sources

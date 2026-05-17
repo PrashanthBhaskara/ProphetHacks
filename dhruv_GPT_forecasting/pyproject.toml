@@ -1,7 +1,7 @@
 [project]
 name = "dhruv-gpt-forecasting"
 version = "0.1.0"
-description = "OpenRouter-only GPT forecasting lane for Prophet Arena prediction markets."
+description = "Prophet Arena predict(event) forecasting agent."
 requires-python = ">=3.11"
 dependencies = [
   "requests>=2.31",

@@ -41,7 +41,7 @@ def plan_lseg_news_query(
     if deadline_at is not None and deadline_at - time.monotonic() < _min_query_seconds():
         fallback["errors"] = ["deadline_budget_before_lseg_query_gpt"]
         return fallback
-    model = cfg.cheap_model
+    model = cfg.model
     if resolve_api_key(model)[0] is None:
         fallback["errors"] = [f"missing_api_key:{model.api_key_env}"]
         return fallback

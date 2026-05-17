@@ -71,102 +71,6 @@ class ModelConfig:
 
 
 @dataclass
-class GateConfig:
-    cheap_delta_pp: float = 0.025
-    cheap_tight_spread: float = 0.05
-    cheap_high_spread: float = 0.15
-    cheap_categories: set[str] = field(default_factory=lambda: {
-        "Sports",
-        "Economics",
-        "Politics",
-        "Elections",
-        "Climate and Weather",
-        "Weather",
-    })
-    supervisor_disagreement_pp: float = 0.05
-    supervisor_min_edge: float = 0.06
-    high_notional_liquidity: float = 100000.0
-
-    @classmethod
-    def from_dict(cls, data: dict[str, Any] | None) -> "GateConfig":
-        cfg = cls()
-        if not data:
-            return cfg
-        cfg.cheap_delta_pp = float(data.get("cheap_delta_pp", cfg.cheap_delta_pp))
-        cfg.cheap_tight_spread = float(data.get("cheap_tight_spread", cfg.cheap_tight_spread))
-        cfg.cheap_high_spread = float(data.get("cheap_high_spread", cfg.cheap_high_spread))
-        cfg.cheap_categories = set(data.get("cheap_categories") or cfg.cheap_categories)
-        cfg.supervisor_disagreement_pp = float(
-            data.get("supervisor_disagreement_pp", cfg.supervisor_disagreement_pp)
-        )
-        cfg.supervisor_min_edge = float(data.get("supervisor_min_edge", cfg.supervisor_min_edge))
-        cfg.high_notional_liquidity = float(data.get("high_notional_liquidity", cfg.high_notional_liquidity))
-        return cfg
-
-
-@dataclass
-class RiskConfig:
-    min_edge: float = 0.06
-    hard_no_trade_spread: float = 0.30
-    wide_spread: float = 0.15
-    spread_buffer: float = 0.50
-    uncertainty_buffer: float = 0.03
-    fee_buffer: float = 0.0
-    kelly_fraction: float = 0.08
-    max_equity_fraction_per_market: float = 0.01
-    starting_equity: float = 10000.0
-
-    @classmethod
-    def from_dict(cls, data: dict[str, Any] | None) -> "RiskConfig":
-        cfg = cls()
-        if not data:
-            return cfg
-        for field_name in cfg.__dataclass_fields__:
-            if field_name in data:
-                setattr(cfg, field_name, float(data[field_name]))
-        return cfg
-
-
-@dataclass
-class StatConfig:
-    max_market_deviation: float = 0.06
-    default_market_deviation: float = 0.03
-    kalman_process_var: float = 0.04
-    kalman_base_obs_var: float = 0.03
-    min_ar_snapshots: int = 8
-    max_ar_lag: int = 3
-    near_close_brier_enabled: bool = False
-    near_close_max_horizon_hours: float = 0.5
-    near_close_momentum_scale: float = 0.10
-    near_close_momentum_cap: float = 0.04
-    near_close_platt_a: float = 0.09
-    near_close_platt_b: float = 1.21
-
-    @classmethod
-    def from_dict(cls, data: dict[str, Any] | None) -> "StatConfig":
-        cfg = cls()
-        if not data:
-            return cfg
-        cfg.max_market_deviation = float(data.get("max_market_deviation", cfg.max_market_deviation))
-        cfg.default_market_deviation = float(data.get("default_market_deviation", cfg.default_market_deviation))
-        cfg.kalman_process_var = float(data.get("kalman_process_var", cfg.kalman_process_var))
-        cfg.kalman_base_obs_var = float(data.get("kalman_base_obs_var", cfg.kalman_base_obs_var))
-        cfg.min_ar_snapshots = int(data.get("min_ar_snapshots", cfg.min_ar_snapshots))
-        cfg.max_ar_lag = int(data.get("max_ar_lag", cfg.max_ar_lag))
-        cfg.near_close_brier_enabled = bool(data.get("near_close_brier_enabled", cfg.near_close_brier_enabled))
-        cfg.near_close_max_horizon_hours = float(
-            data.get("near_close_max_horizon_hours", cfg.near_close_max_horizon_hours)
-        )
-        cfg.near_close_momentum_scale = float(
-            data.get("near_close_momentum_scale", cfg.near_close_momentum_scale)
-        )
-        cfg.near_close_momentum_cap = float(data.get("near_close_momentum_cap", cfg.near_close_momentum_cap))
-        cfg.near_close_platt_a = float(data.get("near_close_platt_a", cfg.near_close_platt_a))
-        cfg.near_close_platt_b = float(data.get("near_close_platt_b", cfg.near_close_platt_b))
-        return cfg
-
-
-@dataclass
 class BudgetConfig:
     dry_run_default: bool = True
     log_dir: str = "dhruv_GPT_forecasting/logs"
@@ -291,11 +195,7 @@ class ArenaConfig:
 
 @dataclass
 class ForecastConfig:
-    cheap_model: ModelConfig
-    supervisor_model: ModelConfig
-    gates: GateConfig
-    risk: RiskConfig
-    stat: StatConfig
+    model: ModelConfig
     budget: BudgetConfig
     arena: ArenaConfig
 
@@ -338,13 +238,14 @@ def resolve_api_key(model: ModelConfig) -> tuple[str | None, str | None]:
 def load_config(path: Path | str | None = None) -> ForecastConfig:
     config_path = Path(path) if path else DEFAULT_CONFIG_PATH
     raw = json.loads(config_path.read_text(encoding="utf-8"))
-    models = raw.get("models") or {}
+    model_data = raw.get("model")
+    if model_data is None:
+        models = raw.get("models") or {}
+        model_data = models.get("arena") or models.get("cheap")
+    if not isinstance(model_data, dict):
+        raise ValueError("Config must define a top-level 'model' object")
     return ForecastConfig(
-        cheap_model=ModelConfig.from_dict(models["cheap"]),
-        supervisor_model=ModelConfig.from_dict(models["supervisor"]),
-        gates=GateConfig.from_dict(raw.get("gates")),
-        risk=RiskConfig.from_dict(raw.get("risk")),
-        stat=StatConfig.from_dict(raw.get("stat")),
+        model=ModelConfig.from_dict(model_data),
         budget=BudgetConfig.from_dict(raw.get("budget")),
         arena=ArenaConfig.from_dict(raw.get("arena")),
     )

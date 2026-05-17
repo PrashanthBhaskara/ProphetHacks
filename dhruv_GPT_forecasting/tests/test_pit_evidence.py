@@ -2,14 +2,12 @@ import json
 from datetime import datetime, timedelta, timezone
 
 from dhruv_gpt_forecasting.config import load_config
-from dhruv_gpt_forecasting.evidence_replay import EvidenceReplayIndex
 from dhruv_gpt_forecasting.features import build_feature_packet
 from dhruv_gpt_forecasting.pit_evidence import (
     build_evidence_query,
     fetch_external_records_for_packet,
     gather_pit_external_evidence,
 )
-from dhruv_gpt_forecasting.news_synthesizer import synthesize_news_digest
 
 
 def test_pit_external_evidence_filters_publish_and_collection_times(tmp_path):
@@ -203,44 +201,6 @@ def test_binary_evidence_query_drops_yes_no_labels():
     assert "phoenix" in query
 
 
-def test_news_synthesizer_creates_compact_digest():
-    packet = build_feature_packet(
-        {
-            "event_ticker": "KXGAME",
-            "market_ticker": "KXGAME-TEAM",
-            "title": "Golden State at Phoenix Winner?",
-            "category": "Sports",
-            "outcomes": ["YES", "NO"],
-        },
-        {"last_price": 0.5},
-        as_of="2026-03-01T12:00:00Z",
-    )
-    records = [
-        {
-            "source": "gdelt",
-            "published_at": "2026-03-01T11:30:00Z",
-            "title": "Golden State injury update before Phoenix game",
-            "domain": "example.com",
-            "url": "https://example.com/a",
-        },
-        {
-            "source": "gdelt",
-            "published_at": "2026-03-01T10:30:00Z",
-            "title": "Unrelated article",
-            "url": "https://example.com/b",
-        },
-    ]
-
-    digest = synthesize_news_digest(records, packet, "golden phoenix winner", max_records=1)
-
-    assert digest is not None
-    assert digest["source"] == "pit_news_digest"
-    assert digest["market_ticker"] == "KXGAME-TEAM"
-    assert digest["n_source_records"] == 1
-    assert "Golden State injury" in digest["summary"]
-    assert digest["sentiment"]["n_scored"] == 1
-
-
 def test_espn_live_capture_records_are_profiled(monkeypatch, tmp_path):
     cfg = load_config()
     cfg.arena.pit_external_root = str(tmp_path / "missing")
@@ -284,64 +244,3 @@ def test_espn_live_capture_records_are_profiled(monkeypatch, tmp_path):
     assert records[0]["source_family"] == "sports_news"
     assert records[0]["sentiment_model"] == "lexicon_v1"
     assert records[0]["published_at_pit_eligible"] is True
-
-
-def test_archive_replay_modes_separate_strict_and_relaxed_records(tmp_path):
-    archive = tmp_path / "archive"
-    archive.mkdir()
-    records_path = archive / "records.jsonl"
-    records = [
-        {
-            "source": "espn",
-            "target_market_ticker": "KXGAME-YES",
-            "published_at": "2026-03-01T11:30:00Z",
-            "collected_at": "2026-03-01T11:45:00Z",
-            "title": "Golden State injury update before Phoenix game",
-            "text": "Phoenix rotation news before the game.",
-        },
-        {
-            "source": "reddit",
-            "target_market_ticker": "KXGAME-YES",
-            "pit_mode": "reddit_published_at_only_backfill",
-            "published_at": "2026-03-01T11:40:00Z",
-            "collected_at": "2026-05-16T12:00:00Z",
-            "title": "Golden State and Phoenix fan discussion",
-            "text": "Discussion posted before the forecast cutoff.",
-        },
-        {
-            "source": "gdelt",
-            "target_market_ticker": "KXGAME-YES",
-            "published_at": "2026-03-01T12:30:00Z",
-            "collected_at": "2026-03-01T12:31:00Z",
-            "title": "After cutoff story",
-        },
-    ]
-    records_path.write_text("\n".join(json.dumps(row) for row in records) + "\n", encoding="utf-8")
-    manifest = {
-        "archive_files": {"test": str(records_path)},
-        "digest_file": None,
-    }
-    manifest_path = archive / "manifest.json"
-    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
-
-    packet = build_feature_packet(
-        {
-            "event_ticker": "KXGAME",
-            "market_ticker": "KXGAME-YES",
-            "title": "Golden State at Phoenix NBA winner?",
-            "category": "Sports",
-            "outcomes": ["YES", "NO"],
-        },
-        {"last_price": 0.5},
-        as_of="2026-03-01T12:00:00Z",
-    )
-    cfg = load_config()
-    index = EvidenceReplayIndex.from_manifests([manifest_path])
-
-    strict = index.evidence_for_packet(packet, cfg, mode="strict_pit", max_records=5)
-    relaxed = index.evidence_for_packet(packet, cfg, mode="relaxed_published_at", max_records=5)
-
-    assert strict[0]["record_count"] == 1
-    assert strict[0]["source_counts"] == {"espn": 1}
-    assert relaxed[0]["record_count"] == 2
-    assert relaxed[0]["source_counts"] == {"espn": 1, "reddit": 1}

@@ -12,4 +12,4 @@ For clean historical OOS tests, both timestamps must be before the simulated for
 
 When live Reddit/GDELT/ESPN pulls are enabled, fetched rows are appended under `live_fetches/<source>/YYYY-MM-DD.jsonl` with `collected_at` set at retrieval time.
 
-Use `python -m dhruv_gpt_forecasting.evidence_archiver` to build per-run archives under `backfills/<run_id>/`. GDELT historical pulls are bounded by `forecast_as_of` but are still labeled separately from clean live captures because `collected_at` is after the simulated forecast. WRDS/LSEG exports should use source-native release timestamps when available.
+Use `python -m dhruv_gpt_forecasting.cli vendor-evidence normalize` to convert WRDS/LSEG exports into the shared JSONL shape. WRDS/LSEG exports should use source-native release timestamps when available.

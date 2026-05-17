@@ -1,73 +1,20 @@
 {
-  "models": {
-    "cheap": {
-      "name": "gpt_cheap_lane",
-      "provider": "gemini",
-      "model": "gemini-3-flash-preview",
-      "api_key_env": "GEMINI_API_KEY",
-      "api_key_fallback_envs": ["GOOGLE_API_KEY"],
-      "temperature": 0.1,
-      "max_tokens": 1100,
+  "model": {
+    "name": "arena_probability_model",
+    "provider": "gemini",
+    "model": "gemini-3-flash-preview",
+    "api_key_env": "GEMINI_API_KEY",
+    "api_key_fallback_envs": ["GOOGLE_API_KEY"],
+    "temperature": 0.1,
+    "max_tokens": 1100,
+    "enabled": true,
+    "search_grounding": {
       "enabled": true,
-      "search_grounding": {
-        "enabled": true,
-        "live_only": true,
-        "engine": "native",
-        "max_results": 5,
-        "max_total_results": 8
-      }
-    },
-    "supervisor": {
-      "name": "gpt_supervisor_lane",
-      "provider": "gemini",
-      "model": "gemini-3-flash-preview",
-      "api_key_env": "GEMINI_API_KEY",
-      "api_key_fallback_envs": ["GOOGLE_API_KEY"],
-      "temperature": 0.05,
-      "max_tokens": 1200,
-      "enabled": true,
-      "search_grounding": {
-        "enabled": true,
-        "live_only": true,
-        "engine": "native",
-        "max_results": 5,
-        "max_total_results": 8
-      }
+      "live_only": true,
+      "engine": "native",
+      "max_results": 5,
+      "max_total_results": 8
     }
-  },
-  "gates": {
-    "cheap_delta_pp": 0.025,
-    "cheap_tight_spread": 0.05,
-    "cheap_high_spread": 0.15,
-    "cheap_categories": ["Sports", "Economics", "Politics", "Elections", "Climate and Weather", "Weather"],
-    "supervisor_disagreement_pp": 0.05,
-    "supervisor_min_edge": 0.06,
-    "high_notional_liquidity": 100000.0
-  },
-  "risk": {
-    "min_edge": 0.06,
-    "hard_no_trade_spread": 0.30,
-    "wide_spread": 0.15,
-    "spread_buffer": 0.50,
-    "uncertainty_buffer": 0.03,
-    "fee_buffer": 0.0,
-    "kelly_fraction": 0.08,
-    "max_equity_fraction_per_market": 0.01,
-    "starting_equity": 10000.0
-  },
-  "stat": {
-    "max_market_deviation": 0.06,
-    "default_market_deviation": 0.03,
-    "kalman_process_var": 0.04,
-    "kalman_base_obs_var": 0.03,
-    "min_ar_snapshots": 8,
-    "max_ar_lag": 3,
-    "near_close_brier_enabled": true,
-    "near_close_max_horizon_hours": 0.5,
-    "near_close_momentum_scale": 0.10,
-    "near_close_momentum_cap": 0.04,
-    "near_close_platt_a": 0.09,
-    "near_close_platt_b": 1.21
   },
   "arena": {
     "gpt_enabled_default": true,

@@ -9,11 +9,7 @@ from pathlib import Path
 from .arena_agent import forecast_arena_event
 from .arena_batch import main as arena_batch_main
 from .arena_eval import main as arena_eval_main
-from .backtest import main as backtest_main
-from .evidence_archiver import main as evidence_archiver_main
-from .forecaster import forecast_event
 from .kalshi_auth import kalshi_credential_status
-from .kalshi_parallel_backtest import main as kalshi_parallel_backtest_main
 from .kalshi_public import main as kalshi_events_main
 from .live_readiness import main as live_readiness_main
 from .preflight import main as preflight_main
@@ -24,13 +20,10 @@ from .vendor_evidence import main as vendor_evidence_main
 def main() -> int:
     parser = argparse.ArgumentParser()
     sub = parser.add_subparsers(dest="cmd", required=True)
-    sub.add_parser("backtest")
     sub.add_parser("arena-eval")
     sub.add_parser("arena-batch")
-    sub.add_parser("archive-evidence")
     sub.add_parser("credentials")
     sub.add_parser("kalshi-events")
-    sub.add_parser("kalshi-parallel-backtest")
     sub.add_parser("live-readiness")
     sub.add_parser("preflight")
     sub.add_parser("runbook")
@@ -42,16 +35,13 @@ def main() -> int:
     sub.add_parser("prophet-health")
     predict = sub.add_parser("predict-json")
     predict.add_argument("event_json", type=Path)
+    predict.add_argument("--live-data", action="store_true")
+    predict.add_argument("--no-gpt", action="store_true")
     arena_predict = sub.add_parser("predict-arena-json")
     arena_predict.add_argument("event_json", type=Path)
     arena_predict.add_argument("--live-data", action="store_true")
     arena_predict.add_argument("--no-gpt", action="store_true")
     args, rest = parser.parse_known_args()
-    if args.cmd == "backtest":
-        import sys
-
-        sys.argv = [sys.argv[0], *rest]
-        return backtest_main()
     if args.cmd == "arena-eval":
         import sys
 
@@ -67,21 +57,11 @@ def main() -> int:
 
         sys.argv = [sys.argv[0], "runbook", *rest]
         return arena_batch_main()
-    if args.cmd == "archive-evidence":
-        import sys
-
-        sys.argv = [sys.argv[0], *rest]
-        return evidence_archiver_main()
     if args.cmd == "kalshi-events":
         import sys
 
         sys.argv = [sys.argv[0], *rest]
         return kalshi_events_main()
-    if args.cmd == "kalshi-parallel-backtest":
-        import sys
-
-        sys.argv = [sys.argv[0], *rest]
-        return kalshi_parallel_backtest_main()
     if args.cmd == "live-readiness":
         import sys
 
@@ -114,7 +94,7 @@ def main() -> int:
         print(json.dumps(forecast_scores(), indent=2, sort_keys=True))
         return 0
     event = json.loads(args.event_json.read_text(encoding="utf-8"))
-    if args.cmd == "predict-arena-json":
+    if args.cmd in {"predict-json", "predict-arena-json"}:
         decision = forecast_arena_event(
             event,
             use_gpt=False if args.no_gpt else None,
@@ -122,9 +102,7 @@ def main() -> int:
         )
         print(json.dumps(decision.to_dict(), indent=2, sort_keys=True))
         return 0
-    decision = forecast_event(event, dry_run=True)
-    print(json.dumps(decision.to_dict(), indent=2, sort_keys=True))
-    return 0
+    raise AssertionError(f"Unhandled command: {args.cmd}")
 
 
 if __name__ == "__main__":

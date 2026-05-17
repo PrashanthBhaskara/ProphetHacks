@@ -31,6 +31,7 @@ def forecast_arena_event(
     use_gpt: bool | None = None,
     use_live_data: bool | None = None,
     deadline_seconds: float | None = None,
+    external_evidence: list[dict[str, Any]] | None = None,
 ) -> ArenaForecast:
     """Return a Brier-only forecast over the event's exact outcome labels."""
     started = time.monotonic()
@@ -42,6 +43,7 @@ def forecast_arena_event(
         use_gpt = _gpt_enabled(cfg)
     live_data_enabled = _live_data_enabled(use_live_data, cfg)
     evidence_deadline_at = _evidence_deadline_at(started, deadline, cfg)
+    supplied_evidence = list(external_evidence or [])
     grounded_research: list[dict[str, Any]] = []
     if live_data_enabled and use_gpt and _can_continue(evidence_deadline_at):
         # Run the generative source-reading pass before slower vendor fetches so
@@ -50,7 +52,7 @@ def forecast_arena_event(
             packet,
             cfg,
             deadline_at=evidence_deadline_at,
-            existing_evidence=[],
+            existing_evidence=supplied_evidence,
         )
     live_evidence = gather_live_evidence(
         packet,
@@ -59,7 +61,7 @@ def forecast_arena_event(
         deadline_at=evidence_deadline_at,
         allow_llm_queries=bool(use_gpt),
     )
-    live_evidence = [*grounded_research, *live_evidence]
+    live_evidence = [*supplied_evidence, *grounded_research, *live_evidence]
     packet.live_evidence = annotate_evidence_items(live_evidence[: cfg.arena.max_live_evidence], packet.category)
     observed_sources = [str(item.get("source") or "") for item in packet.live_evidence]
     packet.features["evidence_source_policy"] = evidence_source_policy(packet.category, observed_sources)
@@ -85,7 +87,7 @@ def forecast_arena_event(
         _attach_deadline_audit(final, started, deadline)
         return final
 
-    model = cfg.cheap_model
+    model = cfg.model
     if resolve_api_key(model)[0] is None:
         final = _forecast_from_prior(
             packet,
@@ -324,7 +326,7 @@ def _cached_json_call(
     deadline_seconds: float | None = None,
     search_grounding: bool = False,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    model = cfg.cheap_model
+    model = cfg.model
     p_hash = prompt_hash(messages, model.model)
     cache_dir = Path(cfg.budget.log_dir) / "llm_cache"
     cache_dir.mkdir(parents=True, exist_ok=True)
@@ -541,7 +543,7 @@ def _can_continue(deadline_at: float | None) -> bool:
 
 
 def _search_grounding_enabled(packet: ArenaForecastPacket, cfg: ForecastConfig) -> bool:
-    model = cfg.cheap_model
+    model = cfg.model
     env_value = os.environ.get("GEMINI_NATIVE_SEARCH_GROUNDING", os.environ.get("OPENROUTER_NATIVE_SEARCH_GROUNDING"))
     if env_value is not None:
         enabled = env_value.strip().lower() in {"1", "true", "yes", "on"}

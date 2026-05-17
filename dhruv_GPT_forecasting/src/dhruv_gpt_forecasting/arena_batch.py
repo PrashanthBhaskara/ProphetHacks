@@ -133,7 +133,7 @@ def benchmark_events(
         name: evaluate_predictions(predictions, actuals, events=selected)
         for name, predictions in predictions_by_variant.items()
     }
-    key, key_env = resolve_api_key(cfg.cheap_model)
+    key, key_env = resolve_api_key(cfg.model)
     run_config = {
         "dataset": dataset,
         "release": release,
@@ -142,7 +142,7 @@ def benchmark_events(
         "forecast_as_of": as_of,
         "evidence_mode": evidence_mode,
         "evidence_manifest_ids": evidence_manifest_ids or [],
-        "model_id": cfg.cheap_model.model,
+        "model_id": cfg.model.model,
         "prompt_hash": "per_event_prompt_hash_recorded_in_llm_cache",
         "api_key_env": key_env,
         "api_key_fingerprint": key_fingerprint(key),

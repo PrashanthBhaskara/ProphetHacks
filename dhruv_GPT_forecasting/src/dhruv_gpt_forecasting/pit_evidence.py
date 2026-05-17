@@ -54,11 +54,11 @@ def gather_pit_external_evidence(
 ) -> list[dict[str, Any]]:
     """Return compact PIT-safe evidence for a forecast packet.
 
-    For historical OOS timestamps, network fetches are disabled by default. The
-    backtest path should use locally archived rows with collection timestamps.
-    For live forecasts, Reddit/GDELT/ESPN fetches can run when enabled. X code
-    remains available only for explicit legacy experiments and is not enabled
-    in the default source list.
+    For historical OOS timestamps, network fetches are disabled by default.
+    Local archived rows with collection timestamps are the preferred evidence
+    source. For live forecasts, Reddit/GDELT/ESPN fetches can run when enabled.
+    X code is retained only for explicit timestamp-bounded archive pulls and is
+    not enabled in the default source list.
     """
     if enabled is None:
         enabled = _env_bool("FORECAST_ENABLE_PIT_EXTERNAL", cfg.arena.pit_external_enabled_default)

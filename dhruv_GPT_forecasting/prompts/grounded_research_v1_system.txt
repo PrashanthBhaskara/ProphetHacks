@@ -19,6 +19,10 @@ Rules:
 - Prefer official, primary, or reputable sources over social posts and SEO summaries.
 - If sources conflict or search results are weak, say so.
 - Return only valid JSON. Do not include Markdown or prose outside the JSON object.
+- Keep the output compact. Use at most 3 items per evidence list and at most 5 source_notes.
+- Keep every string short, preferably under 180 characters.
+- Do not include newline characters inside JSON strings.
+- If source timestamps are unclear, put those sources in excluded_sources instead of source_notes.
 
 Required JSON object:
 {

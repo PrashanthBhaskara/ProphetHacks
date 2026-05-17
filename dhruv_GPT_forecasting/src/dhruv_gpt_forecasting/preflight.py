@@ -32,7 +32,7 @@ def run_preflight(
     started = time.monotonic()
     load_local_env()
     cfg = config or load_config()
-    key, key_env = resolve_api_key(cfg.cheap_model)
+    key, key_env = resolve_api_key(cfg.model)
     llm = _llm_status(
         cfg,
         key=key,
@@ -85,7 +85,7 @@ def _llm_status(
     offline: bool,
     timeout_seconds: float,
 ) -> dict[str, Any]:
-    if cfg.cheap_model.provider == "gemini":
+    if cfg.model.provider == "gemini":
         return _gemini_status(
             cfg,
             key=key,
@@ -112,13 +112,13 @@ def _openrouter_status(
 ) -> dict[str, Any]:
     status: dict[str, Any] = {
         "provider": "openrouter",
-        "selected_model": cfg.cheap_model.model,
+        "selected_model": cfg.model.model,
         "native_search_grounding": {
-            "enabled": cfg.cheap_model.native_search_grounding_enabled,
-            "live_only": cfg.cheap_model.native_search_grounding_live_only,
-            "engine": cfg.cheap_model.search_grounding_engine,
-            "max_results": cfg.cheap_model.search_grounding_max_results,
-            "max_total_results": cfg.cheap_model.search_grounding_max_total_results,
+            "enabled": cfg.model.native_search_grounding_enabled,
+            "live_only": cfg.model.native_search_grounding_live_only,
+            "engine": cfg.model.search_grounding_engine,
+            "max_results": cfg.model.search_grounding_max_results,
+            "max_total_results": cfg.model.search_grounding_max_total_results,
         },
         "key": api_key_metadata(value=key, env_name=key_env, expected_prefix="sk-or-"),
         "auth": {"checked": False},
@@ -143,7 +143,7 @@ def _openrouter_status(
         rows = models["json"].get("data") or []
         if isinstance(rows, list):
             ids = {str(row.get("id")) for row in rows if isinstance(row, dict)}
-            available = cfg.cheap_model.model in ids
+            available = cfg.model.model in ids
     status["model_availability"] = {
         "checked": True,
         "ok": models.get("ok"),
@@ -164,13 +164,13 @@ def _gemini_status(
 ) -> dict[str, Any]:
     status: dict[str, Any] = {
         "provider": "gemini",
-        "selected_model": cfg.cheap_model.model,
+        "selected_model": cfg.model.model,
         "native_search_grounding": {
-            "enabled": cfg.cheap_model.native_search_grounding_enabled,
-            "live_only": cfg.cheap_model.native_search_grounding_live_only,
+            "enabled": cfg.model.native_search_grounding_enabled,
+            "live_only": cfg.model.native_search_grounding_live_only,
             "engine": "google_search",
-            "max_results": cfg.cheap_model.search_grounding_max_results,
-            "max_total_results": cfg.cheap_model.search_grounding_max_total_results,
+            "max_results": cfg.model.search_grounding_max_results,
+            "max_total_results": cfg.model.search_grounding_max_total_results,
         },
         "key": api_key_metadata(value=key, env_name=key_env, expected_prefix="AIza"),
         "auth": {"checked": False},
@@ -193,7 +193,7 @@ def _gemini_status(
                 for row in rows
                 if isinstance(row, dict)
             }
-            available = cfg.cheap_model.model in ids
+            available = cfg.model.model in ids
     status["auth"] = {
         "checked": True,
         "ok": models.get("ok"),

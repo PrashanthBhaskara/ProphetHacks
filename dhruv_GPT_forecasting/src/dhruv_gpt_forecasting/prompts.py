@@ -7,7 +7,6 @@ import json
 from .arena_types import ArenaForecast, ArenaForecastPacket, ArenaPrior
 from .config import PACKAGE_ROOT
 from .evidence_sources import evidence_source_policy
-from .schemas import FeaturePacket, LaneForecast, StatForecast
 
 
 PROMPT_ROOT = PACKAGE_ROOT / "prompts"
@@ -15,41 +14,6 @@ PROMPT_ROOT = PACKAGE_ROOT / "prompts"
 
 def load_prompt(name: str) -> str:
     return (PROMPT_ROOT / name).read_text(encoding="utf-8")
-
-
-def cheap_messages(packet: FeaturePacket, stat: StatForecast) -> list[dict[str, str]]:
-    payload = {
-        "market_packet": packet.compact_dict(),
-        "stat_forecast": stat.to_dict(),
-        "instruction": (
-            "Return the required JSON object only. Use exact outcome labels from market_packet.outcomes. "
-            "If the market prior is the best estimate, set defer_to_market=true and keep market_delta_bps small."
-        ),
-    }
-    return [
-        {"role": "system", "content": load_prompt("forecasting_lane_v1_system.txt")},
-        {"role": "user", "content": json.dumps(payload, separators=(",", ":"), sort_keys=True)},
-    ]
-
-
-def supervisor_messages(
-    packet: FeaturePacket,
-    stat: StatForecast,
-    cheap: LaneForecast | None,
-) -> list[dict[str, str]]:
-    payload = {
-        "market_packet": packet.compact_dict(),
-        "stat_forecast": stat.to_dict(),
-        "cheap_lane": cheap.to_dict() if cheap else None,
-        "instruction": (
-            "Produce the final calibrated distribution. Prefer NO_TRADE unless edge survives uncertainty, "
-            "spread, and liquidity penalties."
-        ),
-    }
-    return [
-        {"role": "system", "content": load_prompt("supervisor_v1_system.txt")},
-        {"role": "user", "content": json.dumps(payload, separators=(",", ":"), sort_keys=True)},
-    ]
 
 
 def arena_messages(

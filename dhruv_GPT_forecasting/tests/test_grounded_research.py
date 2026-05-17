@@ -84,6 +84,7 @@ def test_grounded_research_calls_gemini_with_native_search(monkeypatch, tmp_path
     evidence = gather_grounded_research_evidence(packet, cfg, deadline_at=None, existing_evidence=[])
 
     assert captured["model"].model == "gemini-3-flash-preview"
+    assert captured["model"].max_tokens >= 2200
     assert captured["search_grounding"] is True
     assert evidence[0]["source"] == "gemini_native_search_grounded_research"
     assert evidence[0]["summary"] == "Grounded summary."

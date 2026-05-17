@@ -75,7 +75,7 @@ def test_arena_gpt_is_final_probability_authority(monkeypatch):
             "counterarguments": [],
             "information_gaps": [],
             "calibration_note": "GPT final probability test.",
-        }, {"cache_hit": False, "prompt_hash": "abc", "model": cfg.cheap_model.model}
+        }, {"cache_hit": False, "prompt_hash": "abc", "model": cfg.model.model}
 
     monkeypatch.setattr("dhruv_gpt_forecasting.arena_agent._cached_json_call", fake_cached_json_call)
     event = {
@@ -117,7 +117,7 @@ def test_arena_forecast_disables_native_search_grounding_for_historical_asof(mon
             "counterarguments": [],
             "information_gaps": [],
             "calibration_note": "Historical test.",
-        }, {"cache_hit": False, "prompt_hash": "abc", "model": cfg.cheap_model.model}
+        }, {"cache_hit": False, "prompt_hash": "abc", "model": cfg.model.model}
 
     monkeypatch.setattr("dhruv_gpt_forecasting.arena_agent._cached_json_call", fake_cached_json_call)
     cfg = load_config()
@@ -165,7 +165,7 @@ def test_arena_forecast_attaches_grounded_research_evidence(monkeypatch):
             "counterarguments": [],
             "information_gaps": [],
             "calibration_note": "Used grounded research.",
-        }, {"cache_hit": False, "prompt_hash": "abc", "model": cfg.cheap_model.model}
+        }, {"cache_hit": False, "prompt_hash": "abc", "model": cfg.model.model}
 
     monkeypatch.setattr("dhruv_gpt_forecasting.arena_agent._cached_json_call", fake_cached_json_call)
     event = {
@@ -184,6 +184,59 @@ def test_arena_forecast_attaches_grounded_research_evidence(monkeypatch):
 
     assert forecast.audit["live_evidence_count"] == 1
     assert forecast.audit["live_evidence_preview"][0]["source"] == "gemini_native_search_grounded_research"
+
+
+def test_arena_forecast_accepts_supplied_pit_evidence(monkeypatch):
+    monkeypatch.delenv("ARENA_OFFLINE", raising=False)
+    monkeypatch.setenv("GEMINI_API_KEY", "AIza-test-key")
+    monkeypatch.setenv("ARENA_ENABLE_FORECAST_CACHE", "0")
+
+    captured = {}
+
+    def fake_cached_json_call(cfg, *, messages, cache_namespace, **kwargs):
+        captured["messages"] = messages
+        return {
+            "probabilities": {"YES": 0.66, "NO": 0.34},
+            "confidence": 0.60,
+            "uncertainty": 0.40,
+            "reason_codes": ["uses_supplied_pit_evidence"],
+            "key_evidence": [],
+            "counterarguments": [],
+            "information_gaps": [],
+            "calibration_note": "Used supplied PIT evidence.",
+        }, {"cache_hit": False, "prompt_hash": "abc", "model": cfg.model.model}
+
+    monkeypatch.setattr("dhruv_gpt_forecasting.arena_agent._cached_json_call", fake_cached_json_call)
+    event = {
+        "event_ticker": "task-supplied-evidence",
+        "market_ticker": "task-supplied-evidence",
+        "title": "Will the supplied evidence event happen?",
+        "category": "Politics",
+        "rules": "Resolves Yes if it happens.",
+        "close_time": "2026-03-21T23:59:59Z",
+        "outcomes": ["YES", "NO"],
+    }
+    evidence = [{
+        "source": "kalshi_random_pit_market_snapshot",
+        "published_at": "2026-03-21T20:00:00Z",
+        "probabilities": {"YES": 0.64, "NO": 0.36},
+        "retrieval_confidence": {"overall": 0.95},
+    }]
+    cfg = load_config()
+    cfg.arena.second_pass_enabled = False
+
+    forecast = forecast_arena_event(
+        event,
+        config=cfg,
+        use_gpt=True,
+        use_live_data=False,
+        external_evidence=evidence,
+    )
+
+    assert forecast.audit["live_evidence_count"] == 1
+    assert forecast.audit["live_evidence_preview"][0]["source"] == "kalshi_random_pit_market_snapshot"
+    payload = captured["messages"][1]["content"]
+    assert "kalshi_random_pit_market_snapshot" in payload
 
 
 def test_arena_forecast_records_response_deadline(monkeypatch):

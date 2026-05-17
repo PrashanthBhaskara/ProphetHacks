@@ -164,6 +164,64 @@ def test_call_direct_gemini_uses_google_search_grounding(monkeypatch):
     assert call_log.response_annotation_count == 1
 
 
+def test_call_direct_gemini_repairs_malformed_grounded_json(monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "AIza-test-secret-value")
+    calls = []
+
+    class Response:
+        def __init__(self, payload):
+            self._payload = payload
+
+        def raise_for_status(self):
+            return None
+
+        def json(self):
+            return self._payload
+
+    def fake_post(*args, **kwargs):
+        calls.append(kwargs["json"])
+        if len(calls) == 1:
+            return Response({
+                "responseId": "grounded-response-id",
+                "candidates": [{
+                    "content": {"parts": [{"text": '{"summary":"partial'}]},
+                    "groundingMetadata": {"groundingChunks": [{"web": {"uri": "https://example.com"}}]},
+                }],
+                "usageMetadata": {"promptTokenCount": 10, "candidatesTokenCount": 5},
+            })
+        return Response({
+            "responseId": "repair-response-id",
+            "candidates": [{"content": {"parts": [{"text": '{"summary":"partial"}'}]}}],
+            "usageMetadata": {"promptTokenCount": 20, "candidatesTokenCount": 3},
+        })
+
+    monkeypatch.setattr("dhruv_gpt_forecasting.openrouter.requests.post", fake_post)
+    model = ModelConfig(
+        name="test",
+        provider="gemini",
+        model="gemini-3-flash-preview",
+        api_key_env="GEMINI_API_KEY",
+        native_search_grounding_enabled=True,
+    )
+
+    payload, call_log = call_openrouter_json(
+        model=model,
+        messages=[{"role": "user", "content": "Return JSON"}],
+        budget=BudgetConfig(),
+        cache_key="test",
+        search_grounding=True,
+    )
+
+    assert payload == {"summary": "partial"}
+    assert calls[0]["tools"] == [{"google_search": {}}]
+    assert "tools" not in calls[1]
+    assert calls[1]["generationConfig"]["responseMimeType"] == "application/json"
+    assert call_log.input_tokens == 30
+    assert call_log.output_tokens == 8
+    assert call_log.fallback_path == "gemini_json_repair_after_parse_error"
+    assert call_log.provider_response_id == "grounded-response-id,repair-response-id"
+
+
 def test_preflight_offline_does_not_call_network(monkeypatch, tmp_path):
     monkeypatch.setenv("GEMINI_API_KEY", "AIza-test-secret-value")
 
@@ -201,7 +259,7 @@ def test_openrouter_status_handles_auth_and_model_success():
         calls.append(url)
         if url.endswith("/auth/key"):
             return Response(200, {"usage": 1, "label": "dev-key", "secret": "must-not-appear"})
-        return Response(200, {"data": [{"id": cfg.cheap_model.model}]})
+        return Response(200, {"data": [{"id": cfg.model.model}]})
 
     monkeypatch = pytest.MonkeyPatch()
     monkeypatch.setattr("dhruv_gpt_forecasting.preflight.requests.get", fake_get)
@@ -239,7 +297,7 @@ def test_openrouter_status_reads_nested_auth_key_usage():
     def fake_get(url, **kwargs):
         if url.endswith("/auth/key"):
             return Response(200, {"data": {"usage": 1.25, "limit": 50.0, "limit_remaining": 48.75}})
-        return Response(200, {"data": [{"id": cfg.cheap_model.model}]})
+        return Response(200, {"data": [{"id": cfg.model.model}]})
 
     monkeypatch = pytest.MonkeyPatch()
     monkeypatch.setattr("dhruv_gpt_forecasting.preflight.requests.get", fake_get)

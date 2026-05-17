@@ -1,4 +1,4 @@
-"""Canonical interfaces for Dhruv's GPT forecasting lane."""
+"""Canonical shared interfaces for the Arena forecasting agent."""
 
 from __future__ import annotations
 
@@ -6,8 +6,6 @@ from dataclasses import asdict, dataclass, field
 from typing import Any, Literal
 
 
-TradeRecommendation = Literal["BUY_YES", "BUY_NO", "BUY_YES_SMALL", "BUY_NO_SMALL", "NO_TRADE"]
-TradeSide = Literal["YES", "NO", "NONE"]
 EventStructure = Literal[
     "binary",
     "mutually_exclusive",
@@ -51,18 +49,6 @@ class MarketQuote:
             return max(0.0, self.yes_ask + self.no_ask - 1.0)
         if self.yes_bid is not None and self.yes_ask is not None:
             return max(0.0, self.yes_ask - self.yes_bid)
-        return None
-
-    @property
-    def executable_yes(self) -> float | None:
-        return self.yes_ask
-
-    @property
-    def executable_no(self) -> float | None:
-        if self.no_ask is not None:
-            return self.no_ask
-        if self.yes_bid is not None:
-            return 1.0 - self.yes_bid
         return None
 
     def to_dict(self) -> dict[str, Any]:
@@ -109,75 +95,6 @@ class FeaturePacket:
             "evidence_digest": self.evidence_digest[:8],
             "price_trajectory_tail": self.price_trajectory[-12:],
         }
-
-
-@dataclass
-class StatForecast:
-    probabilities: dict[str, float]
-    market_prior: float
-    calibrated_probability: float
-    uncertainty: float
-    confidence: float
-    reason_codes: list[str] = field(default_factory=list)
-    diagnostics: dict[str, Any] = field(default_factory=dict)
-
-    def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
-
-
-@dataclass
-class LaneForecast:
-    probabilities: dict[str, float]
-    confidence: float = 0.5
-    uncertainty: float = 0.5
-    defer_to_market: bool = True
-    market_delta_bps: int = 0
-    reason_codes: list[str] = field(default_factory=list)
-    key_evidence: list[dict[str, Any]] = field(default_factory=list)
-    counterarguments: list[dict[str, Any]] = field(default_factory=list)
-    information_gaps: list[str] = field(default_factory=list)
-    trade_recommendation: TradeRecommendation = "NO_TRADE"
-    raw: dict[str, Any] = field(default_factory=dict)
-
-    def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
-
-
-@dataclass
-class TradeDecision:
-    side: TradeSide
-    price: float | None
-    edge: float
-    threshold: float
-    stake: float
-    reason: str
-
-    def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
-
-
-@dataclass
-class SupervisorDecision:
-    probabilities: dict[str, float]
-    confidence: float
-    uncertainty: float
-    source: str
-    trade_recommendation: TradeRecommendation
-    trade_decision: TradeDecision
-    audit_summary: dict[str, Any] = field(default_factory=dict)
-
-    def to_prediction_response(self) -> dict[str, Any]:
-        return {
-            "probabilities": [
-                {"market": outcome, "probability": float(prob)}
-                for outcome, prob in self.probabilities.items()
-            ]
-        }
-
-    def to_dict(self) -> dict[str, Any]:
-        data = asdict(self)
-        data["prediction_response"] = self.to_prediction_response()
-        return data
 
 
 @dataclass
