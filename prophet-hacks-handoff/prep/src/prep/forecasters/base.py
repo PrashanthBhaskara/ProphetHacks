@@ -34,6 +34,13 @@ def build_user_prompt(packet: MarketPacket) -> str:
     event's `outcomes` list (binary events use ["YES", "NO"]). Probabilities
     don't have to sum to 1 — the scorer normalizes — but we ask for a coherent
     distribution to keep reasoning interpretable.
+
+    For BINARY events we additionally apply bi-direction prompting: ask the
+    model to reason about P(YES) and P(NO) as two INDEPENDENT questions and
+    intentionally NOT enforce sum-to-1. `forecast_from_response` then averages
+    `(p_yes + (1 - p_no)) / 2` to remove the well-documented primary-direction
+    bias most LLMs exhibit on binary forecasts. Per PAPER_NOTES.md +
+    STRATEGY_FINDINGS.md this is "a free calibration win" on 4/5 models.
     """
     probabilities_schema = {
         outcome: "float 0.01-0.99 — your P(this outcome)"
@@ -66,12 +73,23 @@ def build_user_prompt(packet: MarketPacket) -> str:
         },
     }
     outcome_list = ", ".join(repr(o) for o in packet.outcomes)
-    return (
+    instructions = (
         f"Forecast this market. The event has {len(packet.outcomes)} possible outcomes: {outcome_list}. "
         "Estimate the probability of each outcome. For mutually-exclusive outcomes the probabilities "
         "should be coherent (roughly sum to 1.0). For non-exclusive outcomes (rare) treat each as an "
-        "independent binary.\n\n"
-        f"MARKET_PACKET:\n{json.dumps(packet.to_dict(), indent=2, sort_keys=True)}\n\n"
+        "independent binary."
+    )
+    if packet.is_binary:
+        instructions += (
+            "\n\nBI-DIRECTION CALIBRATION (binary case): reason about P(YES) and P(NO) as TWO "
+            "INDEPENDENT questions. Do not constrain them to sum to 1.0 in your reasoning. "
+            "Set p_yes from your strongest case for YES; set p_no from your strongest case for NO. "
+            "If you're well-calibrated they'll roughly add to 1; if they don't, the supervisor "
+            "averages them to remove your primary-direction bias."
+        )
+    return (
+        instructions
+        + f"\n\nMARKET_PACKET:\n{json.dumps(packet.to_dict(), indent=2, sort_keys=True)}\n\n"
         f"REQUIRED_JSON_SCHEMA:\n{json.dumps(schema, indent=2)}"
     )
 
@@ -112,6 +130,21 @@ def forecast_from_response(
                 cleaned_probs[str(k)] = float(v)
             except (TypeError, ValueError):
                 continue
+
+    # Bi-direction averaging for binary events: if the model returned both
+    # YES and NO probabilities that don't sum to ~1, treat NO as an
+    # independent estimate of (1 - YES) and average. This is the calibration
+    # win from PAPER_NOTES.md. Must be done BEFORE ForecastValues's
+    # normalize_distribution would otherwise renormalize the signal away.
+    if packet.is_binary and {"YES", "NO"}.issubset(cleaned_probs):
+        py_raw = cleaned_probs["YES"]
+        pn_raw = cleaned_probs["NO"]
+        # Only average when the two estimates disagree by > 5pp; below that
+        # the model is already coherent and averaging is a no-op
+        if abs((py_raw + pn_raw) - 1.0) > 0.05:
+            py_eff = (py_raw + (1.0 - pn_raw)) / 2.0
+            py_eff = max(0.01, min(0.99, py_eff))
+            cleaned_probs = {"YES": py_eff, "NO": 1.0 - py_eff}
 
     if not cleaned_probs:
         # Legacy binary path: model returned `p_yes` only. Build a 2-outcome
