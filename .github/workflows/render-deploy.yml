@@ -1,0 +1,42 @@
+name: Render auto-deploy
+
+# Pings Render's Deploy Hook on every push to main so the live
+# https://prophet-hacks-forecast.onrender.com service rebuilds from
+# the new HEAD. We use this (rather than the Render GitHub App) because
+# the App would need to be installed by the repo owner; the Deploy Hook
+# only needs the RENDER_DEPLOY_HOOK secret, which the workspace owner
+# has already added to this repo.
+#
+# Manually triggerable via the Actions tab too (workflow_dispatch).
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      # Pushes touching nothing the server actually uses shouldn't rebuild.
+      - '**/*.md'
+      - 'docs/**'
+      - '.gitignore'
+      - 'DEPLOY.md'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Trigger Render deploy
+        env:
+          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "RENDER_DEPLOY_HOOK secret not set; aborting." >&2
+            exit 1
+          fi
+          response=$(curl -sS -o /dev/null -w "%{http_code}" -X POST "$HOOK")
+          echo "Render Deploy Hook responded with HTTP $response"
+          # Render returns 200 on accepted deploy requests, 201 on queued ones.
+          case "$response" in
+            200|201|202) echo "Deploy triggered." ;;
+            *) echo "Unexpected status from Render."; exit 1 ;;
+          esac
