@@ -400,7 +400,7 @@ def _dispatch_provider(config: ForecasterConfig):
         "claude_independent",
         "claude_grounded",
     ):
-        from .claude_agent import forecast
+        from .claude import forecast
         return forecast
     raise ValueError(f"Unknown forecaster provider: {config.provider}")
 

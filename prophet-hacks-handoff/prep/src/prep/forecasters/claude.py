@@ -65,7 +65,7 @@ _cost_tracker = _CostTracker()
 
 _PROVIDER_DEFAULTS: dict[str, dict[str, Any]] = {
     "claude_agent": {
-        "agent_prompt": "claude.md",
+        "agent_prompt": "claude_agent.md",
         "use_polymarket_prior": True,
     }
 }
