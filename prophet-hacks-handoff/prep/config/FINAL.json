@@ -15,7 +15,7 @@
     {
       "name": "claude_lane",
       "provider": "claude_agent",
-      "model": "anthropic/claude-sonnet-4-6",
+      "model": "anthropic/claude-sonnet-4-6:online",
       "api_key_env": "OPENROUTER_API_KEY",
       "api_key_fallback_envs": ["OPENROUTER_API_KEY2"],
       "enabled": true,
