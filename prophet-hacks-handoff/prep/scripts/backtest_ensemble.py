@@ -17,7 +17,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from prep.calibration import CalibrationConfig  # noqa: E402
 from prep.data import filter_by_category, load_eval_pack, load_subset_100  # noqa: E402
-from prep.ensemble import EnsembleMember, aggregate_forecasts  # noqa: E402
+from prep.ensemble import EnsembleMember, JudgeConfig, aggregate_forecasts  # noqa: E402
 from prep.forecasters import ForecasterConfig, forecast_from_config  # noqa: E402
 from prep.packets import packet_from_sample  # noqa: E402
 from prep.score import full_report  # noqa: E402
@@ -55,7 +55,9 @@ def main() -> int:
     cfg = _load_config(args.config)
     models = [ForecasterConfig.from_dict(m) for m in cfg.get("models", []) if m.get("enabled", True)]
     calibration = CalibrationConfig.from_dict(cfg.get("calibration"))
-    market_anchor_weight = float(cfg.get("ensemble", {}).get("market_anchor_weight", 1.5))
+    ensemble_cfg = cfg.get("ensemble", {})
+    market_anchor_weight = float(ensemble_cfg.get("market_anchor_weight", 1.5))
+    judge = JudgeConfig.from_dict(ensemble_cfg.get("judge"))
 
     samples = load_eval_pack(snapshot=args.snapshot) if args.source == "eval_pack" else load_subset_100()
     if args.category:
@@ -92,6 +94,7 @@ def main() -> int:
             members,
             calibration=calibration,
             market_anchor_weight=market_anchor_weight,
+            judge=judge,
         )
 
         p_yes.append(supervisor.calibrated_p_yes)

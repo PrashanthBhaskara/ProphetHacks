@@ -32,7 +32,7 @@ from pydantic import BaseModel
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from prep.calibration import CalibrationConfig  # noqa: E402
-from prep.ensemble import EnsembleMember, aggregate_forecasts  # noqa: E402
+from prep.ensemble import EnsembleMember, JudgeConfig, aggregate_forecasts  # noqa: E402
 from prep.forecasters import ForecasterConfig, forecast_from_config  # noqa: E402
 from prep.packets import packet_from_arena_event  # noqa: E402
 
@@ -75,7 +75,7 @@ class PredictionResponse(BaseModel):
 
 # --- Config loading -------------------------------------------------------
 
-def _load_models() -> tuple[list[ForecasterConfig], CalibrationConfig, float]:
+def _load_models() -> tuple[list[ForecasterConfig], CalibrationConfig, float, JudgeConfig]:
     cfg = json.loads(CONFIG_PATH.read_text())
     models = [
         ForecasterConfig.from_dict(m)
@@ -83,13 +83,16 @@ def _load_models() -> tuple[list[ForecasterConfig], CalibrationConfig, float]:
         if m.get("enabled", True)
     ]
     calibration = CalibrationConfig.from_dict(cfg.get("calibration"))
-    market_anchor_weight = float(cfg.get("ensemble", {}).get("market_anchor_weight", 1.5))
-    return models, calibration, market_anchor_weight
+    ensemble_cfg = cfg.get("ensemble", {})
+    market_anchor_weight = float(ensemble_cfg.get("market_anchor_weight", 1.5))
+    judge = JudgeConfig.from_dict(ensemble_cfg.get("judge"))
+    return models, calibration, market_anchor_weight, judge
 
 
 _models: list[ForecasterConfig] = []
 _calibration: CalibrationConfig = CalibrationConfig()
 _market_anchor_weight: float = 1.5
+_judge: JudgeConfig = JudgeConfig()
 
 
 # --- FastAPI app ----------------------------------------------------------
@@ -99,8 +102,8 @@ app = FastAPI(title="ProphetHacks Forecast Agent")
 
 @app.on_event("startup")
 def _startup() -> None:
-    global _models, _calibration, _market_anchor_weight
-    _models, _calibration, _market_anchor_weight = _load_models()
+    global _models, _calibration, _market_anchor_weight, _judge
+    _models, _calibration, _market_anchor_weight, _judge = _load_models()
     logger.info("Loaded %d enabled lanes: %s", len(_models), [m.name for m in _models])
 
 
@@ -109,6 +112,8 @@ def health() -> dict:
     return {
         "status": "ok",
         "enabled_lanes": [m.name for m in _models],
+        "judge_enabled": _judge.enabled,
+        "judge_model": _judge.model if _judge.enabled else None,
         "config": str(CONFIG_PATH),
     }
 
@@ -148,6 +153,7 @@ def predict_endpoint(event: ArenaEvent) -> PredictionResponse:
             [],
             calibration=_calibration,
             market_anchor_weight=_market_anchor_weight,
+            judge=_judge,
         )
     else:
         supervisor = aggregate_forecasts(
@@ -155,6 +161,7 @@ def predict_endpoint(event: ArenaEvent) -> PredictionResponse:
             forecasts,
             calibration=_calibration,
             market_anchor_weight=_market_anchor_weight,
+            judge=_judge,
         )
 
     # Map calibrated distribution onto the event's outcomes exactly (preserve order).
@@ -175,9 +182,9 @@ def predict(event: dict) -> dict:
     Mirrors the wire contract of `POST /predict`. Returns a dict shaped
     `{"probabilities": [{"market": ..., "probability": ...}, ...]}`.
     """
-    global _models, _calibration, _market_anchor_weight
+    global _models, _calibration, _market_anchor_weight, _judge
     if not _models:
-        _models, _calibration, _market_anchor_weight = _load_models()
+        _models, _calibration, _market_anchor_weight, _judge = _load_models()
     arena = ArenaEvent(**event)
     response = predict_endpoint(arena)
     return response.model_dump()
