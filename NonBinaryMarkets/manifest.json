@@ -1,6 +1,8 @@
 {
   "base_url": "https://external-api.kalshi.com/trade-api/v2",
-  "created_at": "2026-05-16T20:38:55.025792Z",
+  "component_sets": "complete",
+  "created_at": "2026-05-17T02:14:15.900165Z",
+  "download_workers": 8,
   "end_date_inclusive": "2026-05-09",
   "historical_cache_source": "/Users/prashanth/Desktop/ProphetHacks/Kalshitopvolmarkets/markets/historical_markets_2026-01-01_2026-05-09.jsonl",
   "historical_cutoff": {
@@ -9,16 +11,18 @@
     "trades_created_ts": "2026-03-17T00:00:00Z"
   },
   "include_live_supplement": false,
-  "max_markets_per_group": 8,
+  "max_markets_per_group": 0,
   "min_markets_per_group": 2,
   "notes": [
     "Kalshi markets are primarily binary; this dataset groups related component markets as context.",
     "Default run reuses the prior historical cache to stay under the requested runtime budget.",
     "OOS prompt builders must filter context candles to timestamps at or before the target as_of."
   ],
-  "period_interval_minutes": 60,
+  "period_interval_minutes": 1,
+  "processed_week_count": 19,
   "ranking": "Event/MVE groups ranked by summed component volume_fp for markets closing in each week.",
+  "resume_from_week": "2026-01-01",
   "start_date": "2026-01-01",
-  "top_groups_per_week": 25,
+  "top_groups_per_week": 250,
   "topvol_selected_dir": "/Users/prashanth/Desktop/ProphetHacks/Kalshitopvolmarkets/markets"
 }

@@ -9,12 +9,12 @@ single event: winner markets, spreads, totals, ladder markets, and multivariate
 combo markets when available. These groups can inform the target binary market
 without becoming direct trading targets.
 
-The default collector is intentionally smaller than the 1-minute target-market
-dataset:
+The default collector now mirrors the target-market candle granularity while
+expanding the context universe:
 
-- top 25 context groups per week
-- up to 8 component markets per group
-- 1-hour OHLCV candles
+- top 250 context groups per week
+- complete component sets for each selected group
+- 1-minute OHLCV candles
 - same January 1 through May 9, 2026 window
 
 ## Layout
@@ -33,10 +33,29 @@ dataset:
 python3 collect_kalshi_context_markets.py \
   --start-date 2026-01-01 \
   --end-date 2026-05-09 \
-  --top-groups-per-week 25 \
-  --max-markets-per-group 8 \
-  --period-interval 60
+  --top-groups-per-week 250 \
+  --max-markets-per-group 0 \
+  --period-interval 1 \
+  --download-workers 8
 ```
+
+To resume from a specific weekly window without reprocessing earlier weeks:
+
+```bash
+python3 collect_kalshi_context_markets.py \
+  --start-date 2026-01-01 \
+  --end-date 2026-05-09 \
+  --resume-from-week 2026-03-05 \
+  --top-groups-per-week 250 \
+  --max-markets-per-group 0 \
+  --period-interval 1 \
+  --download-workers 8
+```
+
+`--max-markets-per-group 0` means no truncation: every component market in a
+selected context group is included. Rankings include `group_type_label` and
+`group_type_detail` fields such as `two_sided_winner`, `spread_ladder`,
+`total_ladder`, `multi_outcome_winner`, and `mve_combo`.
 
 The default ranking source is the already downloaded
 `Kalshitopvolmarkets/markets/historical_markets_2026-01-01_2026-05-09.jsonl`

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Collect weekly Kalshi context groups and hourly component-market candles.
+"""Collect weekly Kalshi context groups and component-market candles.
 
 The target trading dataset is binary. This collector builds event-level context
 groups around related component markets so an LLM can see sibling outcomes,
@@ -14,6 +14,7 @@ import json
 import os
 import sys
 from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from pathlib import Path
@@ -42,14 +43,24 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--start-date", default="2026-01-01")
     parser.add_argument("--end-date", default="2026-05-09", help="Inclusive end date.")
+    parser.add_argument(
+        "--resume-from-week",
+        help="Only process weekly windows whose label is this date or later, preserving combined outputs for earlier weeks.",
+    )
     parser.add_argument("--out-dir", type=Path, default=default_out)
     parser.add_argument("--base-url", default=base.BASE_URL)
-    parser.add_argument("--top-groups-per-week", type=int, default=25)
-    parser.add_argument("--max-markets-per-group", type=int, default=8)
+    parser.add_argument("--top-groups-per-week", type=int, default=250)
+    parser.add_argument(
+        "--max-markets-per-group",
+        type=int,
+        default=0,
+        help="Maximum component markets per selected group. Use 0 for complete component sets.",
+    )
     parser.add_argument("--min-markets-per-group", type=int, default=2)
-    parser.add_argument("--period-interval", type=int, choices=[1, 60, 1440], default=60)
+    parser.add_argument("--period-interval", type=int, choices=[1, 60, 1440], default=1)
     parser.add_argument("--limit", type=int, default=1000)
     parser.add_argument("--sleep", type=float, default=0.05)
+    parser.add_argument("--download-workers", type=int, default=8)
     parser.add_argument("--historical-cache", type=Path, default=default_cache)
     parser.add_argument(
         "--topvol-selected-dir",
@@ -274,6 +285,28 @@ def market_trade_count(_: dict[str, Any]) -> int:
     return 0
 
 
+def classify_group(group_kind: str, group_ticker: str, components: list[dict[str, Any]]) -> tuple[str, str]:
+    series = sorted({base.infer_series_ticker(market).upper() for market in components})
+    series_text = ",".join(series)
+    title_text = " ".join(str(market.get("title") or "").lower() for market in components)
+    ticker = group_ticker.upper()
+    component_count = len(components)
+
+    if group_kind == "mve_collection":
+        return "mve_combo", "multivariate combo/collection"
+    if "SPREAD" in series_text or "wins by over" in title_text or "points?" in title_text:
+        return "spread_ladder", series_text
+    if "TOTAL" in series_text or "total" in series_text or "combined score" in title_text:
+        return "total_ladder", series_text
+    if any(token in series_text or token in ticker for token in ("PGATOUR", "MARMAD", "OSCAR", "NASCAR", "NEXT", "WORLD", "MVP", "CONTEST")):
+        return "multi_outcome_winner", series_text
+    if component_count == 2 and ("GAME" in series_text or "MATCH" in series_text or "FIGHT" in series_text):
+        return "two_sided_winner", series_text
+    if component_count > 2:
+        return "multi_component_event", series_text
+    return "related_binary_pair", series_text
+
+
 def selected_context_groups(
     week: base.Window,
     markets: list[dict[str, Any]],
@@ -322,7 +355,16 @@ def selected_context_groups(
             group["markets"],
             key=lambda market: (-market_volume(market), market.get("ticker") or ""),
         )
-        selected_components = components[:max_markets_per_group]
+        selected_components = (
+            components
+            if max_markets_per_group <= 0
+            else components[:max_markets_per_group]
+        )
+        group_type_label, group_type_detail = classify_group(
+            group["group_kind"],
+            group["group_ticker"],
+            selected_components,
+        )
         close_times = [
             base.parse_iso_ts(market.get("close_time"))
             for market in selected_components
@@ -334,10 +376,13 @@ def selected_context_groups(
             "rank": rank,
             "group_key": group["group_key"],
             "group_kind": group["group_kind"],
+            "group_type_label": group_type_label,
+            "group_type_detail": group_type_detail,
             "group_ticker": group["group_ticker"],
             "group_volume": decimal_to_str(group["group_volume"]),
             "component_count": len(components),
             "selected_component_count": len(selected_components),
+            "component_set_complete": str(len(selected_components) == len(components)).lower(),
             "event_tickers": ",".join(sorted(value for value in group["event_tickers"] if value)),
             "series_tickers": ",".join(sorted(value for value in group["series_tickers"] if value)),
             "representative_title": selected_components[0].get("title") if selected_components else "",
@@ -357,6 +402,8 @@ def selected_context_groups(
                     "component_rank": component_rank,
                     "group_key": group["group_key"],
                     "group_kind": group["group_kind"],
+                    "group_type_label": group_type_label,
+                    "group_type_detail": group_type_detail,
                     "group_ticker": group["group_ticker"],
                     "ticker": ticker,
                     "weekly_volume": decimal_to_str(market_volume(market)),
@@ -424,10 +471,13 @@ GROUP_FIELDS = [
     "rank",
     "group_key",
     "group_kind",
+    "group_type_label",
+    "group_type_detail",
     "group_ticker",
     "group_volume",
     "component_count",
     "selected_component_count",
+    "component_set_complete",
     "event_tickers",
     "series_tickers",
     "representative_title",
@@ -443,6 +493,8 @@ COMPONENT_FIELDS = [
     "component_rank",
     "group_key",
     "group_kind",
+    "group_type_label",
+    "group_type_detail",
     "group_ticker",
     "ticker",
     "weekly_volume",
@@ -512,6 +564,116 @@ def remove_unselected_candles(
     return removed
 
 
+def download_one_candle(
+    *,
+    base_url: str,
+    sleep_s: float,
+    out_dir: Path,
+    week: base.Window,
+    row: dict[str, Any],
+    market: dict[str, Any] | None,
+    period_interval: int,
+    cutoff: datetime,
+    force: bool,
+) -> dict[str, Any]:
+    ticker = row["ticker"]
+    path = base.candle_path(
+        out_dir,
+        period_interval=period_interval,
+        week_label=week.label,
+        ticker=ticker,
+    )
+    if path.exists() and path.stat().st_size > 40 and not force:
+        return {"ticker": ticker, "status": "skipped", "rows": 0}
+    if not market:
+        return {
+            "ticker": ticker,
+            "status": "error",
+            "rows": 0,
+            "error": "metadata_missing",
+        }
+    try:
+        worker_client = base.KalshiClient(base_url, sleep_s=sleep_s)
+        candle_items = base.fetch_candles_with_fallback(
+            worker_client,
+            market,
+            week,
+            period_interval=period_interval,
+            cutoff=cutoff,
+        )
+        flat_rows = [
+            base.flatten_candle(candle, ticker=ticker, week=week, endpoint_source=endpoint_source)
+            for endpoint_source, candle in candle_items
+        ]
+        base.write_candles(path, flat_rows)
+        return {"ticker": ticker, "status": "downloaded", "rows": len(flat_rows)}
+    except Exception as exc:  # noqa: BLE001 - collect-and-continue job.
+        return {"ticker": ticker, "status": "error", "rows": 0, "error": repr(exc)}
+
+
+def download_week_candles_parallel(
+    *,
+    base_url: str,
+    sleep_s: float,
+    out_dir: Path,
+    week: base.Window,
+    selected: list[dict[str, Any]],
+    markets: dict[str, dict[str, Any]],
+    period_interval: int,
+    cutoff: datetime,
+    force: bool,
+    workers: int,
+) -> dict[str, Any]:
+    stats = {"downloaded": 0, "skipped": 0, "errors": 0, "rows": 0}
+    total = len(selected)
+    if total == 0:
+        return stats
+
+    with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
+        futures = [
+            pool.submit(
+                download_one_candle,
+                base_url=base_url,
+                sleep_s=sleep_s,
+                out_dir=out_dir,
+                week=week,
+                row=row,
+                market=markets.get(row["ticker"]),
+                period_interval=period_interval,
+                cutoff=cutoff,
+                force=force,
+            )
+            for row in selected
+        ]
+        for idx, future in enumerate(as_completed(futures), start=1):
+            result = future.result()
+            status = result["status"]
+            if status == "downloaded":
+                stats["downloaded"] += 1
+                stats["rows"] += int(result.get("rows") or 0)
+            elif status == "skipped":
+                stats["skipped"] += 1
+            else:
+                stats["errors"] += 1
+                base.append_error(
+                    out_dir,
+                    {
+                        "week": week.label,
+                        "ticker": result.get("ticker"),
+                        "stage": "candles",
+                        "error": result.get("error"),
+                    },
+                )
+            if idx % 50 == 0 or idx == total:
+                print(
+                    f"  {week.label} candles {idx}/{total}: "
+                    f"downloaded={stats['downloaded']} skipped={stats['skipped']} "
+                    f"errors={stats['errors']} rows={stats['rows']}",
+                    flush=True,
+                )
+    return stats
+
+
 def update_combined_top_groups(out_dir: Path, weeks: list[base.Window]) -> None:
     combined: list[dict[str, Any]] = []
     for week in weeks:
@@ -521,6 +683,20 @@ def update_combined_top_groups(out_dir: Path, weeks: list[base.Window]) -> None:
                 combined.extend(csv.DictReader(handle))
     if combined:
         write_csv(out_dir / "weekly_top_groups.csv", combined, GROUP_FIELDS)
+
+
+def load_run_stats(path: Path) -> dict[str, dict[str, Any]]:
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return {}
+    return {
+        row["week_start"]: row
+        for row in data.get("weeks", [])
+        if row.get("week_start")
+    }
 
 
 def write_target_context_links(out_dir: Path, target_csv: Path) -> None:
@@ -553,6 +729,7 @@ def write_target_context_links(out_dir: Path, target_csv: Path) -> None:
                     "event_ticker": event_ticker,
                     "context_group_key": group.get("group_key"),
                     "context_group_rank": group.get("rank"),
+                    "context_group_type_label": group.get("group_type_label"),
                     "context_component_tickers": group.get("component_tickers"),
                 }
                 out.write(json.dumps(payload, sort_keys=True) + "\n")
@@ -569,6 +746,11 @@ def main() -> int:
     start = base.parse_date(args.start_date)
     end = base.parse_date(args.end_date)
     weeks = base.weekly_windows(start, end)
+    process_weeks = weeks
+    if args.resume_from_week:
+        process_weeks = [week for week in weeks if week.label >= args.resume_from_week]
+        if not process_weeks:
+            raise ValueError(f"resume week {args.resume_from_week} is outside the selected date range")
     client = base.KalshiClient(args.base_url, sleep_s=args.sleep)
 
     cutoff = client.get("/historical/cutoff")
@@ -596,10 +778,14 @@ def main() -> int:
         "created_at": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
         "start_date": args.start_date,
         "end_date_inclusive": args.end_date,
+        "resume_from_week": args.resume_from_week,
+        "processed_week_count": len(process_weeks),
         "top_groups_per_week": args.top_groups_per_week,
         "max_markets_per_group": args.max_markets_per_group,
+        "component_sets": "complete" if args.max_markets_per_group <= 0 else "truncated",
         "min_markets_per_group": args.min_markets_per_group,
         "period_interval_minutes": args.period_interval,
+        "download_workers": args.download_workers,
         "base_url": args.base_url,
         "historical_cutoff": cutoff,
         "historical_cache_source": historical_cache_source,
@@ -617,9 +803,10 @@ def main() -> int:
     for week_label, markets in topvol_by_week.items():
         historical_by_week.setdefault(week_label, {}).update(markets)
 
-    run_stats: list[dict[str, Any]] = []
-    for idx, week in enumerate(weeks, start=1):
-        print(f"[{idx}/{len(weeks)}] {week.label}: selecting context groups", flush=True)
+    state_path = out_dir / "state" / "run_state.json"
+    run_stats_by_week = load_run_stats(state_path)
+    for idx, week in enumerate(process_weeks, start=1):
+        print(f"[{idx}/{len(process_weeks)}] {week.label}: selecting context groups", flush=True)
         live_markets = (
             fetch_live_context_markets(client, week, limit=args.limit)
             if args.include_live_supplement
@@ -652,29 +839,34 @@ def main() -> int:
             )
             if removed_stale:
                 print(f"[{week.label}] removed {removed_stale} stale candle files", flush=True)
-            candle_stats = base.download_week_candles(
-                client,
-                out_dir,
-                week,
-                component_rows,
-                selected_markets,
+            candle_stats = download_week_candles_parallel(
+                base_url=args.base_url,
+                sleep_s=args.sleep,
+                out_dir=out_dir,
+                week=week,
+                selected=component_rows,
+                markets=selected_markets,
                 period_interval=args.period_interval,
                 cutoff=market_cutoff,
                 force=args.force,
+                workers=args.download_workers,
             )
             print(f"[{week.label}] candles {candle_stats}", flush=True)
 
-        run_stats.append(
-            {
-                "week_start": week.label,
-                "week_end": week.end.date().isoformat(),
-                "groups": len(group_rows),
-                "component_markets": len(component_rows),
-                "live_supplement_markets": len(live_markets),
-                "candles": candle_stats,
-            }
-        )
-        write_json(out_dir / "state" / "run_state.json", {"weeks": run_stats})
+        run_stats_by_week[week.label] = {
+            "week_start": week.label,
+            "week_end": week.end.date().isoformat(),
+            "groups": len(group_rows),
+            "component_markets": len(component_rows),
+            "live_supplement_markets": len(live_markets),
+            "candles": candle_stats,
+        }
+        ordered_stats = [
+            run_stats_by_week[window.label]
+            for window in weeks
+            if window.label in run_stats_by_week
+        ]
+        write_json(state_path, {"weeks": ordered_stats})
 
     update_combined_top_groups(out_dir, weeks)
     write_target_context_links(out_dir, KALSHI_TOPVOL / "weekly_top_markets.csv")

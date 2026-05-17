@@ -2,117 +2,117 @@
   "weeks": [
     {
       "candles": {
-        "downloaded": 0,
+        "downloaded": 1,
         "errors": 0,
-        "rows": 0,
-        "skipped": 56
+        "rows": 513,
+        "skipped": 1346
       },
-      "component_markets": 56,
-      "groups": 25,
+      "component_markets": 1347,
+      "groups": 250,
       "live_supplement_markets": 0,
       "week_end": "2026-01-08",
       "week_start": "2026-01-01"
     },
     {
       "candles": {
-        "downloaded": 0,
+        "downloaded": 3,
         "errors": 0,
-        "rows": 0,
-        "skipped": 92
+        "rows": 9081,
+        "skipped": 1384
       },
-      "component_markets": 92,
-      "groups": 25,
+      "component_markets": 1387,
+      "groups": 250,
       "live_supplement_markets": 0,
       "week_end": "2026-01-15",
       "week_start": "2026-01-08"
     },
     {
       "candles": {
-        "downloaded": 0,
+        "downloaded": 1,
         "errors": 0,
-        "rows": 0,
-        "skipped": 80
+        "rows": 2195,
+        "skipped": 1443
       },
-      "component_markets": 80,
-      "groups": 25,
+      "component_markets": 1444,
+      "groups": 250,
       "live_supplement_markets": 0,
       "week_end": "2026-01-22",
       "week_start": "2026-01-15"
     },
     {
       "candles": {
-        "downloaded": 0,
+        "downloaded": 1,
         "errors": 0,
-        "rows": 0,
-        "skipped": 68
+        "rows": 761,
+        "skipped": 1534
       },
-      "component_markets": 68,
-      "groups": 25,
+      "component_markets": 1535,
+      "groups": 250,
       "live_supplement_markets": 0,
       "week_end": "2026-01-29",
       "week_start": "2026-01-22"
     },
     {
       "candles": {
-        "downloaded": 0,
+        "downloaded": 2,
         "errors": 0,
-        "rows": 0,
-        "skipped": 62
+        "rows": 2417,
+        "skipped": 1500
       },
-      "component_markets": 62,
-      "groups": 25,
+      "component_markets": 1502,
+      "groups": 250,
       "live_supplement_markets": 0,
       "week_end": "2026-02-05",
       "week_start": "2026-01-29"
     },
     {
       "candles": {
-        "downloaded": 0,
+        "downloaded": 5,
         "errors": 0,
-        "rows": 0,
-        "skipped": 104
+        "rows": 6498,
+        "skipped": 1870
       },
-      "component_markets": 104,
-      "groups": 25,
+      "component_markets": 1875,
+      "groups": 250,
       "live_supplement_markets": 0,
       "week_end": "2026-02-12",
       "week_start": "2026-02-05"
     },
     {
       "candles": {
-        "downloaded": 0,
+        "downloaded": 2,
         "errors": 0,
-        "rows": 0,
-        "skipped": 81
+        "rows": 660,
+        "skipped": 1244
       },
-      "component_markets": 81,
-      "groups": 25,
+      "component_markets": 1246,
+      "groups": 250,
       "live_supplement_markets": 0,
       "week_end": "2026-02-19",
       "week_start": "2026-02-12"
     },
     {
       "candles": {
-        "downloaded": 0,
+        "downloaded": 5,
         "errors": 0,
-        "rows": 0,
-        "skipped": 74
+        "rows": 3380,
+        "skipped": 1765
       },
-      "component_markets": 74,
-      "groups": 25,
+      "component_markets": 1770,
+      "groups": 250,
       "live_supplement_markets": 0,
       "week_end": "2026-02-26",
       "week_start": "2026-02-19"
     },
     {
       "candles": {
-        "downloaded": 0,
+        "downloaded": 2,
         "errors": 0,
-        "rows": 0,
-        "skipped": 58
+        "rows": 482,
+        "skipped": 1818
       },
-      "component_markets": 58,
-      "groups": 25,
+      "component_markets": 1820,
+      "groups": 250,
       "live_supplement_markets": 0,
       "week_end": "2026-03-05",
       "week_start": "2026-02-26"
@@ -122,23 +122,23 @@
         "downloaded": 0,
         "errors": 0,
         "rows": 0,
-        "skipped": 64
+        "skipped": 1292
       },
-      "component_markets": 64,
-      "groups": 25,
+      "component_markets": 1292,
+      "groups": 250,
       "live_supplement_markets": 0,
       "week_end": "2026-03-12",
       "week_start": "2026-03-05"
     },
     {
       "candles": {
-        "downloaded": 0,
+        "downloaded": 4,
         "errors": 0,
-        "rows": 0,
-        "skipped": 101
+        "rows": 3338,
+        "skipped": 2107
       },
-      "component_markets": 101,
-      "groups": 25,
+      "component_markets": 2111,
+      "groups": 250,
       "live_supplement_markets": 0,
       "week_end": "2026-03-19",
       "week_start": "2026-03-12"
@@ -148,23 +148,23 @@
         "downloaded": 0,
         "errors": 0,
         "rows": 0,
-        "skipped": 62
+        "skipped": 238
       },
-      "component_markets": 62,
-      "groups": 25,
+      "component_markets": 238,
+      "groups": 111,
       "live_supplement_markets": 0,
       "week_end": "2026-03-26",
       "week_start": "2026-03-19"
     },
     {
       "candles": {
-        "downloaded": 0,
+        "downloaded": 1,
         "errors": 0,
-        "rows": 0,
-        "skipped": 62
+        "rows": 1129,
+        "skipped": 228
       },
-      "component_markets": 62,
-      "groups": 25,
+      "component_markets": 229,
+      "groups": 106,
       "live_supplement_markets": 0,
       "week_end": "2026-04-02",
       "week_start": "2026-03-26"
@@ -174,23 +174,23 @@
         "downloaded": 0,
         "errors": 0,
         "rows": 0,
-        "skipped": 59
+        "skipped": 215
       },
-      "component_markets": 59,
-      "groups": 25,
+      "component_markets": 215,
+      "groups": 102,
       "live_supplement_markets": 0,
       "week_end": "2026-04-09",
       "week_start": "2026-04-02"
     },
     {
       "candles": {
-        "downloaded": 0,
+        "downloaded": 1,
         "errors": 0,
-        "rows": 0,
-        "skipped": 61
+        "rows": 1434,
+        "skipped": 245
       },
-      "component_markets": 61,
-      "groups": 25,
+      "component_markets": 246,
+      "groups": 94,
       "live_supplement_markets": 0,
       "week_end": "2026-04-16",
       "week_start": "2026-04-09"
@@ -200,10 +200,10 @@
         "downloaded": 0,
         "errors": 0,
         "rows": 0,
-        "skipped": 56
+        "skipped": 210
       },
-      "component_markets": 56,
-      "groups": 25,
+      "component_markets": 210,
+      "groups": 97,
       "live_supplement_markets": 0,
       "week_end": "2026-04-23",
       "week_start": "2026-04-16"
@@ -213,10 +213,10 @@
         "downloaded": 0,
         "errors": 0,
         "rows": 0,
-        "skipped": 52
+        "skipped": 219
       },
-      "component_markets": 52,
-      "groups": 25,
+      "component_markets": 219,
+      "groups": 105,
       "live_supplement_markets": 0,
       "week_end": "2026-04-30",
       "week_start": "2026-04-23"
@@ -226,10 +226,10 @@
         "downloaded": 0,
         "errors": 0,
         "rows": 0,
-        "skipped": 57
+        "skipped": 224
       },
-      "component_markets": 57,
-      "groups": 25,
+      "component_markets": 224,
+      "groups": 104,
       "live_supplement_markets": 0,
       "week_end": "2026-05-07",
       "week_start": "2026-04-30"
@@ -239,10 +239,10 @@
         "downloaded": 0,
         "errors": 0,
         "rows": 0,
-        "skipped": 67
+        "skipped": 253
       },
-      "component_markets": 67,
-      "groups": 25,
+      "component_markets": 253,
+      "groups": 112,
       "live_supplement_markets": 0,
       "week_end": "2026-05-10",
       "week_start": "2026-05-07"
