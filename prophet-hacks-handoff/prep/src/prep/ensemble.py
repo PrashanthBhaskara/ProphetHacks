@@ -59,6 +59,12 @@ def _resolve_binary_anchor(
     """
     if data_baseline is None:
         return packet.kalshi.market_mid
+    # Preflight: RecommendedPredictor's _q_of reads only yes_ask/no_ask.
+    # If either is missing, fall back to packet.kalshi.market_mid, which
+    # has a last_price fallback. Avoids Platt-correcting from 0.5 on
+    # illiquid markets.
+    if packet.kalshi.yes_ask is None or packet.kalshi.no_ask is None:
+        return packet.kalshi.market_mid
     event_dict = {
         "event_ticker": packet.event_ticker,
         "market_ticker": packet.market_ticker,
