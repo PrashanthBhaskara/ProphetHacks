@@ -1,0 +1,35 @@
+[
+    {
+        "event_ticker": "KXPREMIERLEAGUE-26",
+        "market_ticker": "KXPREMIERLEAGUE-26",
+        "title": "Who will win the 2025-26 English Premier League?",
+        "subtitle": null,
+        "description": "If Liverpool wins the English Premier League, then the market resolves to Yes.",
+        "category": "Sports",
+        "rules": "If Liverpool wins the English Premier League, then the market resolves to Yes.",
+        "close_time": "2026-05-24T14:00:00Z",
+        "outcomes": [
+          "Liverpool",
+          "Arsenal",
+          "Man City",
+          "Chelsea",
+          "Newcastle",
+          "Man Utd",
+          "Tottenham",
+          "Aston Villa",
+          "Nottingham Forest",
+          "Brighton",
+          "Bournemouth",
+          "Everton",
+          "Crystal Palace",
+          "West Ham",
+          "Leeds",
+          "Fulham",
+          "Brentford",
+          "Wolves",
+          "Burnley",
+          "Sunderland"
+        ],
+        "resolved_outcome": null
+      }
+]

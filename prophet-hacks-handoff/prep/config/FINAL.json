@@ -1,0 +1,72 @@
+{
+  "models": [
+    {
+      "name": "gemini_flash",
+      "provider": "gemini",
+      "model": "gemini-3-flash-preview",
+      "api_key_env": "GEMINI_API_KEY",
+      "api_key_fallback_envs": ["GOOGLE_API_KEY"],
+      "enabled": true,
+      "weight": 1.0,
+      "temperature": 0.1,
+      "max_tokens": 8192,
+      "system_prompt_path": "src/prep/forecasters/prompts/gemini_context_forecasting_system.txt"
+    },
+    {
+      "name": "claude_lane",
+      "provider": "openrouter",
+      "model": "anthropic/claude-sonnet-4-6",
+      "api_key_env": "OPENROUTER_API_KEY",
+      "api_key_fallback_envs": ["OPENROUTER_API_KEY2"],
+      "enabled": true,
+      "weight": 1.0,
+      "temperature": 0.1,
+      "max_tokens": 3800,
+      "reasoning_effort": "medium"
+    },
+    {
+      "name": "grok_lane",
+      "provider": "grok",
+      "model": "x-ai/grok-4.20",
+      "api_key_env": "OPENROUTER_API_KEY",
+      "api_key_fallback_envs": ["OPENROUTER_API_KEY2"],
+      "enabled": true,
+      "weight": 1.0,
+      "temperature": 0.1,
+      "max_tokens": 3600
+    }
+  ],
+  "ensemble": {
+    "market_anchor_weight": 1.5,
+    "judge": {
+      "enabled": true,
+      "provider": "openrouter",
+      "model": "openai/gpt-5.4",
+      "api_key_env": "OPENROUTER_API_KEY",
+      "api_key_fallback_envs": ["OPENROUTER_API_KEY2"],
+      "system_prompt_path": "src/prep/forecasters/prompts/judge_aggregator_system.md",
+      "temperature": 0.0,
+      "max_tokens": 1400,
+      "blend_weight": 0.35,
+      "min_members": 2,
+      "timeout_seconds": 120
+    }
+  },
+  "calibration": {
+    "base_weight": 0.35,
+    "category_weights": {
+      "Crypto": 0.08,
+      "Sports": 0.20,
+      "Weather": 0.45,
+      "Politics": 0.40,
+      "Economics": 0.25,
+      "Entertainment": 0.25,
+      "Other": 0.20
+    },
+    "horizon_weights": {
+      "under_3h": 0.30,
+      "under_24h": 0.70,
+      "over_24h": 1.00
+    }
+  }
+}

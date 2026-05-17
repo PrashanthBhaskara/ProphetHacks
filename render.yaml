@@ -1,0 +1,32 @@
+# Render Blueprint: Prophet Hacks forecast API.
+# Docs: https://render.com/docs/blueprint-spec
+#
+# Tradeoffs on the Free plan we chose:
+#   - plan: free -> $0. BUT free instances spin down after 15 min of inactivity,
+#     so the first request after a quiet stretch incurs a 30-60s cold start.
+#     Mitigation: configure an external uptime monitor (UptimeRobot free tier,
+#     cron-job.org, or a GitHub Action) to hit /healthz every 10 minutes during
+#     the 2-week eval. See DEPLOY.md.
+#   - --workers 1 -> Free instances have 512MB RAM; one uvicorn worker is enough
+#     for the cached Kalshi GETs we're serving and avoids OOMing on cold start.
+#   - healthCheckPath: /healthz -> Render uses this for zero-downtime restarts.
+#   - autoDeploy: true -> push to this branch and Render rebuilds.
+
+services:
+  - type: web
+    name: prophet-hacks-forecast
+    runtime: python
+    region: oregon
+    plan: free
+    branch: main
+    autoDeploy: true
+    healthCheckPath: /healthz
+    buildCommand: pip install --upgrade pip && pip install -r server/requirements.txt
+    startCommand: uvicorn server.main:app --host 0.0.0.0 --port $PORT --workers 1 --log-level info
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: CACHE_TTL_SECONDS
+        value: "60"
+      - key: MAX_BATCH
+        value: "200"

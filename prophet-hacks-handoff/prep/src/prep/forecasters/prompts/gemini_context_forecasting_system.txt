@@ -79,5 +79,5 @@ Output requirements:
 - Return only valid JSON.
 - Do not include Markdown.
 - Do not include prose outside the JSON.
-- Use probabilities as decimal floats between 0.01 and 0.99.
+- Use probabilities as decimal floats between 0.001 and 0.999.
 - Make probabilities calibrated and coherent, not extreme unless the outcome is nearly settled.

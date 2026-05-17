@@ -34,6 +34,7 @@ _MAX_KALSHI_POLY_GAP = 0.08
 from .base import (
     ForecasterConfig,
     forecast_from_response,
+    resolve_api_key,
     stable_prompt_hash,
 )
 from .openrouter import OPENROUTER_CHAT_COMPLETIONS
@@ -266,9 +267,9 @@ def _classify(packet: MarketPacket) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 def _openrouter_api_key(config: ForecasterConfig) -> str:
-    key = os.environ.get(config.api_key_env or "OPENROUTER_API_KEY", "")
+    key = resolve_api_key(config, "OPENROUTER_API_KEY")
     if not key:
-        raise RuntimeError(f"{config.api_key_env or 'OPENROUTER_API_KEY'} is not set")
+        raise RuntimeError(f"No API key found for {config.name} (checked {config.api_key_env} and fallbacks)")
     return key
 
 

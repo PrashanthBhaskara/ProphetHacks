@@ -23,7 +23,7 @@ TradeRecommendation = Literal["BUY_YES", "BUY_NO", "NO_TRADE", "BUY_YES_SMALL", 
 BINARY_OUTCOMES = ("YES", "NO")
 
 
-def clamp_prob(value: float, lo: float = 0.01, hi: float = 0.99) -> float:
+def clamp_prob(value: float, lo: float = 0.001, hi: float = 0.999) -> float:
     return max(lo, min(hi, float(value)))
 
 
@@ -114,7 +114,7 @@ class MarketPacket:
 
 
 def normalize_distribution(probs: dict[str, float]) -> dict[str, float]:
-    """Clamp each prob into [0.01, 0.99] then renormalize so they sum to 1.0.
+    """Clamp each prob into [0.001, 0.999] then renormalize so they sum to 1.0.
 
     The Prophet Arena scorer normalizes before scoring anyway, but doing it
     locally keeps reasoning interpretable and tests deterministic.

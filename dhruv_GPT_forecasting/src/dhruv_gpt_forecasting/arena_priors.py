@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import math
 import re
 from collections import defaultdict
@@ -14,7 +13,7 @@ from typing import Any, Iterable
 
 from .arena_types import ArenaForecastPacket, ArenaPrior
 from .constraints import enforce_constraints, normalize_distribution
-from .data_loaders import PREP_DATA, REPO_ROOT, TOPVOL_ROOT
+from .data_loaders import PREP_DATA, REPO_ROOT, TOPVOL_ROOT, iter_jsonl_rows
 from .features import classify_event_structure, normalize_category, parse_dt
 from .kalshi_contracts import parse_kalshi_multileg_contract
 
@@ -381,7 +380,7 @@ def _historical_records() -> tuple[HistoricalRecord, ...]:
 
 def _topvol_records(root: Path) -> Iterable[HistoricalRecord]:
     for path in sorted((root / "markets").glob("*_selected_markets.jsonl")):
-        for row in _iter_jsonl(path):
+        for row in iter_jsonl_rows(path):
             result = str(row.get("result") or "").lower()
             if result not in {"yes", "no"}:
                 continue
@@ -405,7 +404,7 @@ def _topvol_records(root: Path) -> Iterable[HistoricalRecord]:
 def _nonbinary_component_records(root: Path) -> Iterable[HistoricalRecord]:
     """Resolved component markets from the new nonbinary context dataset."""
     for path in sorted((root / "markets").glob("*_component_markets.jsonl")):
-        for row in _iter_jsonl(path):
+        for row in iter_jsonl_rows(path):
             result = str(row.get("result") or "").lower()
             if result not in {"yes", "no"}:
                 continue
@@ -427,7 +426,7 @@ def _nonbinary_component_records(root: Path) -> Iterable[HistoricalRecord]:
 
 
 def _eval_pack_records(path: Path) -> Iterable[HistoricalRecord]:
-    for row in _iter_jsonl(path):
+    for row in iter_jsonl_rows(path):
         event = row.get("event") or {}
         if row.get("outcome") not in {0, 1}:
             continue
@@ -446,11 +445,3 @@ def _eval_pack_records(path: Path) -> Iterable[HistoricalRecord]:
             outcome=int(row["outcome"]),
             tokens=_event_tokens(title, rules, subtitle, category),
         )
-
-
-def _iter_jsonl(path: Path) -> Iterable[dict[str, Any]]:
-    if not path.exists():
-        return
-    for line in path.read_text(encoding="utf-8").splitlines():
-        if line.strip():
-            yield json.loads(line)

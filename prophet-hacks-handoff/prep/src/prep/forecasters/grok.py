@@ -37,6 +37,7 @@ from .base import (
     build_user_prompt,
     extract_json_object,
     forecast_from_response,
+    resolve_api_key,
     stable_prompt_hash,
     system_prompt_for_config,
 )
@@ -88,10 +89,9 @@ TRUST_EXTREME_SYSTEM_NO = TRUST_EXTREME_SYSTEM
 
 
 def _api_key(config: ForecasterConfig) -> str:
-    env_name = config.api_key_env or "OPENROUTER_API_KEY"
-    key = os.environ.get(env_name)
+    key = resolve_api_key(config, "OPENROUTER_API_KEY")
     if not key:
-        raise RuntimeError(f"{env_name} is not set")
+        raise RuntimeError(f"No API key found for {config.name} (checked {config.api_key_env} and fallbacks)")
     return key
 
 
@@ -283,7 +283,7 @@ def _average_bidir(yes_parsed: dict, no_parsed: dict, packet: MarketPacket) -> d
         p_yes_y = p_yes_n
     if p_yes_n is None:
         p_yes_n = p_yes_y
-    averaged = max(0.01, min(0.99, (p_yes_y + p_yes_n) / 2.0))
+    averaged = max(0.001, min(0.999, (p_yes_y + p_yes_n) / 2.0))
 
     # Mutate the YES-direction response so the team's downstream parser sees
     # the averaged distribution. Keep its reasoning track intact.

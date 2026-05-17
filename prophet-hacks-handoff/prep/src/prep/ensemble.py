@@ -220,18 +220,14 @@ def _pool_distributions(
     distributions: list[tuple[dict[str, float], float]],
     outcomes: list[str],
 ) -> dict[str, float]:
-    """Weighted logit-pool, per outcome.
+    """Weighted average pool, per outcome.
 
     `distributions` is a list of (probs, weight). For each outcome label we
-    average weighted logits, then inv-logit, then renormalize across outcomes.
-    Missing outcomes in a lane's distribution fall back to uniform (1/N).
+    compute the weighted average probability directly, then renormalize.
+    Missing outcomes fall back to uniform (1/N).
 
-    For binary YES/NO events specifically, a case-insensitive secondary
-    lookup is used if the exact-case match misses, so a lane that returned
-    {"Yes": 0.7} against canonical ["YES", "NO"] still contributes its
-    signal rather than being silently substituted with uniform. Multi-
-    outcome events are untouched (avoids collision risk on labels that
-    differ only by case).
+    For binary YES/NO events, a case-insensitive secondary lookup is used if
+    the exact-case match misses.
     """
     if not outcomes:
         return {}
@@ -250,14 +246,14 @@ def _pool_distributions(
                     if isinstance(k, str) and k.casefold() == folded:
                         p = v
                         break
-            if p is None or p <= 0 or p >= 1:
-                p = clamp_prob(p if p is not None else uniform)
-            weighted_sum += w * logit(p)
+            if p is None:
+                p = uniform
+            weighted_sum += w * clamp_prob(p)
             total_w += w
         if total_w <= 0:
             raw[outcome] = uniform
         else:
-            raw[outcome] = inv_logit(weighted_sum / total_w)
+            raw[outcome] = weighted_sum / total_w
     return normalize_distribution(raw)
 
 
@@ -492,16 +488,21 @@ def aggregate_forecasts(
     calibration = calibration or CalibrationConfig()
     # Calibration shrinks each outcome toward the market anchor by the same
     # per-event weight. Multi-outcome non-Kalshi events get the uniform anchor.
-    if tuple(outcomes) == ("YES", "NO") and packet.kalshi is not None:
+    if tuple(outcomes) == ("YES", "NO") and packet.kalshi is not None and packet.kalshi.market_mid != 0.5:
         # Reuse existing binary calibrate_to_market on YES side, mirror to NO
         cal_yes, shrink_weight = calibrate_to_market(raw_dist.get("YES", 0.5), packet, calibration)
         calibrated_dist = normalize_distribution({"YES": cal_yes, "NO": 1.0 - cal_yes})
     else:
-        # Multi-outcome shrinkage: pull each prob toward uniform by shrink_weight
+        # Multi-outcome shrinkage: pull each prob toward the market anchor.
+        # Use market_implied_probabilities from retrieval when available (populated
+        # by _enrich_packet for multi-market Kalshi events); fall back to uniform.
         shrink_weight = calibration.shrink_weight(packet)
-        anchor_share = 1.0 / max(1, len(outcomes))
+        market_implied = packet.retrieval.get("market_implied_probabilities") or {}
+        n = max(1, len(outcomes))
         calibrated_dist = normalize_distribution({
-            o: anchor_share + shrink_weight * (raw_dist.get(o, anchor_share) - anchor_share)
+            o: market_implied.get(o, 1.0 / n) + shrink_weight * (
+                raw_dist.get(o, 1.0 / n) - market_implied.get(o, 1.0 / n)
+            )
             for o in outcomes
         })
 
