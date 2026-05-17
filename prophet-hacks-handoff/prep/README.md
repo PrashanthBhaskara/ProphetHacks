@@ -62,9 +62,9 @@ Wire it into `BASELINES` in `scripts/run.py` and you can run it the same way.
 
 The harness also supports `predict(event, market_info)` if your agent wants the Kalshi snapshot (yes_ask, no_ask, last_price, volume, etc.) — see `baselines/market.py`. **The production agent never sees market_info directly**, but it can fetch it via `KalshiForecastClient.get_market(ticker)` (no auth required — see `ai-prophet/packages/core/ai_prophet_core/forecast/kalshi_client.py`).
 
-## Ensemble trading infrastructure
+## Ensemble forecasting infrastructure
 
-The repo now has a first-pass ensemble/trading stack under `src/prep/`:
+The repo now has a first-pass ensemble forecasting stack under `src/prep/`:
 
 ```
 src/prep/
@@ -76,13 +76,9 @@ src/prep/
 │   └── mock.py             # deterministic no-key adapter for tests
 ├── ensemble.py             # supervisor weighted-logit aggregation
 ├── calibration.py          # shrink model edge toward market by category/horizon
-└── trading/
-    ├── risk.py             # final deterministic trade/no-trade decision
-    ├── simulator.py        # conservative taker-fill simulator
-    └── metrics.py          # PnL/ROI/trade-rate summaries
 ```
 
-Run the no-key smoke backtest:
+Run the no-key smoke backtest and print Brier/log-loss/calibration metrics:
 
 ```bash
 python scripts/backtest_ensemble.py --limit 200
@@ -101,7 +97,72 @@ python scripts/backtest_ensemble.py --config config/ensemble.example.json --limi
 
 Each model returns the same contract: forecast values, auditable reasoning
 track, and diagnostics. The supervisor aggregates model probabilities and
-reasoning, but the final trade decision stays deterministic in `trading/risk.py`.
+reasoning into the final probability distribution submitted to the forecasting
+track.
+
+Run Gemini-only model comparisons after setting `GEMINI_API_KEY`:
+
+```bash
+export GEMINI_API_KEY=...
+python scripts/backtest_gemini_solo.py --models flash pro --sample 40 --stratified
+```
+
+This backtest preserves event-level outcome sets instead of flattening every
+row into one binary market. It reports both `classical_brier_lower_is_better`
+and the research-page convention `arena_brier_score_higher_is_better`
+(`1 - classical_brier`). Each scored row also gets a same-event market
+baseline when market-implied probabilities are available, so the report can
+show `model_vs_market.mean_model_minus_market_brier` on exactly the sampled
+events.
+
+Search grounding is opt-in so normal smoke tests do not spend extra calls or
+introduce hidden leakage. When enabled, the Gemini prompt requires every used
+source to have a publication, observation, filing, release, or effective date
+strictly before the event `as_of` timestamp, and logs a `source_audit` plus
+Gemini grounding metadata for inspection:
+
+```bash
+python scripts/backtest_gemini_solo.py \
+  --models flash pro \
+  --sample 200 \
+  --sample-mode binary_nonbinary \
+  --enable-google-search \
+  --out runs/gemini_solo/subset_200_search.jsonl
+```
+
+For the strictest no-forward-bias backtests, keep native Google Search off and
+use only packet sources that were pre-filtered before `as_of`. Native Gemini
+Search is useful for live forecasting and exploratory ablations, but the API
+does not give this harness a hard date gate before the model sees snippets; the
+prompt and `source_audit` are safeguards, not a substitute for a controlled
+archive/retrieval layer.
+
+Sampling controls for the 200-event comparisons:
+
+```bash
+# Balance the existing event subset across horizon buckets, categories, or outcome-count buckets.
+python scripts/backtest_gemini_solo.py --models flash pro --sample 200 --sample-mode horizon
+python scripts/backtest_gemini_solo.py --models flash pro --sample 200 --sample-mode category
+python scripts/backtest_gemini_solo.py --models flash pro --sample 200 --sample-mode outcome_count
+python scripts/backtest_gemini_solo.py --models flash pro --sample 200 --sample-mode horizon --group-report-by horizon_bucket
+
+# Filter already-snapshotted events to a target time-to-close window.
+python scripts/backtest_gemini_solo.py --models flash pro --sample 200 --target-horizon 7d --horizon-tolerance 12h
+python scripts/backtest_gemini_solo.py --models flash pro --sample 200 --target-horizon 1d --horizon-tolerance 6h
+
+# Use the local top-volume Kalshi pull and synthesize exact pre-close forecast points.
+python scripts/backtest_gemini_solo.py --source kalshi_topvol --horizon 7d --sample 200 --sample-mode week --models flash pro
+python scripts/backtest_gemini_solo.py --source kalshi_topvol --horizon 1d --sample 200 --sample-mode week --models flash pro
+```
+
+If a long run was started before same-event market baselines were added, score
+the existing JSONL without making more model calls:
+
+```bash
+python scripts/backtest_gemini_solo.py \
+  --report-existing runs/gemini_solo/flash_500_search_random.jsonl \
+  --group-report-by horizon_bucket
+```
 
 ## What to know before reading the numbers
 

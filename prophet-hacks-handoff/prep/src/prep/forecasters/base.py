@@ -44,14 +44,30 @@ def build_user_prompt(packet: MarketPacket) -> str:
             "probabilities": probabilities_schema,
             "confidence": "float 0-1 — how confident you are in this distribution overall",
             "uncertainty": "float 0-1 — residual uncertainty after your reasoning",
-            "trade_recommendation": "BUY_YES, BUY_NO, BUY_YES_SMALL, BUY_NO_SMALL, or NO_TRADE (binary-market trading only)",
         },
         "reasoning_track": {
             "summary": "short thesis covering the whole distribution",
             "base_rate": "base-rate reasoning",
             "market_analysis": "how Kalshi price (if available) influenced your estimate",
             "context_market_analysis": "how related/sibling markets influenced your estimate, if provided",
-            "key_evidence": [{"claim": "...", "source": "...", "impact": "+0.03 to <outcome>"}],
+            "key_evidence": [
+                {
+                    "claim": "...",
+                    "source": "...",
+                    "source_type": "packet, context_market, official_primary, reputable_reporting, search_result, etc.",
+                    "source_timestamp": "ISO timestamp or date strictly before MARKET_PACKET.as_of",
+                    "impact": "+0.03 to <outcome>",
+                },
+            ],
+            "source_audit": [
+                {
+                    "source": "...",
+                    "source_timestamp": "ISO timestamp or date strictly before MARKET_PACKET.as_of",
+                    "cutoff_check": "why this source was observable before MARKET_PACKET.as_of",
+                    "used": "boolean",
+                    "reason": "why used or excluded",
+                },
+            ],
             "counterarguments": [{"claim": "...", "impact": "-0.02 to <outcome>"}],
             "assumptions": ["..."],
             "information_gaps": ["..."],
@@ -62,7 +78,7 @@ def build_user_prompt(packet: MarketPacket) -> str:
             "rules_clarity": "low, medium, or high",
             "liquidity_quality": "low, medium, or high",
             "market_disagreement_reason": "short string",
-            "should_defer_to_market": "boolean (binary markets only)",
+            "should_defer_to_market": "boolean — true when market-implied or base-rate priors should dominate",
         },
     }
     outcome_list = ", ".join(repr(o) for o in packet.outcomes)
@@ -151,6 +167,7 @@ def forecast_from_response(
             market_analysis=str(reasoning.get("market_analysis", "")),
             context_market_analysis=str(reasoning.get("context_market_analysis", "")),
             key_evidence=list(reasoning.get("key_evidence") or []),
+            source_audit=list(reasoning.get("source_audit") or []),
             counterarguments=list(reasoning.get("counterarguments") or []),
             assumptions=list(reasoning.get("assumptions") or []),
             information_gaps=list(reasoning.get("information_gaps") or []),
@@ -180,6 +197,7 @@ class ForecasterConfig:
     reasoning_effort: str | None = None
     system_prompt: str | None = None
     system_prompt_path: str | None = None
+    enable_google_search: bool = False
     mock_edge_bps: float = 0.0
 
     @classmethod
@@ -196,6 +214,7 @@ class ForecasterConfig:
             reasoning_effort=data.get("reasoning_effort"),
             system_prompt=data.get("system_prompt"),
             system_prompt_path=data.get("system_prompt_path"),
+            enable_google_search=bool(data.get("enable_google_search", False)),
             mock_edge_bps=float(data.get("mock_edge_bps", 0.0)),
         )
 

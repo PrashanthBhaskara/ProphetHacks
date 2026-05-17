@@ -55,8 +55,12 @@ def packet_from_arena_event(arena_event: dict) -> MarketPacket:
     Trading-track code that reads .kalshi.* should null-check; forecasting
     only needs the event fields + outcomes.
     """
+    retrieval = dict(arena_event.get("retrieval") or {})
+    for key in ("description", "sources", "market_data", "market_implied_probabilities"):
+        if arena_event.get(key) is not None and key not in retrieval:
+            retrieval[key] = arena_event.get(key)
     return MarketPacket(
-        as_of=datetime.now(timezone.utc).isoformat(),
+        as_of=arena_event.get("snapshot_time") or arena_event.get("predict_by") or datetime.now(timezone.utc).isoformat(),
         event_ticker=arena_event.get("event_ticker") or arena_event.get("task_id") or "",
         market_ticker=arena_event.get("market_ticker") or arena_event.get("task_id") or "",
         title=arena_event.get("title") or "",
@@ -66,5 +70,5 @@ def packet_from_arena_event(arena_event: dict) -> MarketPacket:
         close_time=arena_event.get("close_time") or arena_event.get("predict_by"),
         kalshi=KalshiQuote(),
         outcomes=list(arena_event.get("outcomes") or ["YES", "NO"]),
-        retrieval={},
+        retrieval=retrieval,
     )

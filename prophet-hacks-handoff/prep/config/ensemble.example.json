@@ -25,7 +25,7 @@
       "weight": 0.8,
       "temperature": 0.1,
       "max_tokens": 1400,
-      "system_prompt_path": "prompts/gemini_context_trading_system.txt"
+      "system_prompt_path": "prompts/gemini_context_forecasting_system.txt"
     },
     {
       "name": "gemini_pro",
@@ -36,7 +36,7 @@
       "weight": 1.15,
       "temperature": 0.1,
       "max_tokens": 1800,
-      "system_prompt_path": "prompts/gemini_context_trading_system.txt"
+      "system_prompt_path": "prompts/gemini_context_forecasting_system.txt"
     },
     {
       "name": "claude_lane",

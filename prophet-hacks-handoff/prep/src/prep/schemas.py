@@ -157,6 +157,7 @@ class ReasoningTrack:
     market_analysis: str = ""
     context_market_analysis: str = ""
     key_evidence: list[dict[str, Any]] = field(default_factory=list)
+    source_audit: list[dict[str, Any]] = field(default_factory=list)
     counterarguments: list[dict[str, Any]] = field(default_factory=list)
     assumptions: list[str] = field(default_factory=list)
     information_gaps: list[str] = field(default_factory=list)
