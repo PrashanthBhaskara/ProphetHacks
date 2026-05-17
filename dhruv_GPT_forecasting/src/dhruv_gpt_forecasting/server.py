@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from .arena_agent import forecast_arena_event
+from .arena_agent import forecast_arena_payload_for_ensemble
 from .preflight import run_preflight
 
 try:
@@ -17,9 +17,8 @@ app = FastAPI(title="Dhruv GPT Forecasting Arena Agent")
 
 
 @app.post("/predict")
-async def predict(event: dict[str, Any]) -> dict[str, Any]:
-    forecast = forecast_arena_event(event)
-    return forecast.to_prediction_response()
+async def predict(payload: dict[str, Any] | list[dict[str, Any]]) -> dict[str, Any] | list[dict[str, Any]]:
+    return forecast_arena_payload_for_ensemble(payload, mode="real_live")
 
 
 @app.get("/health")

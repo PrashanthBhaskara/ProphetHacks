@@ -7,6 +7,7 @@ import copy
 import json
 import os
 import random
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -25,35 +26,92 @@ def predict_events(
     use_live_data: bool = False,
     backtest_internet: bool = False,
     deadline_seconds: float | None = 300.0,
+    max_workers: int = 1,
 ) -> dict[str, Any]:
     """Return a Prophet-style submission for a retrieved events array."""
     cfg = load_config()
     if backtest_internet:
         cfg.arena.grounded_research_backtest_enabled = True
         use_live_data = True
-    rows = []
-    for event in events:
-        market_ticker = str(event.get("market_ticker") or event.get("task_id") or event.get("event_ticker") or "")
-        if not market_ticker:
-            continue
-        forecast = forecast_arena_event(
-            event,
-            config=cfg,
-            use_gpt=use_gpt,
-            use_live_data=use_live_data,
-            deadline_seconds=deadline_seconds,
-        )
-        rows.append({
-            "market_ticker": market_ticker,
-            "probabilities": [
-                {"market": market, "probability": probability}
-                for market, probability in forecast.probabilities.items()
-            ],
-            "rationale": forecast.audit.get("calibration_note") or forecast.source,
-        })
+    indexed_events = [
+        (idx, event)
+        for idx, event in enumerate(events)
+        if str(event.get("market_ticker") or event.get("task_id") or event.get("event_ticker") or "")
+    ]
+    if max_workers <= 1:
+        rows = [
+            _predict_one_event(
+                idx,
+                event,
+                cfg=cfg,
+                use_gpt=use_gpt,
+                use_live_data=use_live_data,
+                deadline_seconds=deadline_seconds,
+            )
+            for idx, event in indexed_events
+        ]
+    else:
+        rows = []
+        with ThreadPoolExecutor(max_workers=max(1, int(max_workers))) as executor:
+            futures = {
+                executor.submit(
+                    _predict_one_event,
+                    idx,
+                    event,
+                    cfg=copy.deepcopy(cfg),
+                    use_gpt=use_gpt,
+                    use_live_data=use_live_data,
+                    deadline_seconds=deadline_seconds,
+                ): idx
+                for idx, event in indexed_events
+            }
+            for future in as_completed(futures):
+                rows.append(future.result())
+    rows.sort(key=lambda row: row.get("_index", 0))
+    for row in rows:
+        row.pop("_index", None)
     return {
         "timestamp": datetime.now(UTC).isoformat(),
         "predictions": rows,
+    }
+
+
+def _predict_one_event(
+    idx: int,
+    event: dict[str, Any],
+    *,
+    cfg,
+    use_gpt: bool,
+    use_live_data: bool,
+    deadline_seconds: float | None,
+) -> dict[str, Any]:
+    market_ticker = str(event.get("market_ticker") or event.get("task_id") or event.get("event_ticker") or "")
+    forecast = forecast_arena_event(
+        event,
+        config=cfg,
+        use_gpt=use_gpt,
+        use_live_data=use_live_data,
+        deadline_seconds=deadline_seconds,
+    )
+    return {
+        "_index": idx,
+        "market_ticker": market_ticker,
+        "probabilities": [
+            {"market": market, "probability": probability}
+            for market, probability in forecast.probabilities.items()
+        ],
+        "rationale": forecast.audit.get("calibration_note") or forecast.source,
+        "audit": {
+            "source": forecast.source,
+            "model": forecast.audit.get("model"),
+            "api_logs": forecast.audit.get("api_logs", []),
+            "prior_shrink_weight": forecast.audit.get("prior_shrink_weight"),
+            "fallback_reason": forecast.audit.get("fallback_reason"),
+            "live_evidence_sources": forecast.audit.get("live_evidence_sources"),
+            "live_evidence_errors": forecast.audit.get("live_evidence_errors"),
+            "within_deadline": forecast.audit.get("within_deadline"),
+            "elapsed_seconds": forecast.audit.get("elapsed_seconds"),
+        },
     }
 
 
@@ -318,6 +376,7 @@ def main() -> int:
         help="Allow historical backtests to use internet source-reading only after PIT publish-date verification.",
     )
     predict.add_argument("--deadline-seconds", type=float, default=300.0)
+    predict.add_argument("--max-workers", type=int, default=1)
 
     actuals = sub.add_parser("actuals")
     actuals.add_argument("--events", type=Path, required=True)
@@ -393,6 +452,7 @@ def main() -> int:
             use_live_data=args.live_data,
             backtest_internet=getattr(args, "backtest_internet", False),
             deadline_seconds=args.deadline_seconds,
+            max_workers=args.max_workers,
         )
     if args.cmd in {"benchmark", "runbook"}:
         print(json.dumps({"output_dir": payload["output_dir"], "n": payload["run_config"]["n_selected_events"]}, indent=2))

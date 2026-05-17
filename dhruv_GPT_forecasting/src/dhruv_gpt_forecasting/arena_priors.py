@@ -70,6 +70,12 @@ def build_arena_packet(event: dict[str, Any], *, include_historical_analogs: boo
         extracted_entities=_extract_entities(event, outcomes),
         features=dict(event.get("features") or {}),
     )
+    inline_market_probability = _inline_market_probability(event)
+    if inline_market_probability is not None:
+        packet.features["inline_market_quote"] = {
+            "yes_probability": inline_market_probability,
+            "source": "event_payload_quote",
+        }
     if include_historical_analogs:
         packet.historical_analogs = historical_analogs(packet)
     return packet
@@ -117,7 +123,7 @@ def deterministic_arena_prior(packet: ArenaForecastPacket) -> ArenaPrior:
         probs = dict(uniform)
 
     if live_probs:
-        probs = _blend_distribution(probs, live_probs, 0.45)
+        probs = _blend_distribution(probs, live_probs, 0.80 if _has_market_quote_probability(packet) else 0.45)
         reason_codes.append("live_evidence_probabilities")
 
     probs = enforce_constraints(probs, outcomes, packet.event_structure, lo=0.001, hi=0.999)
@@ -289,6 +295,10 @@ def _entity_distribution(packet: ArenaForecastPacket) -> dict[str, float] | None
 
 
 def _live_probability_distribution(packet: ArenaForecastPacket) -> dict[str, float] | None:
+    inline_quote = packet.features.get("inline_market_quote") if isinstance(packet.features, dict) else None
+    if _is_yes_no(packet.outcomes) and isinstance(inline_quote, dict) and _is_number(inline_quote.get("yes_probability")):
+        p_yes = float(inline_quote["yes_probability"])
+        return enforce_constraints({"YES": p_yes, "NO": 1.0 - p_yes}, packet.outcomes, "binary")
     for item in packet.live_evidence:
         raw = item.get("probabilities") or item.get("market_probabilities")
         if isinstance(raw, dict):
@@ -303,6 +313,57 @@ def _live_probability_distribution(packet: ArenaForecastPacket) -> dict[str, flo
             p_yes = float(item["yes_probability"])
             return enforce_constraints({"YES": p_yes, "NO": 1.0 - p_yes}, packet.outcomes, "binary")
     return None
+
+
+def _has_market_quote_probability(packet: ArenaForecastPacket) -> bool:
+    inline_quote = packet.features.get("inline_market_quote") if isinstance(packet.features, dict) else None
+    if isinstance(inline_quote, dict) and _is_number(inline_quote.get("yes_probability")):
+        return True
+    market_sources = {
+        "kalshi_public_market",
+        "kalshi_random_pit_market_snapshot",
+        "polymarket_public_search",
+    }
+    return any(
+        isinstance(item, dict)
+        and item.get("source") in market_sources
+        and (
+            _is_number(item.get("yes_probability"))
+            or isinstance(item.get("probabilities") or item.get("market_probabilities"), dict)
+        )
+        for item in packet.live_evidence
+    )
+
+
+def _inline_market_probability(event: dict[str, Any]) -> float | None:
+    for key in ("yes_probability", "market_yes_probability", "yes_mid", "market_mid", "last_price"):
+        if _is_number(event.get(key)):
+            return _normalize_quote_value(float(event[key]))
+    yes_bid = _quote_field(event, "yes_bid", "yes_bid_dollars")
+    yes_ask = _quote_field(event, "yes_ask", "yes_ask_dollars")
+    no_bid = _quote_field(event, "no_bid", "no_bid_dollars")
+    no_ask = _quote_field(event, "no_ask", "no_ask_dollars")
+    if yes_bid is not None and yes_ask is not None:
+        return (yes_bid + yes_ask) / 2.0
+    if yes_ask is not None and no_ask is not None:
+        return (yes_ask + (1.0 - no_ask)) / 2.0
+    if yes_bid is not None and no_bid is not None:
+        return (yes_bid + (1.0 - no_bid)) / 2.0
+    return None
+
+
+def _quote_field(event: dict[str, Any], cents_key: str, dollars_key: str) -> float | None:
+    if _is_number(event.get(dollars_key)):
+        return _normalize_quote_value(float(event[dollars_key]))
+    if _is_number(event.get(cents_key)):
+        return _normalize_quote_value(float(event[cents_key]))
+    return None
+
+
+def _normalize_quote_value(value: float) -> float:
+    if value > 1.0:
+        value /= 100.0
+    return max(0.001, min(0.999, value))
 
 
 def _blend_distribution(

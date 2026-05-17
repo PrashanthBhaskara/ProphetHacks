@@ -81,8 +81,10 @@ Every `market` value is copied from `event.outcomes`, every listed outcome appea
 
 - Default config uses direct Gemini `gemini-3-flash-preview`.
 - `ARENA_OFFLINE=1` disables GPT and live data for deterministic local tests.
-- `ARENA_ENABLE_LIVE_DATA=1` enables optional current evidence retrieval.
-- `ARENA_ENABLE_GROUNDED_RESEARCH=1` enables the Gemini source-reading pass when live data is enabled.
+- Live mode enables current evidence retrieval by default; set `ARENA_DISABLE_LIVE_DATA=1` to turn it off.
+- Gemini native search grounding is used in the final probability call for live forecasts. The prompt includes targeted contract-specific search questions, deadline context, source status, and deterministic priors.
+- `ARENA_ENABLE_PRE_GROUNDED_RESEARCH=1` enables the older separate Gemini source-reading pass when you explicitly want it; the fast live path normally uses one final grounded Gemini call.
+- `ARENA_LIVE_ACCELERATE_AFTER_SECONDS=360` skips optional repair/audit calls after six minutes, and `ARENA_FINAL_FALLBACK_RESERVE_SECONDS=20` preserves time for a market/deterministic fallback before the eight-minute deadline.
 - `FORECAST_ENABLE_PIT_EXTERNAL=1` enables timestamp-filtered local/live evidence rows.
 
 If GPT or live evidence fails, `forecast_arena_event(...)` falls back to deterministic Arena priors and still returns a valid probability distribution.

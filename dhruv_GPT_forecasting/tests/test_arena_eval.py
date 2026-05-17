@@ -59,6 +59,31 @@ def test_predict_events_writes_prophet_submission_shape(monkeypatch):
     ]
 
 
+def test_predict_events_parallel_preserves_order_and_audit(monkeypatch):
+    class Forecast:
+        probabilities = {"A": 0.25, "B": 0.75}
+        source = "gpt_primary"
+        audit = {
+            "model": "gemini-3-flash-preview",
+            "api_logs": [{"estimated_cost_usd": 0.01}],
+            "fallback_reason": None,
+            "within_deadline": True,
+            "elapsed_seconds": 1.2,
+        }
+
+    monkeypatch.setattr("dhruv_gpt_forecasting.arena_batch.forecast_arena_event", lambda *args, **kwargs: Forecast())
+    events = [
+        {"market_ticker": "task-001", "outcomes": ["A", "B"]},
+        {"market_ticker": "task-002", "outcomes": ["A", "B"]},
+    ]
+    result = predict_events(events, use_gpt=True, max_workers=2)
+    rows = result["predictions"]
+    assert [row["market_ticker"] for row in rows] == ["task-001", "task-002"]
+    assert rows[0]["rationale"] == "gpt_primary"
+    assert rows[0]["audit"]["model"] == "gemini-3-flash-preview"
+    assert rows[0]["audit"]["api_logs"][0]["estimated_cost_usd"] == 0.01
+
+
 def test_batch_loader_accepts_raw_tasks_jsonl(tmp_path):
     path = tmp_path / "tasks.jsonl"
     path.write_text(

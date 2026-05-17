@@ -6,7 +6,7 @@ import argparse
 import json
 from pathlib import Path
 
-from .arena_agent import forecast_arena_event
+from .arena_agent import forecast_arena_event, forecast_arena_payload_for_ensemble
 from .arena_batch import main as arena_batch_main
 from .arena_eval import main as arena_eval_main
 from .kalshi_auth import kalshi_credential_status
@@ -37,10 +37,16 @@ def main() -> int:
     predict.add_argument("event_json", type=Path)
     predict.add_argument("--live-data", action="store_true")
     predict.add_argument("--no-gpt", action="store_true")
+    predict.add_argument("--mode", default="real_live_smoke")
     arena_predict = sub.add_parser("predict-arena-json")
     arena_predict.add_argument("event_json", type=Path)
     arena_predict.add_argument("--live-data", action="store_true")
     arena_predict.add_argument("--no-gpt", action="store_true")
+    arena_predict.add_argument("--mode", default="real_live_smoke")
+    prophet_predict = sub.add_parser("predict-prophet-json")
+    prophet_predict.add_argument("event_json", type=Path)
+    prophet_predict.add_argument("--live-data", action="store_true")
+    prophet_predict.add_argument("--no-gpt", action="store_true")
     args, rest = parser.parse_known_args()
     if args.cmd == "arena-eval":
         import sys
@@ -95,12 +101,23 @@ def main() -> int:
         return 0
     event = json.loads(args.event_json.read_text(encoding="utf-8"))
     if args.cmd in {"predict-json", "predict-arena-json"}:
+        response = forecast_arena_payload_for_ensemble(
+            event,
+            use_gpt=False if args.no_gpt else None,
+            use_live_data=True if args.live_data else None,
+            mode=args.mode,
+        )
+        print(json.dumps(response, indent=2, sort_keys=True))
+        return 0
+    if args.cmd == "predict-prophet-json":
+        if isinstance(event, list):
+            event = event[0]
         decision = forecast_arena_event(
             event,
             use_gpt=False if args.no_gpt else None,
             use_live_data=True if args.live_data else None,
         )
-        print(json.dumps(decision.to_dict(), indent=2, sort_keys=True))
+        print(json.dumps(decision.to_prediction_response(), indent=2, sort_keys=True))
         return 0
     raise AssertionError(f"Unhandled command: {args.cmd}")
 

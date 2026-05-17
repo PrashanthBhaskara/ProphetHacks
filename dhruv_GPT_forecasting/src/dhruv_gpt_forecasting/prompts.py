@@ -27,11 +27,14 @@ def arena_messages(
         "event_packet": packet.compact_dict(),
         "deterministic_prior": prior.to_dict(),
         "model_handoff": _arena_model_handoff(packet, prior, model_id=model_id),
+        "final_gemini_live_brief": _final_gemini_live_brief(packet, prior, model_id=model_id),
         "evidence_source_policy": evidence_source_policy(packet.category, observed_sources),
         "instruction": (
             "Return the required JSON object only. Use exact outcome labels from event_packet.outcomes. "
             "You are the final probability model. Use deterministic_prior as model context, not an output cap. "
             "Use retrieval_confidence on evidence items to distinguish strong PIT evidence from noisy or stale context. "
+            "When live native search is enabled, answer the targeted_search_questions in your evidence triage before "
+            "setting probabilities, but expose only compact audit fields. "
             "Optimize expected Brier score, not trading edge. Every outcome must receive a probability."
         ),
     }
@@ -147,3 +150,112 @@ def _arena_model_handoff(
             "Ignore any source record whose own timestamp appears after that cutoff."
         ),
     }
+
+
+def _final_gemini_live_brief(
+    packet: ArenaForecastPacket,
+    prior: ArenaPrior,
+    *,
+    model_id: str,
+) -> dict[str, object]:
+    live_runtime = packet.features.get("live_runtime_context") if isinstance(packet.features, dict) else None
+    source_status = packet.features.get("live_source_status") if isinstance(packet.features, dict) else None
+    return {
+        "model": model_id,
+        "mode": "live_one_pass_grounded_forecast" if _runtime_grounding_enabled(live_runtime) else "forecast_without_live_grounding",
+        "deadline_context": live_runtime or {},
+        "source_status": source_status or {},
+        "targeted_search_questions": _targeted_search_questions(packet),
+        "search_budget_policy": [
+            "Search current web only for facts that can materially change this exact contract.",
+            (
+                "Prioritize official box scores/injury reports/team pages, league sources, market/odds pages, "
+                "official economic releases, reputable news wires, and primary source filings."
+            ),
+            "Avoid broad background research and outdated recap pages when the deadline is tight.",
+            "If sources conflict, state the conflict in counterarguments and keep probabilities less extreme.",
+            "If a source has no visible timestamp or is stale relative to the event, treat it as weak context.",
+        ],
+        "calibration_policy_under_deadline": {
+            "deterministic_prior": prior.probabilities,
+            "prior_confidence": prior.confidence,
+            "prior_uncertainty": prior.uncertainty,
+            "weak_or_missing_current_evidence": "shrink toward deterministic_prior",
+            "fresh_high_quality_contract_specific_evidence": "allow larger movement away from deterministic_prior",
+            "nearly_resolved_event": "probabilities may be decisive, but only with directly relevant current facts",
+        },
+        "contract_interpretation_hints": _contract_interpretation_hints(packet),
+    }
+
+
+def _runtime_grounding_enabled(live_runtime: object) -> bool:
+    return isinstance(live_runtime, dict) and bool(live_runtime.get("native_search_grounding_enabled"))
+
+
+def _targeted_search_questions(packet: ArenaForecastPacket) -> list[str]:
+    questions = [
+        "What current, timestamped facts materially affect the probability of this exact contract?",
+        "Are there official or high-quality sources that confirm the current status of the event or participants?",
+        "Do the contract rules create edge cases that change how the listed outcomes should be interpreted?",
+    ]
+    category = packet.category
+    text = _event_text(packet)
+    if category == "Sports":
+        questions.extend([
+            "What are the latest injuries, starters, lineups, rest/travel factors, weather or venue effects, and odds movement?",
+            "For player-stat or multi-leg contracts, what are the latest role/minutes/usage and matchup facts for each leg?",
+        ])
+    elif category in {"Economics", "Financials"}:
+        questions.extend([
+            "What official releases, central-bank statements, yields, commodities, or market moves have occurred before as_of?",
+            "When is the next relevant data release relative to close_time and the resolution rules?",
+        ])
+    elif category in {"Crypto", "Commodities"}:
+        questions.extend([
+            "What recent spot/futures price action, inventory/flow data, macro risk sentiment, regulation, or exchange news matters?",
+            "Are there weekend, settlement, liquidity, or benchmark-timing effects that affect the exact resolution window?",
+        ])
+    elif category in {"Politics", "Elections"}:
+        questions.extend([
+            "What are the latest polls, official actions, court rulings, endorsements, or campaign events from high-quality sources?",
+            "Which source families conflict with social sentiment or partisan commentary?",
+        ])
+    elif category in {"Entertainment", "Culture"} or "survivor" in text or "reality" in text:
+        questions.extend([
+            "What official releases, credible spoilers, audience/voting signals, ratings, box office, or awards news matter?",
+            "How fresh and reliable are entertainment or spoiler sources for the listed outcome labels?",
+        ])
+    elif category in {"Weather", "Climate and Weather"}:
+        questions.extend([
+            "What are the latest official forecasts, observations, warnings, and model updates for the resolution window?",
+            "Which source timestamp best matches the contract's measurement period?",
+        ])
+    return questions[:7]
+
+
+def _contract_interpretation_hints(packet: ArenaForecastPacket) -> dict[str, object]:
+    multileg = packet.extracted_entities.get("kalshi_multileg_contract") if isinstance(packet.extracted_entities, dict) else None
+    hints: dict[str, object] = {
+        "event_structure": packet.event_structure,
+        "outcome_labels_are_binding": True,
+        "horizon_hours": packet.horizon_hours,
+    }
+    if isinstance(multileg, dict) and multileg.get("is_multileg"):
+        hints["kalshi_multileg"] = {
+            "interpret_yes_as_joint_conjunction": True,
+            "interpret_no_as_complement": True,
+            "components": multileg.get("components"),
+        }
+    if len(packet.outcomes) > 2:
+        hints["multi_outcome"] = {
+            "normalize_across_all_listed_labels": True,
+            "avoid_binary_yes_no_framing": True,
+        }
+    return hints
+
+
+def _event_text(packet: ArenaForecastPacket) -> str:
+    return " ".join(
+        str(part or "").lower()
+        for part in (packet.title, packet.subtitle, packet.description, packet.context, packet.rules)
+    )

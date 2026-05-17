@@ -16,6 +16,7 @@ def test_default_models_are_direct_gemini_3_flash_with_native_grounding():
     assert "OPENROUTER_API_KEY_4" not in cfg.model.api_key_fallback_envs
     assert "OPENROUTER_API_KEY_1" not in cfg.model.api_key_fallback_envs
     assert cfg.arena.gpt_enabled_default is True
+    assert cfg.arena.live_data_enabled_default is True
     assert cfg.arena.probability_floor == 0.001
     assert cfg.arena.prior_shrink_weight == 0.0
     assert cfg.arena.pit_external_enabled_default is False
@@ -30,6 +31,8 @@ def test_default_models_are_direct_gemini_3_flash_with_native_grounding():
     assert cfg.arena.total_evidence_timeout_seconds == 45
     assert cfg.arena.llm_timeout_seconds == 90
     assert cfg.arena.deadline_reserve_seconds == 30
+    assert cfg.arena.live_accelerate_after_seconds == 360
+    assert cfg.arena.final_fallback_reserve_seconds == 20
 
 
 def test_env_aliases_include_kalshi_access_names():

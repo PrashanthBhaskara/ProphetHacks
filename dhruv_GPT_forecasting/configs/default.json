@@ -6,7 +6,7 @@
     "api_key_env": "GEMINI_API_KEY",
     "api_key_fallback_envs": ["GOOGLE_API_KEY"],
     "temperature": 0.1,
-    "max_tokens": 1100,
+    "max_tokens": 1400,
     "enabled": true,
     "search_grounding": {
       "enabled": true,
@@ -18,7 +18,7 @@
   },
   "arena": {
     "gpt_enabled_default": true,
-    "live_data_enabled_default": false,
+    "live_data_enabled_default": true,
     "second_pass_enabled": true,
     "probability_floor": 0.001,
     "probability_ceiling": 0.999,
@@ -44,6 +44,8 @@
     "llm_timeout_seconds": 90,
     "deadline_reserve_seconds": 30,
     "min_gpt_call_seconds": 55,
+    "live_accelerate_after_seconds": 360,
+    "final_fallback_reserve_seconds": 20,
     "grounded_research_enabled_default": true,
     "grounded_research_live_only": true,
     "grounded_research_backtest_enabled": false,

@@ -116,6 +116,8 @@ class ArenaConfig:
     llm_timeout_seconds: float = 90.0
     deadline_reserve_seconds: float = 30.0
     min_gpt_call_seconds: float = 55.0
+    live_accelerate_after_seconds: float = 360.0
+    final_fallback_reserve_seconds: float = 20.0
     grounded_research_enabled_default: bool = True
     grounded_research_live_only: bool = True
     grounded_research_backtest_enabled: bool = False
@@ -175,6 +177,12 @@ class ArenaConfig:
         ))
         cfg.deadline_reserve_seconds = float(data.get("deadline_reserve_seconds", cfg.deadline_reserve_seconds))
         cfg.min_gpt_call_seconds = float(data.get("min_gpt_call_seconds", cfg.min_gpt_call_seconds))
+        cfg.live_accelerate_after_seconds = float(
+            data.get("live_accelerate_after_seconds", cfg.live_accelerate_after_seconds)
+        )
+        cfg.final_fallback_reserve_seconds = float(
+            data.get("final_fallback_reserve_seconds", cfg.final_fallback_reserve_seconds)
+        )
         cfg.grounded_research_enabled_default = bool(
             data.get("grounded_research_enabled_default", cfg.grounded_research_enabled_default)
         )

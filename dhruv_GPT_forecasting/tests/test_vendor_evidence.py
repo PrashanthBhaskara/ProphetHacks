@@ -1,7 +1,7 @@
 import json
 from datetime import datetime, timedelta, timezone
 
-from dhruv_gpt_forecasting.arena_live_data import gather_live_evidence
+from dhruv_gpt_forecasting.arena_live_data import _kalshi_market_evidence, gather_live_evidence
 from dhruv_gpt_forecasting.arena_priors import build_arena_packet
 from dhruv_gpt_forecasting.config import load_config
 from dhruv_gpt_forecasting.pit_evidence import fetch_external_records_for_packet, gather_pit_external_evidence
@@ -156,6 +156,69 @@ def test_historical_live_evidence_requires_backtest_internet(monkeypatch, tmp_pa
     evidence = gather_live_evidence(packet, cfg, enabled=True)
 
     assert evidence[0]["error"] == "historical_as_of_live_data_disabled"
+
+
+def test_live_evidence_pit_external_network_is_opt_in(monkeypatch, tmp_path):
+    cfg = load_config()
+    cfg.budget.log_dir = str(tmp_path / "logs")
+    cfg.arena.pit_external_root = str(tmp_path / "external_evidence")
+    packet = build_arena_packet({
+        "event_ticker": "KXLIVE",
+        "market_ticker": "KXLIVE-YES",
+        "title": "Will the live event happen?",
+        "category": "Politics",
+        "close_time": "2026-03-01T18:00:00Z",
+        "as_of": datetime.now(timezone.utc).isoformat(),
+        "outcomes": ["YES", "NO"],
+    })
+    captured = []
+
+    def fake_pit(packet, cfg, *, allow_network=None, **kwargs):
+        captured.append(allow_network)
+        return []
+
+    monkeypatch.setattr("dhruv_gpt_forecasting.arena_live_data._live_source_plan", lambda packet: {"pit_external"})
+    monkeypatch.setattr("dhruv_gpt_forecasting.arena_live_data.gather_pit_external_evidence", fake_pit)
+    monkeypatch.delenv("ARENA_LIVE_PIT_EXTERNAL_NETWORK", raising=False)
+    gather_live_evidence(packet, cfg, enabled=True)
+    monkeypatch.setenv("ARENA_LIVE_PIT_EXTERNAL_NETWORK", "1")
+    gather_live_evidence(packet, cfg, enabled=True)
+
+    assert captured == [False, True]
+
+
+def test_kalshi_market_evidence_parses_dollar_quote_fields(monkeypatch):
+    cfg = load_config()
+    packet = build_arena_packet({
+        "event_ticker": "KXNBAGAME-26MAY18SASOKC",
+        "market_ticker": "KXNBAGAME-26MAY18SASOKC-OKC",
+        "title": "Game 1: San Antonio at Oklahoma City Winner?",
+        "category": "Sports",
+        "close_time": "2026-06-02T00:30:00Z",
+        "outcomes": ["YES", "NO"],
+    })
+
+    def fake_get(*args, **kwargs):
+        return {
+            "market": {
+                "yes_bid_dollars": "0.6700",
+                "yes_ask_dollars": "0.6800",
+                "no_bid_dollars": "0.3200",
+                "no_ask_dollars": "0.3300",
+                "last_price_dollars": "0.6800",
+                "volume": 100,
+            }
+        }
+
+    monkeypatch.setattr("dhruv_gpt_forecasting.arena_live_data._cached_get_json", fake_get)
+    monkeypatch.setattr("dhruv_gpt_forecasting.arena_live_data.kalshi_auth_headers", lambda *args: {})
+
+    evidence = _kalshi_market_evidence(packet, cfg)
+
+    assert evidence[0]["source"] == "kalshi_public_market"
+    assert evidence[0]["yes_probability"] == 0.675
+    assert evidence[0]["raw"]["yes_bid"] == 0.67
+    assert evidence[0]["raw"]["no_ask"] == 0.33
 
 
 def test_historical_vendor_evidence_filters_publish_dates(monkeypatch, tmp_path):

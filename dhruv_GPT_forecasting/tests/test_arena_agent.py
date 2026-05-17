@@ -1,7 +1,8 @@
 import math
+import json
 
 from dhruv_gpt_forecasting import predict as package_predict
-from dhruv_gpt_forecasting.arena_agent import forecast_arena_event, predict
+from dhruv_gpt_forecasting.arena_agent import forecast_arena_event, predict, predict_prophet
 from dhruv_gpt_forecasting.config import load_config
 
 
@@ -18,6 +19,27 @@ def test_arena_predict_preserves_named_outcomes_and_normalizes(monkeypatch):
         "outcomes": ["Cleveland", "Atlanta"],
     }
     response = predict(event)
+    assert set(response) == {"run_metadata", "market_comparison", "forecast"}
+    response = response["forecast"]["prediction_response"]
+    probs = {item["market"]: item["probability"] for item in response["probabilities"]}
+    assert list(probs) == ["Cleveland", "Atlanta"]
+    assert math.isclose(sum(probs.values()), 1.0)
+    assert probs["Cleveland"] != probs["Atlanta"]
+
+
+def test_prophet_adapter_preserves_bare_prediction_contract(monkeypatch):
+    monkeypatch.setenv("ARENA_OFFLINE", "1")
+    event = {
+        "event_ticker": "task-001",
+        "market_ticker": "task-001",
+        "title": "Who will win: Cleveland or Atlanta?",
+        "description": "Predict the winner.",
+        "category": "Sports",
+        "rules": "Resolves to the official winner after the game is final.",
+        "close_time": "2026-03-21T23:59:59Z",
+        "outcomes": ["Cleveland", "Atlanta"],
+    }
+    response = predict_prophet(event)
     probs = {item["market"]: item["probability"] for item in response["probabilities"]}
     assert list(probs) == ["Cleveland", "Atlanta"]
     assert math.isclose(sum(probs.values()), 1.0)
@@ -36,6 +58,7 @@ def test_package_predict_uses_arena_agent(monkeypatch):
         "outcomes": ["YES", "NO"],
     }
     response = package_predict(event)
+    response = response["forecast"]["prediction_response"]
     probs = {item["market"]: item["probability"] for item in response["probabilities"]}
     assert set(probs) == {"YES", "NO"}
     assert math.isclose(sum(probs.values()), 1.0)
@@ -143,6 +166,7 @@ def test_arena_forecast_attaches_grounded_research_evidence(monkeypatch):
     monkeypatch.delenv("ARENA_OFFLINE", raising=False)
     monkeypatch.setenv("GEMINI_API_KEY", "AIza-test-key")
     monkeypatch.setenv("ARENA_ENABLE_FORECAST_CACHE", "0")
+    monkeypatch.setenv("ARENA_ENABLE_PRE_GROUNDED_RESEARCH", "1")
 
     monkeypatch.setattr("dhruv_gpt_forecasting.arena_agent.gather_live_evidence", lambda *args, **kwargs: [])
     monkeypatch.setattr(
@@ -184,6 +208,56 @@ def test_arena_forecast_attaches_grounded_research_evidence(monkeypatch):
 
     assert forecast.audit["live_evidence_count"] == 1
     assert forecast.audit["live_evidence_preview"][0]["source"] == "gemini_native_search_grounded_research"
+
+
+def test_live_arena_forecast_skips_pre_grounded_research_by_default(monkeypatch):
+    monkeypatch.delenv("ARENA_OFFLINE", raising=False)
+    monkeypatch.delenv("ARENA_ENABLE_PRE_GROUNDED_RESEARCH", raising=False)
+    monkeypatch.setenv("GEMINI_API_KEY", "AIza-test-key")
+    monkeypatch.setenv("ARENA_ENABLE_FORECAST_CACHE", "0")
+
+    monkeypatch.setattr("dhruv_gpt_forecasting.arena_agent.gather_live_evidence", lambda *args, **kwargs: [])
+
+    def fail_if_called(*args, **kwargs):
+        raise AssertionError("pre-grounded research should be skipped for live final-search forecasts")
+
+    captured = {}
+
+    def fake_cached_json_call(cfg, *, messages, cache_namespace, **kwargs):
+        captured["messages"] = messages
+        return {
+            "probabilities": {"YES": 0.59, "NO": 0.41},
+            "confidence": 0.60,
+            "uncertainty": 0.40,
+            "reason_codes": ["final_search_only"],
+            "key_evidence": [],
+            "counterarguments": [],
+            "information_gaps": [],
+            "calibration_note": "Used final native search only.",
+        }, {"cache_hit": False, "prompt_hash": "abc", "model": cfg.model.model}
+
+    monkeypatch.setattr("dhruv_gpt_forecasting.arena_agent.gather_grounded_research_evidence", fail_if_called)
+    monkeypatch.setattr("dhruv_gpt_forecasting.arena_agent._cached_json_call", fake_cached_json_call)
+    event = {
+        "event_ticker": "task-live-final-search",
+        "market_ticker": "KXTEST-26DEC31",
+        "title": "Will the live final-search test happen?",
+        "category": "Politics",
+        "rules": "Resolves Yes if it happens.",
+        "close_time": "2026-12-31T23:59:59Z",
+        "outcomes": ["YES", "NO"],
+    }
+    cfg = load_config()
+    cfg.arena.second_pass_enabled = False
+
+    forecast = forecast_arena_event(event, config=cfg, use_gpt=True, use_live_data=True)
+
+    assert forecast.source == "gpt_primary"
+    assert forecast.audit["native_search_grounding_enabled"] is True
+    payload = json.loads(captured["messages"][1]["content"])
+    assert payload["final_gemini_live_brief"]["mode"] == "live_one_pass_grounded_forecast"
+    assert payload["final_gemini_live_brief"]["targeted_search_questions"]
+    assert payload["event_packet"]["features"]["live_runtime_context"]["deadline_seconds"] == 480
 
 
 def test_arena_forecast_accepts_supplied_pit_evidence(monkeypatch):
@@ -283,3 +357,30 @@ def test_arena_forecast_skips_gpt_when_deadline_budget_is_insufficient(monkeypat
     assert forecast.source == "deterministic_arena_prior"
     assert forecast.audit["fallback_reason"] == "deadline_budget_before_primary_gpt"
     assert forecast.audit["within_deadline"] is True
+
+
+def test_deadline_fallback_uses_inline_market_quote(monkeypatch):
+    monkeypatch.delenv("ARENA_OFFLINE", raising=False)
+    monkeypatch.setenv("GEMINI_API_KEY", "AIza-test")
+
+    def fail_if_called(*args, **kwargs):
+        raise AssertionError("GPT should not be called when deadline budget is insufficient")
+
+    monkeypatch.setattr("dhruv_gpt_forecasting.arena_agent._cached_json_call", fail_if_called)
+    event = {
+        "event_ticker": "task-market-fallback",
+        "market_ticker": "KXTEST-26DEC31",
+        "title": "Will the market fallback event happen?",
+        "category": "Politics",
+        "rules": "Resolves Yes if it happens.",
+        "close_time": "2026-03-21T23:59:59Z",
+        "outcomes": ["YES", "NO"],
+        "yes_bid": 63,
+        "yes_ask": 67,
+    }
+
+    forecast = forecast_arena_event(event, use_gpt=True, use_live_data=False, deadline_seconds=1)
+
+    assert forecast.audit["fallback_reason"] == "deadline_budget_before_primary_gpt"
+    assert forecast.probabilities["YES"] > 0.55
+    assert forecast.audit["deterministic_prior"]["diagnostics"]["live_distribution"]["YES"] == 0.65
