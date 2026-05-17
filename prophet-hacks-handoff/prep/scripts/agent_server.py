@@ -46,9 +46,11 @@ DEFAULT_CONFIG_PATH = Path(__file__).resolve().parents[1] / "config" / "ensemble
 CONFIG_PATH = Path(os.environ.get("PROPHET_CONFIG", DEFAULT_CONFIG_PATH))
 
 # Wall-clock budget for the entire /predict call (lane fan-out + aggregation +
-# judge). On timeout we return market price: market_mid for binary Kalshi
-# events, uniform across `outcomes` otherwise. Override with ENSEMBLE_TIMEOUT_SECONDS.
-DEFAULT_ENSEMBLE_TIMEOUT_SECONDS = 480.0
+# judge). 9m30s — leaves ~90s of slack over the grok lane's 8-minute budget so
+# a stuck grok call can fall back cleanly before the outer deadline fires.
+# On timeout we return market price: market_mid for binary Kalshi events,
+# uniform across `outcomes` otherwise. Override with ENSEMBLE_TIMEOUT_SECONDS.
+DEFAULT_ENSEMBLE_TIMEOUT_SECONDS = 570.0
 
 
 # --- Wire schema (Prophet Arena dev docs) ---------------------------------
