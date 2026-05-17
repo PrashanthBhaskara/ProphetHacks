@@ -1,9 +1,8 @@
 """Supervisor aggregation for model forecasts.
 
 Per Prophet Arena dev docs, predictions are a probability *distribution* over
-the event's `outcomes` list. We logit-pool per outcome across lanes, then
-renormalize. Binary events (outcomes=["YES","NO"]) reduce cleanly to the
-old logit-pool of a single p_yes.
+the event's `outcomes` list. We weighted-mean pool per outcome across lanes,
+then renormalize.
 
 Market anchor only applies when the packet has a Kalshi quote (binary YES/NO).
 For multi-outcome events without market data, we anchor toward a uniform prior
@@ -21,7 +20,7 @@ from typing import Any
 
 import requests
 
-from .calibration import CalibrationConfig, calibrate_to_market, inv_logit, logit
+from .calibration import CalibrationConfig, calibrate_to_market
 from .schemas import (
     MarketPacket,
     ModelForecast,
@@ -322,7 +321,7 @@ def _judge_prompt(
         "market": market_context,
         "deterministic_ensemble": {
             "anchor_probabilities": anchor,
-            "raw_logit_pool_probabilities": raw_dist,
+            "raw_pool_probabilities": raw_dist,
             "calibrated_probabilities": calibrated_dist,
         },
         "council_members": council,
