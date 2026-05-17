@@ -58,9 +58,9 @@ def _load_events(path: Path) -> list[dict]:
 
 
 def _predict_local(event: dict) -> dict:
-    from agent_server import predict
+    from agent_server import ArenaEvent, predict
 
-    return predict(event)
+    return predict(ArenaEvent(**event)).model_dump()
 
 
 def _predict_http(event: dict, url: str) -> dict:

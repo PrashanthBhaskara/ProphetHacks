@@ -51,13 +51,13 @@ def build_user_prompt(packet: MarketPacket) -> str:
     distribution to keep reasoning interpretable.
     """
     probabilities_schema = {
-        outcome: "float 0.01-0.99 — your P(this outcome)"
+        outcome: "float 0.001-0.999 — your P(this outcome)"
         for outcome in packet.outcomes
     }
     schema = {
         "forecast": {
             "prior_probabilities": {
-                outcome: "float 0.01-0.99 — market/base-rate prior before your evidence adjustment"
+                outcome: "float 0.001-0.999 — market/base-rate prior before your evidence adjustment"
                 for outcome in packet.outcomes
             },
             "probability_adjustments": [

@@ -283,7 +283,7 @@ def _average_bidir(yes_parsed: dict, no_parsed: dict, packet: MarketPacket) -> d
         p_yes_y = p_yes_n
     if p_yes_n is None:
         p_yes_n = p_yes_y
-    averaged = max(0.01, min(0.99, (p_yes_y + p_yes_n) / 2.0))
+    averaged = max(0.001, min(0.999, (p_yes_y + p_yes_n) / 2.0))
 
     # Mutate the YES-direction response so the team's downstream parser sees
     # the averaged distribution. Keep its reasoning track intact.

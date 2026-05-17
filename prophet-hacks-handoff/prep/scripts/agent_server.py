@@ -320,13 +320,20 @@ def _compute_ensemble(event: ArenaEvent, deadline: float) -> PredictionResponse:
 
 
 @app.post("/predict", response_model=PredictionResponse)
-def predict_endpoint(event: ArenaEvent) -> PredictionResponse:
+def predict(event: ArenaEvent) -> PredictionResponse:
     """Wall-clock-bounded /predict.
 
     Runs the full ensemble (lane fan-out + calibration + judge) inside a
     deadline. If the whole flow hasn't returned within ENSEMBLE_TIMEOUT_SECONDS
-    (default 480s = 8 min), we abandon it and return market price.
+    (default 570s), we abandon it and return market price.
+
+    Also callable in-process as `predict(ArenaEvent(**event_dict))` for local
+    testing via `prophet forecast predict --local scripts.agent_server`.
     """
+    global _models, _calibration, _market_anchor_weight, _judge
+    if not _models:
+        _models, _calibration, _market_anchor_weight, _judge = _load_models()
+
     budget = float(os.environ.get("ENSEMBLE_TIMEOUT_SECONDS", DEFAULT_ENSEMBLE_TIMEOUT_SECONDS))
     deadline = time.monotonic() + budget
 
@@ -351,19 +358,3 @@ def predict_endpoint(event: ArenaEvent) -> PredictionResponse:
             return _market_price_response(packet, event.outcomes)
     finally:
         supervisor_pool.shutdown(wait=False, cancel_futures=True)
-
-
-# --- Local predict() entrypoint for `prophet forecast predict --local` ---
-
-def predict(event: dict) -> dict:
-    """For `prophet forecast predict --local scripts.agent_server`.
-
-    Mirrors the wire contract of `POST /predict`. Returns a dict shaped
-    `{"probabilities": [{"market": ..., "probability": ...}, ...]}`.
-    """
-    global _models, _calibration, _market_anchor_weight, _judge
-    if not _models:
-        _models, _calibration, _market_anchor_weight, _judge = _load_models()
-    arena = ArenaEvent(**event)
-    response = predict_endpoint(arena)
-    return response.model_dump()
