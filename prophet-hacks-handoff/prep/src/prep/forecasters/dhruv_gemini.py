@@ -12,7 +12,7 @@ from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
-from dhruv_gpt_forecasting.arena_agent import forecast_arena_event
+from dhruv_gpt_forecasting.arena_agent import ensemble_response_from_forecast, forecast_arena_event
 from dhruv_gpt_forecasting.config import load_config
 
 from .base import ForecasterConfig
@@ -36,7 +36,10 @@ def forecast(config: ForecasterConfig, packet: MarketPacket) -> ModelForecast:
         api_key_env=config.api_key_env or dhruv_cfg.model.api_key_env,
         temperature=config.temperature,
         max_tokens=config.max_tokens,
-        native_search_grounding_enabled=bool(config.enable_google_search),
+        native_search_grounding_enabled=bool(
+            config.enable_google_search
+            or dhruv_cfg.model.native_search_grounding_enabled
+        ),
     )
 
     event = _event_from_packet(packet)
@@ -159,6 +162,10 @@ def _to_model_forecast(config: ForecasterConfig, packet: MarketPacket, arena_for
         ),
         raw_response={
             "dhruv_arena_forecast": arena_forecast.to_dict(),
+            "dhruv_ensemble_envelope": ensemble_response_from_forecast(
+                arena_forecast,
+                mode="handoff_ensemble_lane",
+            ),
         },
     )
 

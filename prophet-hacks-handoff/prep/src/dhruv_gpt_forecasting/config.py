@@ -20,10 +20,8 @@ ENV_ALIASES = {
     "KALSHI_ACCESS_KEY": "KALSHI_API_KEY_ID",
     "KALSHI_API_KEY": "KALSHI_API_KEY_ID",
     "KALSHI-ACCESS-KEY-DEMO": "KALSHI_DEMO_API_KEY_ID",
-    "KALSHI-PRIVATE-KEY-B64": "KALSHI_PRIVATE_KEY_B64",
     "KALSHI-PRIVATE-KEY": "KALSHI_PRIVATE_KEY",
     "KALSHI_PRIVATE_KEY_PEM": "KALSHI_PRIVATE_KEY",
-    "KALSHI_PRIVATE_KEY_BASE64": "KALSHI_PRIVATE_KEY_B64",
     "PROPHET_API_KEY": "PA_SERVER_API_KEY",
     "AIPROPHET_API_KEY": "PA_SERVER_API_KEY",
 }
@@ -39,7 +37,7 @@ class ModelConfig:
     temperature: float = 0.1
     max_tokens: int = 900
     enabled: bool = True
-    native_search_grounding_enabled: bool = False
+    native_search_grounding_enabled: bool = True
     native_search_grounding_live_only: bool = True
     search_grounding_engine: str = "native"
     search_grounding_max_results: int = 5
@@ -58,7 +56,7 @@ class ModelConfig:
             temperature=float(data.get("temperature", 0.1)),
             max_tokens=int(data.get("max_tokens", 900)),
             enabled=bool(data.get("enabled", True)),
-            native_search_grounding_enabled=bool(search.get("enabled", False)),
+            native_search_grounding_enabled=bool(search.get("enabled", True)),
             native_search_grounding_live_only=bool(search.get("live_only", True)),
             search_grounding_engine=str(search.get("engine", "native")),
             search_grounding_max_results=int(search.get("max_results", 5)),
@@ -115,6 +113,8 @@ class ArenaConfig:
     llm_timeout_seconds: float = 90.0
     deadline_reserve_seconds: float = 30.0
     min_gpt_call_seconds: float = 55.0
+    live_accelerate_after_seconds: float = 360.0
+    final_fallback_reserve_seconds: float = 20.0
     grounded_research_enabled_default: bool = True
     grounded_research_live_only: bool = True
     grounded_research_backtest_enabled: bool = False
@@ -174,6 +174,12 @@ class ArenaConfig:
         ))
         cfg.deadline_reserve_seconds = float(data.get("deadline_reserve_seconds", cfg.deadline_reserve_seconds))
         cfg.min_gpt_call_seconds = float(data.get("min_gpt_call_seconds", cfg.min_gpt_call_seconds))
+        cfg.live_accelerate_after_seconds = float(
+            data.get("live_accelerate_after_seconds", cfg.live_accelerate_after_seconds)
+        )
+        cfg.final_fallback_reserve_seconds = float(
+            data.get("final_fallback_reserve_seconds", cfg.final_fallback_reserve_seconds)
+        )
         cfg.grounded_research_enabled_default = bool(
             data.get("grounded_research_enabled_default", cfg.grounded_research_enabled_default)
         )

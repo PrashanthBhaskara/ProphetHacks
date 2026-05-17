@@ -83,7 +83,15 @@ def gather_live_evidence(
         ),
     })
     if "pit_external" in source_plan and _can_continue(deadline_at):
-        evidence.extend(gather_pit_external_evidence(packet, cfg))
+        # Live forecasts should not run the full PIT network backfill path by
+        # default; category-routed live sources below handle current data. Keep
+        # local/archive PIT context, and require an explicit opt-in for the
+        # slower historical/social fetch sweep.
+        evidence.extend(gather_pit_external_evidence(
+            packet,
+            cfg,
+            allow_network=_env_bool("ARENA_LIVE_PIT_EXTERNAL_NETWORK", False),
+        ))
     if "local_linked_markets" in source_plan and _can_continue(deadline_at):
         evidence.extend(_local_linked_market_evidence(packet))
     if "kalshi" in source_plan and _can_continue(deadline_at):
@@ -157,15 +165,28 @@ def _kalshi_market_evidence(
         source="kalshi_public_market",
         deadline_at=deadline_at,
     )
+    if isinstance(data, dict) and data.get("error"):
+        return [{
+            "source": "kalshi_public_market",
+            "timestamp": _now(),
+            "claim": "Kalshi market quote retrieval failed; fallback should use any event-payload quote if present.",
+            "error": data.get("error"),
+        }]
     market = data.get("market") if isinstance(data, dict) else None
     if not isinstance(market, dict):
         return []
-    yes_bid = _price_to_prob(market.get("yes_bid"))
-    yes_ask = _price_to_prob(market.get("yes_ask"))
-    last_price = _price_to_prob(market.get("last_price"))
+    yes_bid = _market_price(market, "yes_bid")
+    yes_ask = _market_price(market, "yes_ask")
+    no_bid = _market_price(market, "no_bid")
+    no_ask = _market_price(market, "no_ask")
+    last_price = _market_price(market, "last_price")
     p_yes = None
     if yes_bid is not None and yes_ask is not None:
         p_yes = (yes_bid + yes_ask) / 2.0
+    elif yes_ask is not None and no_ask is not None:
+        p_yes = (yes_ask + (1.0 - no_ask)) / 2.0
+    elif yes_bid is not None and no_bid is not None:
+        p_yes = (yes_bid + (1.0 - no_bid)) / 2.0
     elif last_price is not None:
         p_yes = last_price
     if p_yes is None:
@@ -178,9 +199,13 @@ def _kalshi_market_evidence(
         "raw": {
             "yes_bid": yes_bid,
             "yes_ask": yes_ask,
+            "no_bid": no_bid,
+            "no_ask": no_ask,
             "last_price": last_price,
             "volume": market.get("volume"),
+            "volume_dollars": market.get("volume_dollars"),
             "open_interest": market.get("open_interest"),
+            "open_interest_fp": market.get("open_interest_fp"),
         },
     }]
 
@@ -656,6 +681,13 @@ def _price_to_prob(value: Any) -> float | None:
     if raw > 1.0:
         raw /= 100.0
     return max(0.0, min(1.0, raw))
+
+
+def _market_price(market: dict[str, Any], key: str) -> float | None:
+    value = _price_to_prob(market.get(key))
+    if value is not None:
+        return value
+    return _price_to_prob(market.get(f"{key}_dollars"))
 
 
 def _env_bool(name: str, default: bool) -> bool:

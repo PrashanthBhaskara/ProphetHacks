@@ -9,12 +9,11 @@ from __future__ import annotations
 
 import csv
 import gzip
-import json
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
-from .data_loaders import PREP_DATA, REPO_ROOT, TOPVOL_ROOT, snapshot_from_candle
+from .data_loaders import PREP_DATA, REPO_ROOT, TOPVOL_ROOT, is_git_lfs_pointer_file, iter_jsonl_rows, snapshot_from_candle
 from .features import parse_dt, quote_from_market_info
 from .market_linker import infer_linked_market_distribution
 from .schemas import FeaturePacket
@@ -304,7 +303,7 @@ def _load_candles_until(
     stride_minutes: int,
 ) -> list[dict[str, Any]]:
     as_of_dt = parse_dt(as_of)
-    if as_of_dt is None or not path.exists():
+    if as_of_dt is None or not path.exists() or is_git_lfs_pointer_file(path):
         return []
     out: list[dict[str, Any]] = []
     last_bucket: int | None = None
@@ -328,7 +327,7 @@ def _load_candles_until(
 @lru_cache(maxsize=4)
 def _links_by_target(root_str: str) -> dict[str, list[dict[str, Any]]]:
     links: dict[str, list[dict[str, Any]]] = {}
-    for row in _iter_jsonl(Path(root_str) / "indexes" / "target_to_context_links.jsonl"):
+    for row in iter_jsonl_rows(Path(root_str) / "indexes" / "target_to_context_links.jsonl"):
         ticker = str(row.get("target_ticker") or "")
         if ticker:
             links.setdefault(ticker, []).append(row)
@@ -351,7 +350,7 @@ def _components_for_group(root_str: str, week: str, group_key: str) -> list[dict
     fp = Path(root_str) / "markets" / f"{week}_component_markets.jsonl"
     rows = [
         row
-        for row in _iter_jsonl(fp)
+        for row in iter_jsonl_rows(fp)
         if str(row.get("_context_group_key") or "") == group_key
     ]
     return sorted(rows, key=lambda row: _int_or_none(row.get("_context_component_rank")) or 999)
@@ -363,7 +362,7 @@ def _topvol_by_event(root_str: str) -> dict[str, list[tuple[str, dict[str, Any]]
     out: dict[str, list[tuple[str, dict[str, Any]]]] = {}
     for fp in sorted((root / "markets").glob("*_selected_markets.jsonl")):
         week = fp.name.split("_", 1)[0]
-        for row in _iter_jsonl(fp):
+        for row in iter_jsonl_rows(fp):
             event_ticker = str(row.get("event_ticker") or "")
             if event_ticker:
                 out.setdefault(event_ticker, []).append((week, row))
@@ -392,15 +391,6 @@ def _csv_rows_by_key(path: Path, key: str) -> dict[str, list[dict[str, Any]]]:
             if value:
                 out.setdefault(value, []).append(row)
     return out
-
-
-def _iter_jsonl(path: Path) -> Iterable[dict[str, Any]]:
-    if not path.exists():
-        return
-    for line in path.read_text(encoding="utf-8").splitlines():
-        if line.strip():
-            yield json.loads(line)
-
 
 def _float_or_none(value: Any) -> float | None:
     if value in (None, ""):

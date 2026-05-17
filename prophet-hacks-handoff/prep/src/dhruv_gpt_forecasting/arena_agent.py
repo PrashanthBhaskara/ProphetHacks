@@ -45,7 +45,12 @@ def forecast_arena_event(
     evidence_deadline_at = _evidence_deadline_at(started, deadline, cfg)
     supplied_evidence = list(external_evidence or [])
     grounded_research: list[dict[str, Any]] = []
-    if live_data_enabled and use_gpt and _can_continue(evidence_deadline_at):
+    if (
+        live_data_enabled
+        and use_gpt
+        and _pre_grounded_research_enabled(packet, cfg)
+        and _can_continue(evidence_deadline_at)
+    ):
         # Run the generative source-reading pass before slower vendor fetches so
         # native search grounding is prioritized inside the live evidence budget.
         grounded_research = gather_grounded_research_evidence(
@@ -67,11 +72,21 @@ def forecast_arena_event(
     packet.features["evidence_source_policy"] = evidence_source_policy(packet.category, observed_sources)
     packet.features["gpt_final_probability_model"] = True
     prior = deterministic_arena_prior(packet)
-    api_logs: list[dict[str, Any]] = []
+    api_logs: list[dict[str, Any]] = _evidence_api_logs(packet.live_evidence)
     errors: list[str] = []
 
     if not use_gpt:
-        final = _forecast_from_prior(packet, prior, audit={"mode": "deterministic_only"})
+        final = _forecast_from_prior(
+            packet,
+            prior,
+            audit={
+                "mode": "deterministic_only",
+                "live_evidence_count": len(packet.live_evidence),
+                "live_evidence_sources": _live_evidence_sources(packet.live_evidence),
+                "live_evidence_preview": _live_evidence_preview(packet.live_evidence),
+                "live_evidence_errors": _live_evidence_errors(packet.live_evidence),
+            },
+        )
         _attach_deadline_audit(final, started, deadline)
         return final
     if not _has_call_budget(started, deadline, cfg):
@@ -82,6 +97,8 @@ def forecast_arena_event(
                 "mode": "deterministic_fallback",
                 "fallback_reason": "deadline_budget_before_primary_gpt",
                 "errors": ["deadline_budget_before_primary_gpt"],
+                "deterministic_prior": prior.to_dict(),
+                "live_evidence_sources": _live_evidence_sources(packet.live_evidence),
             },
         )
         _attach_deadline_audit(final, started, deadline)
@@ -96,13 +113,25 @@ def forecast_arena_event(
                 "mode": "deterministic_fallback",
                 "fallback_reason": "missing_api_key",
                 "errors": [f"missing_api_key:{model.api_key_env}"],
+                "deterministic_prior": prior.to_dict(),
+                "live_evidence_sources": _live_evidence_sources(packet.live_evidence),
             },
         )
         _attach_deadline_audit(final, started, deadline)
         return final
 
-    primary_messages = arena_messages(packet, prior, model_id=model.model)
     search_grounding_enabled = _search_grounding_enabled(packet, cfg)
+    remaining_at_gpt_start = _remaining_seconds(started, deadline)
+    _attach_live_runtime_context(
+        packet,
+        prior,
+        started=started,
+        deadline_seconds=deadline,
+        remaining_seconds_at_gpt_start=remaining_at_gpt_start,
+        search_grounding_enabled=search_grounding_enabled,
+        live_data_enabled=live_data_enabled,
+    )
+    primary_messages = arena_messages(packet, prior, model_id=model.model)
     forecast_cache_path = _forecast_cache_path(
         cfg,
         event,
@@ -119,7 +148,6 @@ def forecast_arena_event(
         return cached_forecast
 
     first = None
-    remaining_at_gpt_start = _remaining_seconds(started, deadline)
     try:
         payload, call_log = _cached_json_call(
             cfg,
@@ -134,7 +162,9 @@ def forecast_arena_event(
     except Exception as exc:  # noqa: BLE001 - deterministic fallback is required.
         errors.append(f"primary:{type(exc).__name__}:{exc}")
         try:
-            if not _has_call_budget(started, deadline, cfg):
+            if _accelerated_mode(started, cfg):
+                raise TimeoutError("live_acceleration_skip_repair_gpt")
+            if not _has_call_budget(started, deadline, cfg) or _deadline_fallback_due(started, deadline, cfg):
                 raise TimeoutError("deadline_budget_before_repair_gpt")
             payload, call_log = _cached_json_call(
                 cfg,
@@ -159,6 +189,11 @@ def forecast_arena_event(
                 "api_logs": api_logs,
                 "errors": errors,
                 "remaining_seconds_at_gpt_start": remaining_at_gpt_start,
+                "deterministic_prior": prior.to_dict(),
+                "live_evidence_count": len(packet.live_evidence),
+                "live_evidence_sources": _live_evidence_sources(packet.live_evidence),
+                "live_evidence_preview": _live_evidence_preview(packet.live_evidence),
+                "live_evidence_errors": _live_evidence_errors(packet.live_evidence),
             },
         )
         _attach_deadline_audit(final, started, deadline)
@@ -168,6 +203,8 @@ def forecast_arena_event(
     if (
         cfg.arena.second_pass_enabled
         and _should_second_pass(packet, prior, final, cfg)
+        and not _accelerated_mode(started, cfg)
+        and not _deadline_fallback_due(started, deadline, cfg)
         and _has_call_budget(started, deadline, cfg)
     ):
         try:
@@ -206,8 +243,111 @@ def forecast_arena_event(
 
 
 def predict(event: dict[str, Any]) -> dict[str, Any]:
-    """Prophet CLI entrypoint: predict(event) -> {"probabilities": [...]}."""
+    """Live/real entrypoint: return the ensemble-facing forecast envelope."""
+    return forecast_arena_event_for_ensemble(event)
+
+
+def predict_prophet(event: dict[str, Any]) -> dict[str, Any]:
+    """Prophet CLI scoring adapter: predict(event) -> {"probabilities": [...]}."""
     return forecast_arena_event(event).to_prediction_response()
+
+
+def forecast_arena_event_for_ensemble(
+    event: dict[str, Any],
+    *,
+    config: ForecastConfig | None = None,
+    use_gpt: bool | None = None,
+    use_live_data: bool | None = None,
+    deadline_seconds: float | None = None,
+    external_evidence: list[dict[str, Any]] | None = None,
+    mode: str = "arena_forecast_mode",
+) -> dict[str, Any]:
+    """Return the richer forecast envelope expected by the downstream ensemble."""
+    started = time.perf_counter()
+    forecast = forecast_arena_event(
+        event,
+        config=config,
+        use_gpt=use_gpt,
+        use_live_data=use_live_data,
+        deadline_seconds=deadline_seconds,
+        external_evidence=external_evidence,
+    )
+    elapsed_wall = time.perf_counter() - started
+    return ensemble_response_from_forecast(
+        forecast,
+        mode=mode,
+        elapsed_wall_seconds=elapsed_wall,
+    )
+
+
+def forecast_arena_payload_for_ensemble(
+    payload: dict[str, Any] | list[dict[str, Any]],
+    *,
+    config: ForecastConfig | None = None,
+    use_gpt: bool | None = None,
+    use_live_data: bool | None = None,
+    deadline_seconds: float | None = None,
+    mode: str = "arena_forecast_mode",
+) -> dict[str, Any] | list[dict[str, Any]]:
+    """Accept the exact Prophet events.json shape, which is an array of events."""
+    if isinstance(payload, list):
+        forecasts = [
+            forecast_arena_event_for_ensemble(
+                event,
+                config=config,
+                use_gpt=use_gpt,
+                use_live_data=use_live_data,
+                deadline_seconds=deadline_seconds,
+                mode=mode,
+            )
+            for event in payload
+        ]
+        return forecasts[0] if len(forecasts) == 1 else forecasts
+    if not isinstance(payload, dict):
+        raise TypeError("Arena forecast payload must be an event object or an array of event objects.")
+    return forecast_arena_event_for_ensemble(
+        payload,
+        config=config,
+        use_gpt=use_gpt,
+        use_live_data=use_live_data,
+        deadline_seconds=deadline_seconds,
+        mode=mode,
+    )
+
+
+def ensemble_response_from_forecast(
+    forecast: ArenaForecast,
+    *,
+    mode: str,
+    elapsed_wall_seconds: float | None = None,
+) -> dict[str, Any]:
+    """Format a completed Arena forecast for ensemble consumption."""
+    audit = _ensemble_audit(forecast.audit)
+    deadline = audit.get("deadline_seconds")
+    elapsed = audit.get("elapsed_seconds")
+    if elapsed_wall_seconds is None and _is_number(elapsed):
+        elapsed_wall_seconds = float(elapsed)
+    return {
+        "run_metadata": {
+            "deadline_seconds": deadline,
+            "elapsed_wall_seconds": elapsed_wall_seconds,
+            "mode": mode,
+        },
+        "market_comparison": _market_comparison_from_forecast(forecast),
+        "forecast": {
+            "source": forecast.source,
+            "probabilities": forecast.probabilities,
+            "confidence": forecast.confidence,
+            "uncertainty": forecast.uncertainty,
+            "reason_codes": forecast.reason_codes,
+            "key_evidence": forecast.key_evidence,
+            "counterarguments": forecast.counterarguments,
+            "information_gaps": forecast.information_gaps,
+            "calibration_note": forecast.calibration_note,
+            "prediction_response": forecast.to_prediction_response(),
+            "audit": audit,
+        },
+    }
 
 
 def arena_forecast_from_payload(
@@ -357,6 +497,8 @@ def _gpt_enabled(cfg: ForecastConfig) -> bool:
 
 
 def _live_data_enabled(value: bool | None, cfg: ForecastConfig) -> bool:
+    if _env_bool("ARENA_OFFLINE", False):
+        return False
     if value is not None:
         enabled = bool(value)
     else:
@@ -382,6 +524,69 @@ def _has_call_budget(started: float, deadline_seconds: float | None, cfg: Foreca
     reserve = float(os.environ.get("ARENA_DEADLINE_RESERVE_SECONDS", cfg.arena.deadline_reserve_seconds))
     min_call = float(os.environ.get("ARENA_MIN_GPT_CALL_SECONDS", cfg.arena.min_gpt_call_seconds))
     return (time.monotonic() - started) + reserve + min_call < deadline_seconds
+
+
+def _accelerated_mode(started: float, cfg: ForecastConfig) -> bool:
+    threshold = float(os.environ.get(
+        "ARENA_LIVE_ACCELERATE_AFTER_SECONDS",
+        cfg.arena.live_accelerate_after_seconds,
+    ))
+    if threshold <= 0:
+        return False
+    return (time.monotonic() - started) >= threshold
+
+
+def _deadline_fallback_due(started: float, deadline_seconds: float | None, cfg: ForecastConfig) -> bool:
+    if deadline_seconds is None:
+        return False
+    reserve = float(os.environ.get(
+        "ARENA_FINAL_FALLBACK_RESERVE_SECONDS",
+        cfg.arena.final_fallback_reserve_seconds,
+    ))
+    return _remaining_seconds(started, deadline_seconds) <= reserve
+
+
+def _attach_live_runtime_context(
+    packet: ArenaForecastPacket,
+    prior: ArenaPrior,
+    *,
+    started: float,
+    deadline_seconds: float | None,
+    remaining_seconds_at_gpt_start: float | None,
+    search_grounding_enabled: bool,
+    live_data_enabled: bool,
+) -> None:
+    packet.features["live_runtime_context"] = {
+        "deadline_seconds": deadline_seconds,
+        "elapsed_before_final_gemini_seconds": time.monotonic() - started,
+        "remaining_seconds_at_final_gemini_start": remaining_seconds_at_gpt_start,
+        "live_data_enabled": live_data_enabled,
+        "native_search_grounding_enabled": search_grounding_enabled,
+        "fallback_policy": (
+            "If the final model call cannot complete with enough reserve before the hard deadline, "
+            "the runtime returns the deterministic prior, which uses any available live market quote."
+        ),
+        "acceleration_policy": (
+            "After the live acceleration threshold, skip optional repair/audit calls and preserve final fallback time."
+        ),
+    }
+    packet.features["live_source_status"] = {
+        "source_counts": _live_evidence_sources(packet.live_evidence),
+        "errors": _live_evidence_errors(packet.live_evidence),
+        "evidence_count": len(packet.live_evidence),
+    }
+    packet.features["final_gemini_brief"] = {
+        "role": "one_pass_final_forecast_with_native_search_when_enabled",
+        "deterministic_prior": prior.probabilities,
+        "prior_confidence": prior.confidence,
+        "prior_uncertainty": prior.uncertainty,
+        "high_priority_actions": [
+            "Use exact contract wording and resolution rules before searching broadly.",
+            "When native search is enabled, search only targeted current facts that can move probabilities.",
+            "Prefer official, market, vendor, ESPN-style availability, and high-quality news sources over broad commentary.",
+            "If current evidence is thin or contradictory, stay calibrated near the deterministic prior.",
+        ],
+    }
 
 
 def _attach_deadline_audit(forecast: ArenaForecast, started: float, deadline_seconds: float | None) -> None:
@@ -561,6 +766,27 @@ def _search_grounding_enabled(packet: ArenaForecastPacket, cfg: ForecastConfig) 
     return abs((now - as_of_dt).total_seconds()) <= max_age
 
 
+def _pre_grounded_research_enabled(packet: ArenaForecastPacket, cfg: ForecastConfig) -> bool:
+    env_value = os.environ.get("ARENA_ENABLE_PRE_GROUNDED_RESEARCH")
+    if env_value is not None:
+        return env_value.strip().lower() in {"1", "true", "yes", "on"}
+    if _search_grounding_enabled(packet, cfg):
+        return False
+    return _env_bool("ARENA_ENABLE_BACKTEST_INTERNET", cfg.arena.grounded_research_backtest_enabled)
+
+
+def _evidence_api_logs(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    logs: list[dict[str, Any]] = []
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        for key in ("api_log", "lseg_query_api_log"):
+            value = item.get(key)
+            if isinstance(value, dict):
+                logs.append(value)
+    return logs
+
+
 def _live_evidence_sources(items: list[dict[str, Any]]) -> dict[str, int]:
     counts = Counter(canonical_source_name(item.get("source")) for item in items if isinstance(item, dict))
     return dict(sorted(counts.items()))
@@ -598,3 +824,67 @@ def _live_evidence_errors(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
             }
             errors.append({key: value for key, value in row.items() if value is not None})
     return errors[:12]
+
+
+def _ensemble_audit(audit: dict[str, Any]) -> dict[str, Any]:
+    authority = audit.get("final_probability_authority")
+    if authority is None and str(audit.get("mode") or "").startswith("deterministic"):
+        authority = "deterministic_prior"
+    out = {
+        "mode": audit.get("mode"),
+        "model": audit.get("model"),
+        "native_search_grounding_enabled": bool(audit.get("native_search_grounding_enabled", False)),
+        "search_grounding_engine": audit.get("search_grounding_engine"),
+        "final_probability_authority": authority,
+        "prior_shrink_weight": float(audit.get("prior_shrink_weight") or 0.0),
+        "fallback_reason": audit.get("fallback_reason"),
+        "errors": audit.get("errors") or [],
+        "elapsed_seconds": audit.get("elapsed_seconds"),
+        "deadline_seconds": audit.get("deadline_seconds"),
+        "within_deadline": bool(audit.get("within_deadline", False)),
+        "live_evidence_count": int(audit.get("live_evidence_count") or 0),
+        "live_evidence_sources": audit.get("live_evidence_sources") or {},
+    }
+    out["api_logs"] = [_ensemble_api_log(item) for item in audit.get("api_logs") or [] if isinstance(item, dict)]
+    return out
+
+
+def _ensemble_api_log(item: dict[str, Any]) -> dict[str, Any]:
+    allowed = (
+        "provider",
+        "model",
+        "api_key_env",
+        "api_key_fingerprint",
+        "latency_sec",
+        "input_tokens",
+        "output_tokens",
+        "estimated_cost_usd",
+        "cache_key",
+        "search_grounding_enabled",
+        "search_grounding_engine",
+        "response_annotation_count",
+        "provider_response_id",
+    )
+    return {key: item.get(key) for key in allowed if key in item}
+
+
+def _market_comparison_from_forecast(forecast: ArenaForecast) -> dict[str, dict[str, float]]:
+    diagnostics = (
+        forecast.audit.get("deterministic_prior", {})
+        .get("diagnostics", {})
+    )
+    live_distribution = diagnostics.get("live_distribution")
+    if not isinstance(live_distribution, dict):
+        return {}
+    comparison: dict[str, dict[str, float]] = {}
+    for outcome, model_probability in forecast.probabilities.items():
+        if not _is_number(live_distribution.get(outcome)):
+            continue
+        market_probability = float(live_distribution[outcome])
+        model_p = float(model_probability)
+        comparison[outcome] = {
+            "market_midpoint_probability": round(market_probability, 6),
+            "model_probability": round(model_p, 6),
+            "model_minus_market_pp": round((model_p - market_probability) * 100.0, 3),
+        }
+    return comparison

@@ -46,11 +46,11 @@
       "enabled": false,
       "weight": 0.9,
       "temperature": 0.1,
-      "max_tokens": 1100,
+      "max_tokens": 1400,
       "enable_google_search": true,
       "adapter_config_path": "config/dhruv_gemini.default.json",
       "deadline_seconds": 480,
-      "use_live_data": false
+      "use_live_data": true
     },
     {
       "name": "claude_lane",

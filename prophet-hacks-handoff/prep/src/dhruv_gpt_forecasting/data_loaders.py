@@ -13,6 +13,7 @@ from typing import Any, Iterable
 from .features import normalize_category, parse_dt, price_to_prob
 
 
+GIT_LFS_POINTER_PREFIX = "version https://git-lfs.github.com/spec/v1"
 REPO_ROOT = Path(__file__).resolve().parents[4]
 HANDOFF_ROOT = REPO_ROOT / "prophet-hacks-handoff"
 PREP_DATA = HANDOFF_ROOT / "prep" / "data"
@@ -231,7 +232,7 @@ def load_topvol_candles(
     stride_minutes: int,
 ) -> list[dict[str, Any]]:
     fp = root / "ohlcv" / "period_1m" / f"week={week}" / f"{ticker}.csv.gz"
-    if not fp.exists():
+    if not fp.exists() or is_git_lfs_pointer_file(fp):
         return []
     close_dt = parse_dt(close_time)
     out: list[dict[str, Any]] = []
@@ -268,9 +269,35 @@ def snapshot_from_candle(row: dict[str, Any]) -> dict[str, Any]:
 
 
 def _iter_jsonl(path: Path) -> Iterable[dict[str, Any]]:
-    for line in path.read_text(encoding="utf-8").splitlines():
+    yield from iter_jsonl_rows(path)
+
+
+def iter_jsonl_rows(path: Path) -> Iterable[dict[str, Any]]:
+    if not path.exists():
+        return
+    text = path.read_text(encoding="utf-8")
+    if is_git_lfs_pointer_text(text):
+        return
+    for line_number, line in enumerate(text.splitlines(), start=1):
         if line.strip():
-            yield json.loads(line)
+            try:
+                yield json.loads(line)
+            except json.JSONDecodeError as exc:
+                raise ValueError(f"Invalid JSONL in {path}:{line_number}: {exc.msg}") from exc
+
+
+def is_git_lfs_pointer_text(text: str) -> bool:
+    return text.startswith(GIT_LFS_POINTER_PREFIX)
+
+
+def is_git_lfs_pointer_file(path: Path) -> bool:
+    if not path.exists():
+        return False
+    try:
+        with path.open("rb") as handle:
+            return handle.read(len(GIT_LFS_POINTER_PREFIX)).decode("utf-8", errors="ignore") == GIT_LFS_POINTER_PREFIX
+    except OSError:
+        return False
 
 
 def _float_or_zero(value: Any) -> float:
