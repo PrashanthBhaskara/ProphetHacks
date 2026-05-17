@@ -23,7 +23,7 @@ mini-prophet-remote
 example-api-remote
 
 # Old tarballs and downloads
-prophet-hacks-handoff.tar.gz
+prophet-hacks-*.tar.gz
 prophet_arena_paper.pdf
 
 # Python
@@ -34,3 +34,15 @@ prophet_arena_paper.pdf
 
 # OS
 .DS_Store
+
+# Backtest intermediates (regeneratable; large)
+prep/data/predictions/
+prep/data/runs/
+prep/data/backtest_sample_*.jsonl
+prep/data/category_weights_*.json
+
+# Claude Code worktrees (per-machine state)
+.claude/
+
+# Prep handoff data lives in origin/main via LFS; don't double-commit local extraction
+prep_handoff/

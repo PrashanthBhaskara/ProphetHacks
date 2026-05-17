@@ -101,9 +101,61 @@ def list_markets(
     return _paginate("/markets", params, "markets")
 
 
+def _normalize_market(m: dict) -> dict:
+    """Normalize a live Kalshi market record to the historical schema our
+    backtest data and downstream code expect.
+
+    Kalshi changed the wire format: prices come back as `*_dollars`
+    (0.0-1.0 floats) and volume as `*_fp`. Older snapshots stored in
+    `data/external/subset_*` use the prior `yes_ask` (cents 0-100) /
+    `volume_24h` shape. To avoid two code paths everywhere, we add the
+    legacy keys back here when they're missing.
+    """
+    if "yes_ask" not in m and "yes_ask_dollars" in m:
+        v = m.get("yes_ask_dollars")
+        if v is not None:
+            m["yes_ask"] = round(float(v) * 100)
+    if "no_ask" not in m and "no_ask_dollars" in m:
+        v = m.get("no_ask_dollars")
+        if v is not None:
+            m["no_ask"] = round(float(v) * 100)
+    if "yes_bid" not in m and "yes_bid_dollars" in m:
+        v = m.get("yes_bid_dollars")
+        if v is not None:
+            m["yes_bid"] = round(float(v) * 100)
+    if "no_bid" not in m and "no_bid_dollars" in m:
+        v = m.get("no_bid_dollars")
+        if v is not None:
+            m["no_bid"] = round(float(v) * 100)
+    if "last_price" not in m and "last_price_dollars" in m:
+        v = m.get("last_price_dollars")
+        if v is not None:
+            m["last_price"] = round(float(v) * 100)
+    if "volume_24h" not in m and "volume_24h_fp" in m:
+        v = m.get("volume_24h_fp")
+        if v is not None:
+            m["volume_24h"] = float(v)
+    if "volume" not in m and "volume_fp" in m:
+        v = m.get("volume_fp")
+        if v is not None:
+            m["volume"] = float(v)
+    if "liquidity" not in m and "liquidity_dollars" in m:
+        v = m.get("liquidity_dollars")
+        if v is not None:
+            m["liquidity"] = float(v)
+    return m
+
+
 def get_market(ticker: str) -> dict | None:
     try:
         data = _get(f"/markets/{ticker}")
-        return data.get("market") or data
+        market = data.get("market") or data
+        return _normalize_market(market) if market else None
     except requests.HTTPError:
         return None
+
+
+def list_markets_normalized(**kwargs) -> list[dict]:
+    """Like list_markets but normalizes each record. Use this anywhere
+    you would have iterated raw API records directly."""
+    return [_normalize_market(m) for m in list_markets(**kwargs)]

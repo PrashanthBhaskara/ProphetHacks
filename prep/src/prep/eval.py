@@ -23,12 +23,13 @@ PredictFn = Callable[..., dict]
 
 
 def _call_predict(predict_fn: PredictFn, sample: Sample) -> float:
+    # Prefer the wider signature: baselines that opt in to market_info
+    # (paper §4.2.2 shows this drops Brier 0.235 → 0.173). Fall back to
+    # the production-style event-only signature for baselines that don't.
     try:
-        # Production-style: takes only the event dict.
-        out = predict_fn(sample.event)
-    except TypeError:
-        # Allow baselines that want market_info too.
         out = predict_fn(sample.event, sample.market_info)
+    except TypeError:
+        out = predict_fn(sample.event)
     p = float(out["p_yes"])
     return max(0.01, min(0.99, p))
 
@@ -39,12 +40,18 @@ def evaluate(
     *,
     max_workers: int = 1,
     on_progress: Callable[[int, int], None] | None = None,
+    on_result: Callable[[Sample, float], None] | None = None,
 ) -> dict:
     """Run predict_fn over samples and return aggregated metrics.
 
     With max_workers > 1, predictions run in parallel — useful when the
     bottleneck is an external API call. Order of returned per-sample
     predictions matches input order.
+
+    `on_result(sample, p_yes)` fires once per successfully-predicted
+    sample, in completion order. Use it for incremental sinks (writing
+    predictions to disk as they land) so a crash mid-run doesn't lose
+    everything.
     """
     n = len(samples)
     preds: list[float | None] = [None] * n
@@ -54,15 +61,19 @@ def evaluate(
     if max_workers <= 1:
         for i, s in enumerate(samples):
             preds[i] = _call_predict(predict_fn, s)
+            if on_result:
+                on_result(s, preds[i])
             if on_progress:
                 on_progress(i + 1, n)
     else:
         with ThreadPoolExecutor(max_workers=max_workers) as pool:
-            futures = {pool.submit(_call_predict, predict_fn, s): i for i, s in enumerate(samples)}
+            futures = {pool.submit(_call_predict, predict_fn, s): (i, s) for i, s in enumerate(samples)}
             done = 0
             for fut in as_completed(futures):
-                i = futures[fut]
+                i, s = futures[fut]
                 preds[i] = fut.result()
+                if on_result:
+                    on_result(s, preds[i])
                 done += 1
                 if on_progress:
                     on_progress(done, n)
