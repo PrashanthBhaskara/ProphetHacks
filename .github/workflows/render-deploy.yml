@@ -1,8 +1,13 @@
 name: Render auto-deploy
 
-# Pings Render's Deploy Hook on every push to main.
-# DEBUG VERSION — prints metadata about the env var to diagnose why
-# urllib was reporting "unknown url type" inside the runner.
+# Pings Render's Deploy Hook on every push to main so the live
+# https://prophet-hacks-forecast.onrender.com service rebuilds from
+# the new HEAD.
+#
+# Uses Python's urllib instead of curl because the secret URL contains
+# characters that overlap with curl short-flag names; even with long
+# flags GitHub's secret-masking would corrupt argv in subtle ways.
+# Python keeps the URL inside one variable that's never re-tokenized.
 
 on:
   push:
@@ -25,27 +30,10 @@ jobs:
         run: |
           python3 <<'PY'
           import os, sys, urllib.request, urllib.error
-
           url = os.environ.get("HOOK_URL", "")
-
-          # Print derived metadata. None of these reveal the full secret
-          # value so GH Actions secret-masking should pass them through.
-          print(f"DEBUG length: {len(url)}", file=sys.stderr)
-          print(f"DEBUG starts_with_https: {url.startswith('https://')}", file=sys.stderr)
-          if url:
-              first_byte = ord(url[0])
-              last_byte = ord(url[-1])
-              print(f"DEBUG first_byte: {first_byte}", file=sys.stderr)
-              print(f"DEBUG last_byte: {last_byte}", file=sys.stderr)
-              has_ctrl = any(ord(c) < 32 for c in url)
-              print(f"DEBUG has_control_chars: {has_ctrl}", file=sys.stderr)
-              scheme = url.split('://', 1)[0] if '://' in url else 'NO_SCHEME'
-              print(f"DEBUG scheme_prefix: {scheme}", file=sys.stderr)
-
           if not url:
               print("RENDER_DEPLOY_HOOK secret is not configured", file=sys.stderr)
               sys.exit(1)
-
           req = urllib.request.Request(url, method="POST")
           try:
               with urllib.request.urlopen(req, timeout=30) as resp:
@@ -55,7 +43,6 @@ jobs:
           except Exception as e:
               print(f"Request to Render failed: {type(e).__name__}: {e}", file=sys.stderr)
               sys.exit(1)
-
           print(f"Render Deploy Hook responded: HTTP {status}")
           if status in (200, 201, 202):
               print("Deploy queued.")
