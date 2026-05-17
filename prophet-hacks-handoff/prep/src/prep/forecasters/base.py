@@ -10,7 +10,7 @@ from concurrent.futures import (
     ThreadPoolExecutor,
     TimeoutError as FuturesTimeoutError,
 )
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -219,12 +219,22 @@ def forecast_from_response(
     )
 
 
+def resolve_api_key(config: "ForecasterConfig", default_env: str) -> str | None:
+    """Return the first non-empty API key found across primary and fallback envs."""
+    for env_name in [config.api_key_env or default_env, *config.api_key_fallback_envs]:
+        value = os.environ.get(env_name)
+        if value:
+            return value
+    return None
+
+
 @dataclass
 class ForecasterConfig:
     name: str
     provider: str
     model: str
     api_key_env: str | None = None
+    api_key_fallback_envs: list[str] = field(default_factory=list)
     enabled: bool = True
     weight: float = 1.0
     temperature: float = 0.1
@@ -250,6 +260,7 @@ class ForecasterConfig:
             provider=data["provider"],
             model=data["model"],
             api_key_env=data.get("api_key_env"),
+            api_key_fallback_envs=list(data.get("api_key_fallback_envs") or []),
             enabled=bool(data.get("enabled", True)),
             weight=float(data.get("weight", 1.0)),
             temperature=float(data.get("temperature", 0.1)),

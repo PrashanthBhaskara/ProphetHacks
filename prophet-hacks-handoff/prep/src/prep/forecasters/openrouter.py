@@ -11,6 +11,7 @@ from .base import (
     build_user_prompt,
     extract_json_object,
     forecast_from_response,
+    resolve_api_key,
     stable_prompt_hash,
     system_prompt_for_config,
 )
@@ -21,10 +22,9 @@ OPENROUTER_CHAT_COMPLETIONS = "https://openrouter.ai/api/v1/chat/completions"
 
 
 def _api_key(config: ForecasterConfig) -> str:
-    env_name = config.api_key_env or "OPENROUTER_API_KEY"
-    key = os.environ.get(env_name)
+    key = resolve_api_key(config, "OPENROUTER_API_KEY")
     if not key:
-        raise RuntimeError(f"{env_name} is not set")
+        raise RuntimeError(f"No API key found for {config.name} (checked {config.api_key_env} and fallbacks)")
     return key
 
 

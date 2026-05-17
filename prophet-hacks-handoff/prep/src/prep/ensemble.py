@@ -492,16 +492,21 @@ def aggregate_forecasts(
     calibration = calibration or CalibrationConfig()
     # Calibration shrinks each outcome toward the market anchor by the same
     # per-event weight. Multi-outcome non-Kalshi events get the uniform anchor.
-    if tuple(outcomes) == ("YES", "NO") and packet.kalshi is not None:
+    if tuple(outcomes) == ("YES", "NO") and packet.kalshi is not None and packet.kalshi.market_mid != 0.5:
         # Reuse existing binary calibrate_to_market on YES side, mirror to NO
         cal_yes, shrink_weight = calibrate_to_market(raw_dist.get("YES", 0.5), packet, calibration)
         calibrated_dist = normalize_distribution({"YES": cal_yes, "NO": 1.0 - cal_yes})
     else:
-        # Multi-outcome shrinkage: pull each prob toward uniform by shrink_weight
+        # Multi-outcome shrinkage: pull each prob toward the market anchor.
+        # Use market_implied_probabilities from retrieval when available (populated
+        # by _enrich_packet for multi-market Kalshi events); fall back to uniform.
         shrink_weight = calibration.shrink_weight(packet)
-        anchor_share = 1.0 / max(1, len(outcomes))
+        market_implied = packet.retrieval.get("market_implied_probabilities") or {}
+        n = max(1, len(outcomes))
         calibrated_dist = normalize_distribution({
-            o: anchor_share + shrink_weight * (raw_dist.get(o, anchor_share) - anchor_share)
+            o: market_implied.get(o, 1.0 / n) + shrink_weight * (
+                raw_dist.get(o, 1.0 / n) - market_implied.get(o, 1.0 / n)
+            )
             for o in outcomes
         })
 

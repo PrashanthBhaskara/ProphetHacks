@@ -38,11 +38,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from prep.calibration import CalibrationConfig  # noqa: E402
 from prep.ensemble import JudgeConfig, aggregate_forecasts, forecast_members_parallel  # noqa: E402
 from prep.forecasters import ForecasterConfig  # noqa: E402
+from prep.kalshi import get_market, list_markets  # noqa: E402
 from prep.packets import packet_from_arena_event  # noqa: E402
+from prep.schemas import KalshiQuote, MarketPacket  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_CONFIG_PATH = Path(__file__).resolve().parents[1] / "config" / "ensemble.example.json"
+DEFAULT_CONFIG_PATH = Path(__file__).resolve().parents[1] / "config" / "FINAL.json"
 CONFIG_PATH = Path(os.environ.get("PROPHET_CONFIG", DEFAULT_CONFIG_PATH))
 
 # Wall-clock budget for the entire /predict call (lane fan-out + aggregation +
@@ -129,6 +131,119 @@ def health() -> dict:
     }
 
 
+def _f(val) -> float | None:
+    try:
+        return float(val) if val is not None else None
+    except (TypeError, ValueError):
+        return None
+
+
+def _market_mid(m: dict) -> float | None:
+    bid = _f(m.get("yes_bid_dollars"))
+    ask = _f(m.get("yes_ask_dollars"))
+    last = _f(m.get("last_price_dollars"))
+    if bid is not None and ask is not None and (bid > 0 or ask > 0):
+        return (bid + ask) / 2.0
+    if last is not None and last > 0:
+        return last
+    return None
+
+
+def _match_market(outcome: str, markets: list[dict]) -> dict | None:
+    """Match an outcome label to its Kalshi market by searching title/subtitle."""
+    outcome_lower = outcome.lower()
+    for m in markets:
+        title = (m.get("title") or "").lower()
+        sub = (m.get("yes_sub_title") or m.get("subtitle") or "").lower()
+        if outcome_lower in title or outcome_lower in sub:
+            return m
+    return None
+
+
+def _enrich_packet(packet: MarketPacket) -> MarketPacket:
+    """Fetch live Kalshi data and inject it into the packet before forecasting.
+
+    Binary events: fetch the single market by market_ticker.
+    Multi-outcome events: fetch all markets under the event_ticker and build
+    a market_implied_probabilities dict in packet.retrieval.
+    """
+    market_ticker = packet.market_ticker
+    event_ticker = packet.event_ticker
+
+    try:
+        # --- Binary: try fetching by market_ticker first ---
+        if market_ticker:
+            market = get_market(market_ticker)
+            if market:
+                packet.kalshi = KalshiQuote(
+                    yes_bid=_f(market.get("yes_bid_dollars")),
+                    yes_ask=_f(market.get("yes_ask_dollars")),
+                    no_bid=_f(market.get("no_bid_dollars")),
+                    no_ask=_f(market.get("no_ask_dollars")),
+                    last_price=_f(market.get("last_price_dollars")),
+                    volume=_f(market.get("volume_fp")),
+                    open_interest=_f(market.get("open_interest_fp")),
+                    yes_bid_size=_f(market.get("yes_bid_size_fp")),
+                    yes_ask_size=_f(market.get("yes_ask_size_fp")),
+                )
+                if market.get("rules_primary") and not packet.retrieval.get("description"):
+                    packet.retrieval["description"] = market["rules_primary"]
+                if market.get("yes_sub_title") and not packet.subtitle:
+                    packet.subtitle = market["yes_sub_title"]
+                logger.info(
+                    "Enriched binary %s: mid=%.3f vol=%s oi=%s",
+                    market_ticker, packet.kalshi.market_mid,
+                    market.get("volume_fp"), market.get("open_interest_fp"),
+                )
+                return packet
+
+        # --- Multi-outcome: fetch all markets under the event ---
+        ticker = event_ticker or market_ticker
+        if not ticker:
+            return packet
+
+        markets = list_markets(event_ticker=ticker, status=None, limit=100)
+        if not markets:
+            logger.warning("Kalshi returned no data for ticker %s", ticker)
+            return packet
+
+        # Build market_implied_probabilities keyed by outcome label
+        implied: dict[str, float] = {}
+        market_data: list[dict] = []
+        for outcome in packet.outcomes:
+            m = _match_market(outcome, markets)
+            if m is None:
+                continue
+            mid = _market_mid(m)
+            if mid is not None:
+                implied[outcome] = round(mid, 4)
+            market_data.append({
+                "outcome": outcome,
+                "ticker": m.get("ticker"),
+                "yes_bid": _f(m.get("yes_bid_dollars")),
+                "yes_ask": _f(m.get("yes_ask_dollars")),
+                "mid": mid,
+                "volume": _f(m.get("volume_fp")),
+                "open_interest": _f(m.get("open_interest_fp")),
+            })
+
+        if implied:
+            packet.retrieval["market_implied_probabilities"] = implied
+        if market_data:
+            packet.retrieval["market_data"] = market_data
+
+        logger.info(
+            "Enriched multi-outcome %s: %d/%d outcomes matched, implied=%s",
+            ticker, len(implied), len(packet.outcomes),
+            {k: f"{v:.3f}" for k, v in implied.items()},
+        )
+
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("Kalshi enrichment failed for %s: %s", market_ticker or event_ticker, exc)
+
+    return packet
+
+
 def _market_price_response(packet, outcomes: list[str]) -> PredictionResponse:
     """Build a market-price response mapped onto `outcomes`.
 
@@ -162,6 +277,7 @@ def _compute_ensemble(event: ArenaEvent, deadline: float) -> PredictionResponse:
     Returns the calibrated PredictionResponse mapped onto event.outcomes.
     """
     packet = packet_from_arena_event(event.model_dump())
+    packet = _enrich_packet(packet)
 
     if not _models:
         # No lanes enabled — uniform over outcomes is the best we can do.
