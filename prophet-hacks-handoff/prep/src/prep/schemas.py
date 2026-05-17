@@ -40,8 +40,22 @@ class KalshiQuote:
 
     @property
     def market_mid(self) -> float:
-        if self.yes_ask is not None and self.no_ask is not None:
-            return clamp_prob((self.yes_ask + (1.0 - self.no_ask)) / 2.0)
+        ya, na = self.yes_ask, self.no_ask
+        yb, nb = self.yes_bid, self.no_bid
+        if ya is not None and na is not None:
+            # Degenerate-ask guard: when both asks are pinned at extremes (no
+            # real sell-side liquidity) or the implied ask-spread is huge, the
+            # asks-only mid collapses to ~0.5 and discards whatever the bid
+            # side knows. Prefer bid-side mid in that case. Empirically affects
+            # ~20% of subset_1200 markets — see prep/experiments/.
+            asks_degenerate = (
+                (ya >= 0.99 and na >= 0.99)
+                or (ya <= 0.02 and na <= 0.02)
+                or (ya + na > 1.50)
+            )
+            if asks_degenerate and yb is not None and nb is not None:
+                return clamp_prob((yb + (1.0 - nb)) / 2.0)
+            return clamp_prob((ya + (1.0 - na)) / 2.0)
         if self.last_price is not None:
             return clamp_prob(self.last_price)
         return 0.5
