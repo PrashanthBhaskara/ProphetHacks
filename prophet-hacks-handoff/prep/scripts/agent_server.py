@@ -23,7 +23,6 @@ import json
 import logging
 import os
 import sys
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
@@ -32,8 +31,8 @@ from pydantic import BaseModel
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from prep.calibration import CalibrationConfig  # noqa: E402
-from prep.ensemble import EnsembleMember, JudgeConfig, aggregate_forecasts  # noqa: E402
-from prep.forecasters import ForecasterConfig, forecast_from_config  # noqa: E402
+from prep.ensemble import JudgeConfig, aggregate_forecasts, forecast_members_parallel  # noqa: E402
+from prep.forecasters import ForecasterConfig  # noqa: E402
 from prep.packets import packet_from_arena_event  # noqa: E402
 
 logger = logging.getLogger(__name__)
@@ -130,17 +129,11 @@ def predict_endpoint(event: ArenaEvent) -> PredictionResponse:
             probabilities=[OutcomeProbability(market=o, probability=share) for o in event.outcomes]
         )
 
-    forecasts = []
-    errors: list[str] = []
-    with ThreadPoolExecutor(max_workers=len(_models)) as pool:
-        futures = {pool.submit(forecast_from_config, m, packet): m for m in _models}
-        for fut in as_completed(futures):
-            model_cfg = futures[fut]
-            try:
-                forecasts.append(EnsembleMember(forecast=fut.result(), configured_weight=model_cfg.weight))
-            except Exception as exc:  # noqa: BLE001
-                errors.append(f"{model_cfg.name}: {type(exc).__name__}: {exc}")
-                logger.warning("lane %s failed: %s", model_cfg.name, exc)
+    run = forecast_members_parallel(_models, packet, continue_on_error=True)
+    forecasts = run.members
+    errors = run.errors
+    for error in errors:
+        logger.warning("lane failed: %s", error)
 
     if not forecasts:
         # All lanes failed (provider outage, bad key, etc). Don't 502 the eval —

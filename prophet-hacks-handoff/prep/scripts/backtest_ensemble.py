@@ -17,8 +17,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from prep.calibration import CalibrationConfig  # noqa: E402
 from prep.data import filter_by_category, load_eval_pack, load_subset_100  # noqa: E402
-from prep.ensemble import EnsembleMember, JudgeConfig, aggregate_forecasts  # noqa: E402
-from prep.forecasters import ForecasterConfig, forecast_from_config  # noqa: E402
+from prep.ensemble import JudgeConfig, aggregate_forecasts, forecast_members_parallel  # noqa: E402
+from prep.forecasters import ForecasterConfig  # noqa: E402
 from prep.packets import packet_from_sample  # noqa: E402
 from prep.score import full_report  # noqa: E402
 from prep.store import JsonlStore  # noqa: E402
@@ -75,20 +75,14 @@ def main() -> int:
     market_q = []
     for idx, sample in enumerate(samples, 1):
         packet = packet_from_sample(sample)
-        model_forecasts = []
-        for model in models:
-            try:
-                forecast = forecast_from_config(model, packet)
-                model_forecasts.append((model, forecast))
-            except Exception as exc:
-                if not args.continue_on_error:
-                    raise
-                print(f"[warn] {packet.market_ticker} {model.name} failed: {exc}", file=sys.stderr)
-
-        members = [
-            EnsembleMember(forecast=forecast, configured_weight=model.weight)
-            for model, forecast in model_forecasts
-        ]
+        run = forecast_members_parallel(
+            models,
+            packet,
+            continue_on_error=args.continue_on_error,
+        )
+        for error in run.errors:
+            print(f"[warn] {packet.market_ticker} {error}", file=sys.stderr)
+        members = run.members
         supervisor = aggregate_forecasts(
             packet,
             members,
@@ -104,7 +98,8 @@ def main() -> int:
         row = {
             "packet": packet.to_dict(),
             "outcome": sample.outcome,
-            "model_forecasts": [forecast.to_dict() for _, forecast in model_forecasts],
+            "model_forecasts": [member.forecast.to_dict() for member in members],
+            "model_errors": run.errors,
             "supervisor": supervisor.to_dict(),
             "score_inputs": {
                 "p_yes": supervisor.calibrated_p_yes,

@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 import os
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -52,6 +53,12 @@ class EnsembleMember:
         if not self.forecast.reasoning_track.key_evidence and not diag.should_defer_to_market:
             reasoning *= 0.90
         return max(0.01, self.configured_weight * quality * clarity * liquidity * defer * reasoning * (0.5 + f.confidence / 2.0))
+
+
+@dataclass
+class EnsembleRun:
+    members: list[EnsembleMember]
+    errors: list[str]
 
 
 @dataclass
@@ -99,6 +106,65 @@ def _read_prompt_file(path_value: str) -> str:
 
 def _judge_system_prompt(judge: JudgeConfig) -> str:
     return _read_prompt_file(judge.system_prompt_path)
+
+
+def forecast_members_parallel(
+    model_configs: list[Any],
+    packet: MarketPacket,
+    *,
+    max_workers: int | None = None,
+    continue_on_error: bool = True,
+) -> EnsembleRun:
+    """Run all configured council lanes concurrently and return ordered members.
+
+    The aggregation code consumes `EnsembleMember` objects, so this helper keeps
+    the same public aggregation structure while making the standard council
+    execution path parallel. Results are sorted back into config order before
+    the judge sees them, which keeps audit logs stable across runs.
+    """
+    from .forecasters import forecast_from_config
+
+    configs = list(model_configs)
+    if not configs:
+        return EnsembleRun(members=[], errors=[])
+
+    worker_count = max(1, max_workers or len(configs))
+    completed: list[tuple[int, EnsembleMember]] = []
+    errors: list[str] = []
+    pool = ThreadPoolExecutor(max_workers=worker_count)
+    futures = {
+        pool.submit(forecast_from_config, model_config, packet): (idx, model_config)
+        for idx, model_config in enumerate(configs)
+    }
+    try:
+        for fut in as_completed(futures):
+            idx, model_config = futures[fut]
+            try:
+                forecast = fut.result()
+            except Exception as exc:  # noqa: BLE001
+                model_name = getattr(model_config, "name", f"model_{idx}")
+                msg = f"{model_name}: {type(exc).__name__}: {exc}"
+                if not continue_on_error:
+                    for pending in futures:
+                        pending.cancel()
+                    raise RuntimeError(msg) from exc
+                errors.append(msg)
+                continue
+            completed.append((
+                idx,
+                EnsembleMember(
+                    forecast=forecast,
+                    configured_weight=float(getattr(model_config, "weight", 1.0)),
+                ),
+            ))
+    finally:
+        pool.shutdown(wait=continue_on_error, cancel_futures=not continue_on_error)
+
+    completed.sort(key=lambda item: item[0])
+    return EnsembleRun(
+        members=[member for _, member in completed],
+        errors=errors,
+    )
 
 
 def _anchor_distribution(packet: MarketPacket) -> dict[str, float]:
