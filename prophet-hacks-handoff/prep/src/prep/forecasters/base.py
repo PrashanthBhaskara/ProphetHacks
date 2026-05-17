@@ -315,6 +315,9 @@ def forecast_from_config(config: ForecasterConfig, packet: MarketPacket) -> Mode
     ):
         from .claude_agent import forecast
         return forecast(config, packet)
+    if config.provider == "grok":
+        from .grok import forecast
+        return forecast(config, packet)
     raise ValueError(f"Unknown forecaster provider: {config.provider}")
 
 
