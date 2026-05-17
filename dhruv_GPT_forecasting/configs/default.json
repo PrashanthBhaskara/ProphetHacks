@@ -1,0 +1,116 @@
+{
+  "models": {
+    "cheap": {
+      "name": "gpt_cheap_lane",
+      "provider": "gemini",
+      "model": "gemini-3-flash-preview",
+      "api_key_env": "GEMINI_API_KEY",
+      "api_key_fallback_envs": ["GOOGLE_API_KEY"],
+      "temperature": 0.1,
+      "max_tokens": 1100,
+      "enabled": true,
+      "search_grounding": {
+        "enabled": true,
+        "live_only": true,
+        "engine": "native",
+        "max_results": 5,
+        "max_total_results": 8
+      }
+    },
+    "supervisor": {
+      "name": "gpt_supervisor_lane",
+      "provider": "gemini",
+      "model": "gemini-3-flash-preview",
+      "api_key_env": "GEMINI_API_KEY",
+      "api_key_fallback_envs": ["GOOGLE_API_KEY"],
+      "temperature": 0.05,
+      "max_tokens": 1200,
+      "enabled": true,
+      "search_grounding": {
+        "enabled": true,
+        "live_only": true,
+        "engine": "native",
+        "max_results": 5,
+        "max_total_results": 8
+      }
+    }
+  },
+  "gates": {
+    "cheap_delta_pp": 0.025,
+    "cheap_tight_spread": 0.05,
+    "cheap_high_spread": 0.15,
+    "cheap_categories": ["Sports", "Economics", "Politics", "Elections", "Climate and Weather", "Weather"],
+    "supervisor_disagreement_pp": 0.05,
+    "supervisor_min_edge": 0.06,
+    "high_notional_liquidity": 100000.0
+  },
+  "risk": {
+    "min_edge": 0.06,
+    "hard_no_trade_spread": 0.30,
+    "wide_spread": 0.15,
+    "spread_buffer": 0.50,
+    "uncertainty_buffer": 0.03,
+    "fee_buffer": 0.0,
+    "kelly_fraction": 0.08,
+    "max_equity_fraction_per_market": 0.01,
+    "starting_equity": 10000.0
+  },
+  "stat": {
+    "max_market_deviation": 0.06,
+    "default_market_deviation": 0.03,
+    "kalman_process_var": 0.04,
+    "kalman_base_obs_var": 0.03,
+    "min_ar_snapshots": 8,
+    "max_ar_lag": 3,
+    "near_close_brier_enabled": true,
+    "near_close_max_horizon_hours": 0.5,
+    "near_close_momentum_scale": 0.10,
+    "near_close_momentum_cap": 0.04,
+    "near_close_platt_a": 0.09,
+    "near_close_platt_b": 1.21
+  },
+  "arena": {
+    "gpt_enabled_default": true,
+    "live_data_enabled_default": false,
+    "second_pass_enabled": true,
+    "probability_floor": 0.001,
+    "probability_ceiling": 0.999,
+    "prior_shrink_weight": 0.00,
+    "second_pass_delta_pp": 0.12,
+    "second_pass_low_confidence": 0.40,
+    "second_pass_high_entropy": 0.92,
+    "live_cache_ttl_seconds": 900,
+    "max_historical_analogs": 8,
+    "max_live_evidence": 12,
+    "pit_external_enabled_default": false,
+    "pit_external_root": "dhruv_GPT_forecasting/data/external_evidence",
+    "pit_external_sources": ["local_jsonl", "reddit", "gdelt", "espn", "wrds", "lseg"],
+    "pit_external_strict_collected_at": true,
+    "pit_external_live_lookback_hours": 24,
+    "pit_external_max_records": 12,
+    "pit_external_max_live_age_minutes": 10,
+    "pit_external_clock_tolerance_seconds": 300,
+    "pit_external_archive_live_fetches": true,
+    "response_deadline_seconds": 480,
+    "evidence_source_timeout_seconds": 5,
+    "total_evidence_timeout_seconds": 45,
+    "llm_timeout_seconds": 90,
+    "deadline_reserve_seconds": 30,
+    "min_gpt_call_seconds": 55,
+    "grounded_research_enabled_default": true,
+    "grounded_research_live_only": true,
+    "grounded_research_backtest_enabled": false,
+    "grounded_research_timeout_seconds": 45,
+    "grounded_research_min_seconds": 20
+  },
+  "budget": {
+    "dry_run_default": true,
+    "log_dir": "dhruv_GPT_forecasting/logs",
+    "estimated_prices_per_1m_tokens": {
+      "openai/gpt-5-nano": {"input": 0.05, "output": 0.40},
+      "openai/gpt-5.4": {"input": 5.00, "output": 30.00},
+      "openai/gpt-5.5": {"input": 5.00, "output": 30.00},
+      "gemini-3-flash-preview": {"input": 0.50, "output": 3.00}
+    }
+  }
+}

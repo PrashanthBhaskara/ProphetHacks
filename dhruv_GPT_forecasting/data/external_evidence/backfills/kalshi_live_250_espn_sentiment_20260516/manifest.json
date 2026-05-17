@@ -1,0 +1,4001 @@
+{
+  "allow_historical_backfill": false,
+  "archive_files": {
+    "espn": "/Users/dhruvkohli/Desktop/Github Repos/ProphetHacks/dhruv_GPT_forecasting/data/external_evidence/backfills/kalshi_live_250_espn_sentiment_20260516/espn.jsonl"
+  },
+  "candle_stride_minutes": 1,
+  "chronological_oos": false,
+  "decision_budget_minutes": null,
+  "digest_file": "/Users/dhruvkohli/Desktop/Github Repos/ProphetHacks/dhruv_GPT_forecasting/data/external_evidence/backfills/kalshi_live_250_espn_sentiment_20260516/news_digest.jsonl",
+  "digest_max_chars": 1800,
+  "digest_max_records": 8,
+  "errors": [
+    {
+      "as_of": "2026-05-17T04:54:57.707458+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026FB5B0BA2569-B0664821FAD",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707739+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F51C69D7B7B-898A99DC4F7",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707764+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F3DECCEB72E-D85100FACF5",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707784+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F13D7CCEDDB-C5C8A14C62E",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707805+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026EB87E3ABE68-6FE44BF6CA2",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707824+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026EAFCD5533DD-562DB2834AF",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707838+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E9566F531B5-742F59C9066",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707853+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E91BC97DE7E-E7DB5FF1B50",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707864+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E780F358B22-03181C333BB",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707877+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E67379477FE-CD818DA4A43",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707894+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E47C3FB9A98-A5532D1A54A",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707905+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E4722A1EDDB-D241A28C0B0",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707917+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E4722A1EDDB-79EDAB20F68",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707927+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E40DAF5CE6C-1E76227E2AA",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707936+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E3AE3BA915C-58035C50741",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707950+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E11E537CD67-70EE859C565",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707964+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E11D2C5B8B3-4D9BE4D8A2F",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707984+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DD3C751913F-94C71CD70CF",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708003+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DD3C751913F-09C0449C4B8",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708020+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DB7988BE242-C6B1EC12E41",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708032+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DB7988BE242-63F93CA6DA1",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708044+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026D91CD8F3073-A74CFD53D72",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708054+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026D430F6CD4AD-0B3E12E160F",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708067+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026D2105F8367A-D7584ED18E8",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708083+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026D1D00DD8FB8-836533D9411",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708111+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026D18E4BC16A2-C769409E556",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708123+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026CBA2260D9D8-D9FA01F349D",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708136+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026C8F542B1F67-977F31F6ED1",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708148+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026BE91AF3E527-167DE162F45",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708160+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026BC9688EE341-ED42B726DD0",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708185+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B8A69CD572C-44CA300534D",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708196+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B6B35F827A9-FF4D46F37BF",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708211+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B5EA5E4CCC6-E2B5BAA43D7",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708221+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B3FC9B380CF-39C758AED8D",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708233+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B38FF3D49DF-0B34534308C",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708253+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B37DE0ED6BB-175842266A7",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708263+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B05F5712BFB-03116E452C2",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708273+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026AE46FCAAAAF-17AC21D771F",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708285+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026AE343D03C1A-3DC76F04195",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708301+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026AAA093B58AA-CBEA223C339",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708315+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A91F49E4536-90B2134CCA6",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708326+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A91F49E4536-4529D71A12C",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708336+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A91F49E4536-27D06BE46CE",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708347+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A68D58C289E-AEECAFD10D5",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708355+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A68D58C289E-68711930A5B",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708363+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A32F507A313-098D6B72C9C",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708383+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A2987ED870E-1CBA56801B1",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708399+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A181428E4CF-C612FB1EA1D",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708409+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A181428E4CF-63B716283F1",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708420+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A06A5EA83BF-88FA3967252",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708434+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20269E5BD680244-12D93556019",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708447+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20269E05014ED1B-B0A5A6EE253",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708460+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20269D7509A70E1-F96260F6C1F",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708471+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20269D7509A70E1-BCA252C7E58",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708481+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20269BB980B35F4-1764DC06FC4",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708496+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20269B7E963A30F-B14BDF4528C",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708516+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026998A1E7E865-BB613A4D9C9",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708528+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202697BA56C167C-958F7D4399B",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708538+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20269652FB85D77-BF10101E710",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708546+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20269652FB85D77-7301B6247C4",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708553+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026930D941AB92-2C5A2A4AB42",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708564+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20268C0C82B9AB9-8447FC5BBF1",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708580+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026898E4A72E68-B28E9EED493",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708591+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202682831824146-A42E7776032",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708606+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20267DE44B2B887-DDAAE059D0D",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708633+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20267DE44B2B887-06AB8D6187C",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708658+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20267CD13C8D7F4-6A414DB4FA4",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708666+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20267C859EC6A3B-5AEB155B097",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708675+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026799FDB14D07-924FE5F5A51",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708695+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026797AE52DAE1-AF0A8E4DF83",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708710+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20267662D876203-9A59853CA65",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708720+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202671D4731F51E-EC19B4F32AE",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708751+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20267125B3902F8-8732EEF4DED",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708782+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20267125B3902F8-0D22300B138",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708794+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20266D1D720B2E0-4B2C796435C",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708805+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20266CC0E36FAA0-7719E729B05",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708819+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20266B466DD8373-B9AA9B78092",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708836+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20266719C25D111-79CF205F1A8",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708850+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20266719C25D111-5AAF937D2E4",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708863+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202664EF251C228-09A86E6421A",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708897+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202660F055A548D-C97FD6C3215",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708907+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20265F1AAC5AC8E-69643045359",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708920+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20265D4F5A76531-737C40B0C35",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708930+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20265BB87B2C51B-2EABB8D2FCE",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708945+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20265ABBB71CBF7-EFBA54D68BE",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708979+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20265921E28FD97-FDC2500FA58",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708992+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20265715C1F351B-082586E77E0",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709008+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20264FF5FABFFAC-926DA0CEA1D",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709017+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20264E59510550B-A43243E7DDF",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709028+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20264866B944BD3-B978C4180B0",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709056+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026474FA25D29E-AD47E8D8F65",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709078+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026409BB2B70E6-3A4481B6EBF",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709093+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20263ED24A4F4F4-C8CADD47F01",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709104+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20263AB3D984AC0-95FF494722A",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709116+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20263A3670C1488-AD700A7952B",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709127+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20263A3670C1488-0916F882AE7",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709138+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202639D29A6F0F4-1C4CB242BAC",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709152+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20263681DD90281-91BE8C316F1",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709179+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20263681DD90281-48AB5BC1E8B",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709204+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026333811E1213-21958E97B14",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709216+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202631C1169BA33-EED44A80940",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709233+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20263162664B990-FC53DDF9ED4",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709241+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20263162664B990-895BD8CE372",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709250+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20262AA0F2EF55C-08045ACCC34",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709262+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026218BC0D8C19-6D5D021E3E4",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709279+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20262131515F3D0-7576101DAC1",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709294+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026205A0A1111F-902E570A1B0",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709309+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20261FF18FD4D63-7E026B73E00",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709317+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20261FB086DD072-A27703E245E",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709327+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20261C6E1CAF13E-FB03CD56FCA",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709341+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202616C4CF9D9FA-F380C131257",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709349+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026161ECE4470C-A0DDFD49BBB",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709364+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202615A7A2F047A-84B8EB25904",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709377+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202615A5D3EA01B-4253EC65C02",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709391+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202614B3C7822E5-1498C7F62A2",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709421+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026109D635743E-7EFC4BA1D8E",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709429+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20260ED14E5DA09-5403117B7EF",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709446+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026083C64CC5D8-3D749D224E7",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709459+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S2026FC820548275-7F717F04F07",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709474+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S2026EFDE10828D2-18B39913B81",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709485+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S2026EC0C9F97F87-9044E0A82C6",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709496+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S2026EA4F36110AB-DC94148B993",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709510+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S2026E5A059D6A1B-4CEDABD5081",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709525+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S2026DF36B58473A-4926E32D6D6",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709532+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S2026DAB18ED8595-853B0808538",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709542+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S2026D445FFEF0B3-473B4043DEC",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709551+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S2026CE126D55101-7492C78A8F3",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709560+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S2026C090875B474-AF13A841715",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709571+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S2026BD86AA6FE3F-FCF215DA138",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709596+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S2026BBD5EFC45C8-FE740390C59",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709611+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S2026BB384FD2493-826E9AE4343",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709627+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S2026B75E4EF160F-FEC351A32EB",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709640+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S20268DDAA4C56C5-43F9766626F",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709661+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S20268DD57591166-4389CB854DE",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709674+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S202689671066745-8C7E1D99691",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709686+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S202684CA55CA4B1-0F26CCFB87A",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709695+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S2026819B6844107-11E49F1EA7A",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709707+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S20267BD462293E4-23AF73D7A78",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709719+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S20267A5D6757306-F6CED7FA729",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709734+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S20267A5D6757306-D1579539199",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709745+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S202676F85D7D395-4B40E8A3982",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709758+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S20267184B4FCBA6-F380C131257",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709766+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S20267184B4FCBA6-7D9A56CD912",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709790+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S20267184B4FCBA6-0E8E170C516",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709798+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S2026700627A9C6F-18CE1924012",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709821+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S20266F7717A067D-3A4481B6EBF",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709834+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S20266B633DAA10D-433743F0872",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709845+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S2026692AE55DA86-249470D03A1",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709855+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S202664D52E242E8-64F534438F3",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709864+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S2026639C664C340-D4BCE591E64",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709877+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S202659DEFB758C4-ECDC706ABE4",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709889+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S202653D0A95AE29-4BA9FA261CF",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709903+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S20265012019430E-6E2DD2AE872",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709913+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S20264E8EB8BCC1C-72D2A071C2E",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709924+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S2026498CC1742E2-412A4D397DE",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709937+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S2026482C856D0DC-837702BA588",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709947+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S202643E2D9B902B-78EC839674C",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709958+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S20263AD752A81FE-B2A48EA54DC",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709967+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S2026343B2CAED83-EC028622757",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709980+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S20262C491519ECA-C58E1F7ABC5",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709999+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S202610EECCB72D0-43F04FE58FF",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710015+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S202609AC79E90AE-2E524F85E30",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710034+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVECROSSCATEGORY-S2026091E85BA314-C3257021418",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710053+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026FE62210A123-DCBA7A44ECC",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710066+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026FE1A57CB446-F7F212C52DA",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710079+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026FC6D0CFEECB-17093663F05",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710097+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026FB85F656770-8C0D5580B84",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710108+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026FA6145EC441-5BD2AB19FC3",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710126+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026FA4694DC936-9623913D9D3",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710145+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F99717A2A26-08204C8B014",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710157+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F9640AFC767-D82A252C72D",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710168+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F7B240ADCB6-90DF1C95BD2",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710180+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F6352970FD7-BB9D723DE98",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710189+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F53E86D8018-CFFE769F259",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710197+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F53E86D8018-CE054ABADAC",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710205+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F53E86D8018-A2A400D9A0F",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710213+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F53E86D8018-98056262EA2",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710221+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F53E86D8018-789500B94DF",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710230+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F53E86D8018-4EAC9461C99",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710238+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F53E86D8018-1F9F191481F",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710246+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F4FBA123A09-CB7A6DBBC16",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710262+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F4D9E4572DF-91CD5C3151E",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710269+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F4D9E4572DF-0B3C8715AB6",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710277+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F3DE9EF56C9-98CC6E75669",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710286+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F3DE9EF56C9-4E08BC4EA14",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710295+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F34C9BFEAA8-988C63B82D1",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710308+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F2A7053BC22-0FAD3AC06C1",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710318+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F1761541404-54EEE34FD4D",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710333+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F170439C655-7804A72C136",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710345+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F1477E29FAE-539E7A39E3E",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710356+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F1390B9212C-DA6B8114CE7",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710368+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026EE87E671C40-0C7FA9EF2FF",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710385+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026EE17BD1C0A7-320C284916B",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710396+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026EC5A1C28D4E-3873583D946",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710409+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026EB4668C72FA-5CEAEE8311B",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710421+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026EA4B3130E02-A125DB11BA7",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710443+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026EA2EA9EB21A-0C9F2783D2C",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710461+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E8921BB32CD-DFE017C75AD",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710471+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E86D453971B-F3E46BAD29B",
+      "source": "espn"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710480+00:00",
+      "error": "skipped_non_sports_packet",
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E7232D7C61E-9A42A258EF5",
+      "source": "espn"
+    }
+  ],
+  "errors_by_source": {
+    "espn": 250
+  },
+  "events_json": "dhruv_GPT_forecasting/logs/kalshi_events_deadline_20260519_20260516.json",
+  "force_cheap": false,
+  "gated_only": false,
+  "horizon_hours": 0.25,
+  "max_fetch_errors": -1,
+  "max_horizon_hours": null,
+  "min_history_snapshots": null,
+  "min_horizon_minutes": null,
+  "n_packets": 250,
+  "n_packets_attempted": 250,
+  "n_packets_skipped_resume": 0,
+  "n_records": 0,
+  "packet_rows": [
+    {
+      "as_of": "2026-05-17T04:54:57.707458+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026FB5B0BA2569",
+      "idx": 0,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026FB5B0BA2569-B0664821FAD",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago louis arizona los angeles san diego antonio scottie scheffler",
+      "title": "yes Chicago C,yes St. Louis,yes Arizona,yes Los Angeles D,yes San Diego,yes San Antonio,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707739+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F51C69D7B7B",
+      "idx": 1,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F51C69D7B7B-898A99DC4F7",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago houston arizona san diego antonio scottie scheffler psg",
+      "title": "yes Chicago C,yes Houston,yes Arizona,yes San Diego,yes San Antonio,yes Scottie Scheffler,yes PSG"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707764+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F3DECCEB72E",
+      "idx": 2,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F3DECCEB72E-D85100FACF5",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago runs san antonio jason day jordan spieth jon rahm",
+      "title": "yes Chicago C wins by over 1.5 runs,yes San Antonio,yes Jason Day,yes Jordan Spieth,yes Jon Rahm"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707784+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F13D7CCEDDB",
+      "idx": 3,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F13D7CCEDDB-C5C8A14C62E",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "cubs runs diamondbacks phoenix los angeles las vegas",
+      "title": "yes Cubs wins by over 4.5 runs,yes Diamondbacks wins by over 4.5 runs,yes Phoenix,yes Los Angeles,yes Las Vegas"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707805+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026EB87E3ABE68",
+      "idx": 4,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026EB87E3ABE68-6FE44BF6CA2",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona los angeles san antonio aaron fox stephon castle scottie scheffler",
+      "title": "yes Chicago C,yes Arizona,yes Los Angeles D,yes San Antonio,yes De'Aaron Fox: 15+,yes Stephon Castle: 15+,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707824+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026EAFCD5533DD",
+      "idx": 5,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026EAFCD5533DD-562DB2834AF",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago houston arizona san antonio both teams score",
+      "title": "yes Chicago C,yes Houston,yes Arizona,yes San Antonio,yes Both Teams To Score"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707838+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E9566F531B5",
+      "idx": 6,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E9566F531B5-742F59C9066",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago louis arizona los angeles san diego scottie scheffler",
+      "title": "yes Chicago C,yes St. Louis,yes Arizona,yes Los Angeles D,yes San Diego,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707853+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E91BC97DE7E",
+      "idx": 7,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E91BC97DE7E-E7DB5FF1B50",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago woo kim cameron young",
+      "title": "yes Chicago C,yes Si Woo Kim,yes Cameron Young"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707864+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E780F358B22",
+      "idx": 8,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E780F358B22-03181C333BB",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "sean burke los angeles runs",
+      "title": "yes Sean Burke: 4+,yes Los Angeles A wins by over 1.5 runs"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707877+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E67379477FE",
+      "idx": 9,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E67379477FE-CD818DA4A43",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago louis arizona los angeles san antonio phoenix las vegas indiana toronto",
+      "title": "yes Chicago C,yes St. Louis,yes Arizona,yes Los Angeles D,yes San Antonio,yes Phoenix,yes Los Angeles,yes Las Vegas,yes Indiana,yes Toronto"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707894+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E47C3FB9A98",
+      "idx": 10,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E47C3FB9A98-A5532D1A54A",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona los angeles miami",
+      "title": "yes Chicago C,yes Arizona,yes Los Angeles D,yes Miami"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707905+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E4722A1EDDB",
+      "idx": 11,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E4722A1EDDB-D241A28C0B0",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago atlanta tampa bay detroit",
+      "title": "yes Chicago C,yes Atlanta,yes Tampa Bay,yes Detroit"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707917+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E4722A1EDDB",
+      "idx": 12,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E4722A1EDDB-79EDAB20F68",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago miami baltimore cleveland",
+      "title": "yes Chicago C,yes Miami,yes Baltimore,yes Cleveland"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707927+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E40DAF5CE6C",
+      "idx": 13,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E40DAF5CE6C-1E76227E2AA",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona san antonio psg",
+      "title": "yes Chicago C,yes Arizona,yes San Antonio,yes PSG"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707936+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E3AE3BA915C",
+      "idx": 14,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E3AE3BA915C-58035C50741",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago louis arizona los angeles scottie scheffler",
+      "title": "yes Chicago C,yes St. Louis,yes Arizona,yes Los Angeles D,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707950+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E11E537CD67",
+      "idx": 15,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E11E537CD67-70EE859C565",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago atlanta tampa bay cincinnati detroit new york boston",
+      "title": "yes Chicago C,yes Atlanta,yes Tampa Bay,yes Cincinnati,yes Detroit,yes New York M,yes New York Y,yes Boston"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707964+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E11D2C5B8B3",
+      "idx": 16,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E11D2C5B8B3-4D9BE4D8A2F",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona los angeles san antonio scottie scheffler david mgoyan parnasse salahdine fiona ferro",
+      "title": "yes Chicago C,yes Arizona,yes Los Angeles D,yes San Antonio,yes Scottie Scheffler,yes David Mgoyan,yes Parnasse Salahdine,yes Fiona Ferro,yes Elina Avanesyan"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.707984+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DD3C751913F",
+      "idx": 17,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DD3C751913F-94C71CD70CF",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona los angeles jaden mcdaniels san antonio stephon castle scottie scheffler",
+      "title": "yes Chicago C,yes Arizona,yes Los Angeles D,yes Jaden McDaniels: 3+,yes San Antonio,yes Stephon Castle: 15+,yes Stephon Castle: 4+,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708003+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DD3C751913F",
+      "idx": 18,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DD3C751913F-09C0449C4B8",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona los angeles victor wembanyama san antonio stephon castle scottie scheffler",
+      "title": "yes Chicago C,yes Arizona,yes Los Angeles D,yes Victor Wembanyama: 2+,yes San Antonio,yes Stephon Castle: 15+,yes Stephon Castle: 4+,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708020+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DB7988BE242",
+      "idx": 19,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DB7988BE242-C6B1EC12E41",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago miami baltimore cincinnati cleveland washington",
+      "title": "yes Chicago C,yes Miami,yes Baltimore,yes Cincinnati,yes Cleveland,yes Washington"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708032+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DB7988BE242",
+      "idx": 20,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DB7988BE242-63F93CA6DA1",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago atlanta tampa bay cincinnati detroit new york",
+      "title": "yes Chicago C,yes Atlanta,yes Tampa Bay,yes Cincinnati,yes Detroit,yes New York M"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708044+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026D91CD8F3073",
+      "idx": 21,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026D91CD8F3073-A74CFD53D72",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago louis arizona scottie scheffler",
+      "title": "yes Chicago C,yes St. Louis,yes Arizona,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708054+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026D430F6CD4AD",
+      "idx": 22,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026D430F6CD4AD-0B3E12E160F",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago los angeles runs scottie scheffler",
+      "title": "yes Chicago C,yes Los Angeles D wins by over 1.5 runs,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708067+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026D2105F8367A",
+      "idx": 23,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026D2105F8367A-D7584ED18E8",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago houston louis arizona los angeles san diego atlanta tampa bay cleveland",
+      "title": "yes Chicago C,yes Houston,yes St. Louis,yes Arizona,yes Los Angeles D,yes San Diego,yes A's,yes Atlanta,yes Tampa Bay,yes Cleveland"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708083+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026D1D00DD8FB8",
+      "idx": 24,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026D1D00DD8FB8-836533D9411",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona los angeles san diego philadelphia atlanta tampa bay detroit washington new york",
+      "title": "yes Chicago C,yes Arizona,yes Los Angeles D,yes San Diego,yes Philadelphia,yes Atlanta,yes Tampa Bay,yes Philadelphia,yes Detroit,yes Washington,yes New York Y,yes Kansas City,yes Chicago C,yes Texas,yes Chicago WS,yes San Diego,yes Arizona"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708111+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026D18E4BC16A2",
+      "idx": 25,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026D18E4BC16A2-C769409E556",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago woo kim cameron young scottie scheffler",
+      "title": "yes Chicago C,yes Si Woo Kim,yes Cameron Young,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708123+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026CBA2260D9D8",
+      "idx": 26,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026CBA2260D9D8-D9FA01F349D",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago runs tko fight ends before round",
+      "title": "yes Chicago C wins by over 1.5 runs,yes KO/TKO/DQ,yes Fight ends before round 2"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708136+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026C8F542B1F67",
+      "idx": 27,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026C8F542B1F67-977F31F6ED1",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona los angeles san diego tampa bay detroit",
+      "title": "yes Chicago C,yes Arizona,yes Los Angeles D,yes San Diego,yes Tampa Bay,yes Detroit"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708148+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026BE91AF3E527",
+      "idx": 28,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026BE91AF3E527-167DE162F45",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago houston arizona san antonio both teams score psg",
+      "title": "yes Chicago C,yes Houston,yes Arizona,yes San Antonio,yes Both Teams To Score,yes PSG"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708160+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026BC9688EE341",
+      "idx": 29,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026BC9688EE341-ED42B726DD0",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona los angeles aaron fox stephon castle victor wembanyama san antonio scottie scheffler",
+      "title": "yes Chicago C,yes Arizona,yes Los Angeles D,yes De'Aaron Fox: 1+,yes Stephon Castle: 3+,yes De'Aaron Fox: 4+,yes Victor Wembanyama: 2+,yes San Antonio,yes Stephon Castle: 15+,yes Stephon Castle: 4+,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708185+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B8A69CD572C",
+      "idx": 30,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B8A69CD572C-44CA300534D",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago woo kim cameron young scottie scheffler",
+      "title": "yes Chicago C,yes Si Woo Kim,yes Cameron Young,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708196+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B6B35F827A9",
+      "idx": 31,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B6B35F827A9-FF4D46F37BF",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona los angeles san antonio scottie scheffler david mgoyan fiona ferro elina avanesyan",
+      "title": "yes Chicago C,yes Arizona,yes Los Angeles D,yes San Antonio,yes Scottie Scheffler,yes David Mgoyan,yes Fiona Ferro,yes Elina Avanesyan"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708211+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B5EA5E4CCC6",
+      "idx": 32,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B5EA5E4CCC6-E2B5BAA43D7",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago san diego",
+      "title": "yes Chicago C,yes San Diego,yes A's,yes Chicago C"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708221+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B3FC9B380CF",
+      "idx": 33,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B3FC9B380CF-39C758AED8D",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago houston arizona roma phoenix los angeles",
+      "title": "yes Chicago C,yes Houston,yes Arizona,yes Roma,yes Phoenix,yes Los Angeles"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708233+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B38FF3D49DF",
+      "idx": 34,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B38FF3D49DF-0B34534308C",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona los angeles aaron fox victor wembanyama san antonio stephon castle scottie scheffler",
+      "title": "yes Chicago C,yes Arizona,yes Los Angeles D,yes De'Aaron Fox: 4+,yes Victor Wembanyama: 2+,yes San Antonio,yes Stephon Castle: 15+,yes Stephon Castle: 4+,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708253+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B37DE0ED6BB",
+      "idx": 35,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B37DE0ED6BB-175842266A7",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago louis scottie scheffler",
+      "title": "yes Chicago C,yes St. Louis,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708263+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B05F5712BFB",
+      "idx": 36,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B05F5712BFB-03116E452C2",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago houston arizona san antonio psg",
+      "title": "yes Chicago C,yes Houston,yes Arizona,yes San Antonio,yes PSG"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708273+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026AE46FCAAAAF",
+      "idx": 37,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026AE46FCAAAAF-17AC21D771F",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona los angeles san antonio scottie scheffler",
+      "title": "yes Chicago C,yes Arizona,yes Los Angeles D,yes San Antonio,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708285+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026AE343D03C1A",
+      "idx": 38,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026AE343D03C1A-3DC76F04195",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago louis san antonio phoenix los angeles las vegas indiana toronto",
+      "title": "yes Chicago C,yes St. Louis,yes San Antonio,yes Phoenix,yes Los Angeles,yes Las Vegas,yes Indiana,yes Toronto"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708301+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026AAA093B58AA",
+      "idx": 39,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026AAA093B58AA-CBEA223C339",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago houston arizona san diego antonio scottie scheffler",
+      "title": "yes Chicago C,yes Houston,yes Arizona,yes San Diego,yes San Antonio,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708315+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A91F49E4536",
+      "idx": 40,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A91F49E4536-90B2134CCA6",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago miami baltimore cincinnati cleveland",
+      "title": "yes Chicago C,yes Miami,yes Baltimore,yes Cincinnati,yes Cleveland"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708326+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A91F49E4536",
+      "idx": 41,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A91F49E4536-4529D71A12C",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago atlanta tampa bay cincinnati detroit",
+      "title": "yes Chicago C,yes Atlanta,yes Tampa Bay,yes Cincinnati,yes Detroit"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708336+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A91F49E4536",
+      "idx": 42,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A91F49E4536-27D06BE46CE",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago atlanta tampa bay philadelphia detroit",
+      "title": "yes Chicago C,yes Atlanta,yes Tampa Bay,yes Philadelphia,yes Detroit"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708347+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A68D58C289E",
+      "idx": 43,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A68D58C289E-AEECAFD10D5",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago scottie scheffler",
+      "title": "yes Chicago C,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708355+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A68D58C289E",
+      "idx": 44,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A68D58C289E-68711930A5B",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago cameron young",
+      "title": "yes Chicago C,yes Cameron Young"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708363+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A32F507A313",
+      "idx": 45,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A32F507A313-098D6B72C9C",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago louis arizona los angeles san diego antonio phoenix las vegas indiana toronto",
+      "title": "yes Chicago C,yes St. Louis,yes Arizona,yes Los Angeles D,yes San Diego,yes A's,yes San Antonio,yes Phoenix,yes Los Angeles,yes Las Vegas,yes Indiana,yes Toronto"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708383+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A2987ED870E",
+      "idx": 46,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A2987ED870E-1CBA56801B1",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago houston louis arizona los angeles san diego tampa bay cleveland",
+      "title": "yes Chicago C,yes Houston,yes St. Louis,yes Arizona,yes Los Angeles D,yes San Diego,yes A's,yes Tampa Bay,yes Cleveland"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708399+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A181428E4CF",
+      "idx": 47,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A181428E4CF-C612FB1EA1D",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago runs cameron young",
+      "title": "yes Chicago C wins by over 1.5 runs,yes Cameron Young"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708409+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A181428E4CF",
+      "idx": 48,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A181428E4CF-63B716283F1",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "cubs runs scottie scheffler",
+      "title": "no Cubs wins by over 6.5 runs,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708420+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A06A5EA83BF",
+      "idx": 49,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026A06A5EA83BF-88FA3967252",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago houston louis arizona los angeles san diego tampa bay",
+      "title": "yes Chicago C,yes Houston,yes St. Louis,yes Arizona,yes Los Angeles D,yes San Diego,yes A's,yes Tampa Bay"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708434+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20269E5BD680244",
+      "idx": 50,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20269E5BD680244-12D93556019",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona los angeles san antonio scottie scheffler fiona ferro",
+      "title": "yes Chicago C,yes Arizona,yes Los Angeles D,yes San Antonio,yes Scottie Scheffler,yes Fiona Ferro"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708447+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20269E05014ED1B",
+      "idx": 51,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20269E05014ED1B-B0A5A6EE253",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago san antonio phoenix los angeles las vegas indiana toronto",
+      "title": "yes Chicago C,yes San Antonio,yes Phoenix,yes Los Angeles,yes Las Vegas,yes Indiana,yes Toronto"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708460+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20269D7509A70E1",
+      "idx": 52,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20269D7509A70E1-F96260F6C1F",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "sean burke runs",
+      "title": "yes Sean Burke: 4+,yes A's wins by over 3.5 runs"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708471+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20269D7509A70E1",
+      "idx": 53,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20269D7509A70E1-BCA252C7E58",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "sean burke runs",
+      "title": "yes Sean Burke: 4+,yes A's wins by over 2.5 runs"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708481+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20269BB980B35F4",
+      "idx": 54,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20269BB980B35F4-1764DC06FC4",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago louis arizona san antonio phoenix los angeles las vegas indiana toronto",
+      "title": "yes Chicago C,yes St. Louis,yes Arizona,yes San Antonio,yes Phoenix,yes Los Angeles,yes Las Vegas,yes Indiana,yes Toronto"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708496+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20269B7E963A30F",
+      "idx": 55,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20269B7E963A30F-B14BDF4528C",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago louis arizona los angeles san diego antonio scottie scheffler phoenix las vegas indiana",
+      "title": "yes Chicago C,yes St. Louis,yes Arizona,yes Los Angeles D,yes San Diego,yes A's,yes San Antonio,yes Scottie Scheffler,yes Phoenix,yes Los Angeles,yes Las Vegas,yes Indiana,yes Toronto"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708516+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026998A1E7E865",
+      "idx": 56,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026998A1E7E865-BB613A4D9C9",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona los angeles san diego detroit",
+      "title": "yes Chicago C,yes Arizona,yes Los Angeles D,yes San Diego,yes Detroit"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708528+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202697BA56C167C",
+      "idx": 57,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202697BA56C167C-958F7D4399B",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago los angeles phoenix las vegas",
+      "title": "yes Chicago C,yes Los Angeles D,yes Phoenix,yes Las Vegas"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708538+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20269652FB85D77",
+      "idx": 58,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20269652FB85D77-BF10101E710",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago miami",
+      "title": "yes Chicago C,yes Miami"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708546+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20269652FB85D77",
+      "idx": 59,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20269652FB85D77-7301B6247C4",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago atlanta",
+      "title": "yes Chicago C,yes Atlanta"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708553+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026930D941AB92",
+      "idx": 60,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026930D941AB92-2C5A2A4AB42",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago los angeles atlanta san antonio",
+      "title": "yes Chicago C,yes Los Angeles D,yes Atlanta,yes San Antonio"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708564+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20268C0C82B9AB9",
+      "idx": 61,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20268C0C82B9AB9-8447FC5BBF1",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago san antonio points 227 scored scottie scheffler",
+      "title": "yes Chicago C,yes San Antonio wins by over 22.5 points,yes Over 227.5 points scored,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708580+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026898E4A72E68",
+      "idx": 62,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026898E4A72E68-B28E9EED493",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago houston arizona detroit new york",
+      "title": "yes Chicago C,yes Houston,yes Arizona,yes Detroit,yes New York Y"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708591+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202682831824146",
+      "idx": 63,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202682831824146-A42E7776032",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago houston los angeles new york texas phoenix",
+      "title": "yes Chicago C,yes Houston,yes Los Angeles D,yes A's,yes New York Y,yes Chicago C,yes Texas,yes Phoenix,yes Los Angeles"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708606+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20267DE44B2B887",
+      "idx": 64,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20267DE44B2B887-DDAAE059D0D",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago louis arizona los angeles san diego philadelphia atlanta tampa bay detroit washington new",
+      "title": "yes Chicago C,yes St. Louis,yes Arizona,yes Los Angeles D,yes San Diego,yes Philadelphia,yes Atlanta,yes Tampa Bay,yes Philadelphia,yes Detroit,yes Washington,yes New York Y,yes Kansas City,yes Chicago C,yes Texas,yes Seattle,yes San Diego,yes Arizona"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708633+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20267DE44B2B887",
+      "idx": 65,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20267DE44B2B887-06AB8D6187C",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago louis arizona los angeles san diego philadelphia atlanta tampa bay detroit washington new",
+      "title": "yes Chicago C,yes St. Louis,yes Arizona,yes Los Angeles D,yes San Diego,yes Philadelphia,yes Atlanta,yes Tampa Bay,yes Philadelphia,yes Detroit,yes Washington,yes New York Y,yes Kansas City,yes Chicago C,yes Texas,yes Chicago WS,yes San Diego,yes Arizona"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708658+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20267CD13C8D7F4",
+      "idx": 66,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20267CD13C8D7F4-6A414DB4FA4",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "scottie scheffler",
+      "title": "yes Yes,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708666+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20267C859EC6A3B",
+      "idx": 67,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20267C859EC6A3B-5AEB155B097",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago cameron young scottie scheffler",
+      "title": "yes Chicago C,yes Cameron Young,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708675+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026799FDB14D07",
+      "idx": 68,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026799FDB14D07-924FE5F5A51",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona los angeles san antonio scottie scheffler david mgoyan francis ngannou parnasse salahdine",
+      "title": "yes Chicago C,yes Arizona,yes Los Angeles D,yes San Antonio,yes Scottie Scheffler,yes David Mgoyan,yes Francis Ngannou,yes Parnasse Salahdine,yes Fiona Ferro,yes Elina Avanesyan"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708695+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026797AE52DAE1",
+      "idx": 69,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026797AE52DAE1-AF0A8E4DF83",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona los angeles san antonio stephon castle scottie scheffler",
+      "title": "yes Chicago C,yes Arizona,yes Los Angeles D,yes San Antonio,yes Stephon Castle: 15+,yes Stephon Castle: 4+,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708710+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20267662D876203",
+      "idx": 70,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20267662D876203-9A59853CA65",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "nico hoerner scottie scheffler",
+      "title": "yes Nico Hoerner: 1+,yes Yes,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708720+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202671D4731F51E",
+      "idx": 71,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202671D4731F51E-EC19B4F32AE",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "cubs runs kansas city los angeles san diego scored antonio points scottie scheffler phoenix",
+      "title": "yes Cubs wins by over 4.5 runs,no Kansas City wins by over 1.5 runs,yes Los Angeles D wins by over 2.5 runs,yes San Diego wins by over 1.5 runs,yes Over 5.5 runs scored,yes San Antonio wins by over 12.5 points,yes Scottie Scheffler,yes Phoenix,yes Los Angeles"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708751+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20267125B3902F8",
+      "idx": 72,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20267125B3902F8-8732EEF4DED",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago runs goals scored",
+      "title": "no Chicago WS wins by over 2.5 runs,yes Over 3.5 goals scored"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708782+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20267125B3902F8",
+      "idx": 73,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20267125B3902F8-0D22300B138",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago runs goals scored",
+      "title": "no Chicago WS wins by over 1.5 runs,yes Over 3.5 goals scored"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708794+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20266D1D720B2E0",
+      "idx": 74,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20266D1D720B2E0-4B2C796435C",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago san antonio phoenix los angeles indiana",
+      "title": "yes Chicago C,yes San Antonio,yes Phoenix,yes Los Angeles,yes Indiana"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708805+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20266CC0E36FAA0",
+      "idx": 75,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20266CC0E36FAA0-7719E729B05",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago houston arizona los angeles atlanta kansas city runs",
+      "title": "yes Chicago C,yes Houston,yes Arizona,yes Los Angeles D,yes Atlanta,no Kansas City wins by over 1.5 runs"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708819+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20266B466DD8373",
+      "idx": 76,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20266B466DD8373-B9AA9B78092",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago atlanta tampa bay cincinnati detroit new york boston minnesota texas",
+      "title": "yes Chicago C,yes Atlanta,yes Tampa Bay,yes Cincinnati,yes Detroit,yes New York M,yes New York Y,yes Boston,yes Minnesota,yes Texas,yes A's"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708836+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20266719C25D111",
+      "idx": 77,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20266719C25D111-79CF205F1A8",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago atlanta tampa bay cincinnati detroit new york",
+      "title": "yes Chicago C,yes Atlanta,yes Tampa Bay,yes Cincinnati,yes Detroit,yes New York M,yes New York Y"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708850+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20266719C25D111",
+      "idx": 78,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20266719C25D111-5AAF937D2E4",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago miami baltimore cincinnati cleveland washington new york",
+      "title": "yes Chicago C,yes Miami,yes Baltimore,yes Cincinnati,yes Cleveland,yes Washington,yes New York Y"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708863+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202664EF251C228",
+      "idx": 79,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202664EF251C228-09A86E6421A",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "cubs runs kansas city los angeles san diego scored antonio points cameron young scottie",
+      "title": "yes Cubs wins by over 4.5 runs,no Kansas City wins by over 1.5 runs,yes Los Angeles D wins by over 2.5 runs,yes San Diego wins by over 1.5 runs,yes Over 5.5 runs scored,yes San Antonio wins by over 12.5 points,yes Cameron Young,yes Scottie Scheffler,yes Maverick McNealy,yes Phoenix,yes Los Angeles"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708897+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202660F055A548D",
+      "idx": 80,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202660F055A548D-C97FD6C3215",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago aldrich potgieter scottie scheffler",
+      "title": "yes Chicago C,yes Aldrich Potgieter,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708907+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20265F1AAC5AC8E",
+      "idx": 81,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20265F1AAC5AC8E-69643045359",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona san antonio phoenix los angeles indiana",
+      "title": "yes Chicago C,yes Arizona,yes San Antonio,yes Phoenix,yes Los Angeles,yes Indiana"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708920+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20265D4F5A76531",
+      "idx": 82,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20265D4F5A76531-737C40B0C35",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago phoenix las vegas seattle",
+      "title": "yes Chicago C,yes Phoenix,yes Las Vegas,yes Seattle"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708930+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20265BB87B2C51B",
+      "idx": 83,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20265BB87B2C51B-2EABB8D2FCE",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago atlanta tampa bay cincinnati detroit new york boston minnesota",
+      "title": "yes Chicago C,yes Atlanta,yes Tampa Bay,yes Cincinnati,yes Detroit,yes New York M,yes New York Y,yes Boston,yes Minnesota"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708945+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20265ABBB71CBF7",
+      "idx": 84,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20265ABBB71CBF7-EFBA54D68BE",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "cubs runs kansas city los angeles san diego scored antonio points cameron young scottie",
+      "title": "yes Cubs wins by over 4.5 runs,no Kansas City wins by over 1.5 runs,yes Los Angeles D wins by over 2.5 runs,yes San Diego wins by over 1.5 runs,yes Over 5.5 runs scored,yes San Antonio wins by over 12.5 points,yes Cameron Young,yes Scottie Scheffler,yes Ludvig Aberg,yes Maverick McNealy,yes Phoenix,yes Los Angeles"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708979+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20265921E28FD97",
+      "idx": 85,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20265921E28FD97-FDC2500FA58",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago runs vgk golden knights cameron young",
+      "title": "yes Chicago C wins by over 1.5 runs,yes VGK Golden Knights,yes Cameron Young"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.708992+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20265715C1F351B",
+      "idx": 86,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20265715C1F351B-082586E77E0",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago atlanta tampa bay cincinnati detroit new york boston minnesota texas",
+      "title": "yes Chicago C,yes Atlanta,yes Tampa Bay,yes Cincinnati,yes Detroit,yes New York M,yes New York Y,yes Boston,yes Minnesota,yes Texas"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709008+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20264FF5FABFFAC",
+      "idx": 87,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20264FF5FABFFAC-926DA0CEA1D",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago houston arizona detroit",
+      "title": "yes Chicago C,yes Houston,yes Arizona,yes Detroit"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709017+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20264E59510550B",
+      "idx": 88,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20264E59510550B-A43243E7DDF",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago runs fight ends before round",
+      "title": "yes Chicago C wins by over 1.5 runs,yes Fight ends before round 2"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709028+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20264866B944BD3",
+      "idx": 89,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20264866B944BD3-B978C4180B0",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "cubs runs kansas city los angeles san diego scored antonio points scottie scheffler phoenix",
+      "title": "yes Cubs wins by over 4.5 runs,no Kansas City wins by over 1.5 runs,yes Los Angeles D wins by over 2.5 runs,yes San Diego wins by over 1.5 runs,yes Over 5.5 runs scored,yes San Antonio wins by over 12.5 points,yes Scottie Scheffler,yes Phoenix,yes Los Angeles"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709056+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026474FA25D29E",
+      "idx": 90,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026474FA25D29E-AD47E8D8F65",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona los angeles stephon castle aaron fox victor wembanyama san antonio scottie scheffler",
+      "title": "yes Chicago C,yes Arizona,yes Los Angeles D,yes Stephon Castle: 3+,yes De'Aaron Fox: 4+,yes Victor Wembanyama: 2+,yes San Antonio,yes Stephon Castle: 15+,yes Stephon Castle: 4+,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709078+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026409BB2B70E6",
+      "idx": 91,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026409BB2B70E6-3A4481B6EBF",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago louis arizona los angeles san diego atlanta",
+      "title": "yes Chicago C,yes St. Louis,yes Arizona,yes Los Angeles D,yes San Diego,yes A's,yes Atlanta"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709093+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20263ED24A4F4F4",
+      "idx": 92,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20263ED24A4F4F4-C8CADD47F01",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago louis phoenix las vegas seattle",
+      "title": "yes Chicago C,yes St. Louis,yes Phoenix,yes Las Vegas,yes Seattle"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709104+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20263AB3D984AC0",
+      "idx": 93,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20263AB3D984AC0-95FF494722A",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago psg goals scored",
+      "title": "yes Chicago C,yes PSG wins by over 1.5 goals,yes Over 2.5 goals scored"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709116+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20263A3670C1488",
+      "idx": 94,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20263A3670C1488-AD700A7952B",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago runs goals scored",
+      "title": "no Chicago WS wins by over 1.5 runs,yes Over 3.5 goals scored"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709127+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20263A3670C1488",
+      "idx": 95,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20263A3670C1488-0916F882AE7",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago runs goals scored",
+      "title": "no Chicago WS wins by over 2.5 runs,yes Over 3.5 goals scored"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709138+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202639D29A6F0F4",
+      "idx": 96,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202639D29A6F0F4-1C4CB242BAC",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona los angeles san antonio scottie scheffler fiona ferro elina avanesyan",
+      "title": "yes Chicago C,yes Arizona,yes Los Angeles D,yes San Antonio,yes Scottie Scheffler,yes Fiona Ferro,yes Elina Avanesyan"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709152+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20263681DD90281",
+      "idx": 97,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20263681DD90281-91BE8C316F1",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona los angeles aaron fox stephon castle victor wembanyama san antonio anthony edwards",
+      "title": "yes Chicago C,yes Arizona,yes Los Angeles D,yes De'Aaron Fox: 1+,yes Stephon Castle: 3+,yes De'Aaron Fox: 4+,yes Victor Wembanyama: 2+,yes San Antonio,yes Stephon Castle: 15+,yes Stephon Castle: 4+,yes Anthony Edwards: 3+,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709179+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20263681DD90281",
+      "idx": 98,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20263681DD90281-48AB5BC1E8B",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona los angeles aaron fox stephon castle victor wembanyama san antonio anthony edwards",
+      "title": "yes Chicago C,yes Arizona,yes Los Angeles D,yes De'Aaron Fox: 1+,yes Stephon Castle: 3+,yes De'Aaron Fox: 4+,yes Victor Wembanyama: 2+,yes San Antonio,yes Stephon Castle: 15+,yes Stephon Castle: 4+,yes Anthony Edwards: 2+,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709204+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026333811E1213",
+      "idx": 99,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026333811E1213-21958E97B14",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona los angeles san antonio scottie scheffler",
+      "title": "yes Chicago C,yes Arizona,yes Los Angeles D,yes San Antonio,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709216+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202631C1169BA33",
+      "idx": 100,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202631C1169BA33-EED44A80940",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago houston louis arizona los angeles san diego atlanta tampa bay cleveland washington",
+      "title": "yes Chicago C,yes Houston,yes St. Louis,yes Arizona,yes Los Angeles D,yes San Diego,yes A's,yes Atlanta,yes Tampa Bay,yes Cleveland,yes Washington"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709233+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20263162664B990",
+      "idx": 101,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20263162664B990-FC53DDF9ED4",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago miami cleveland",
+      "title": "yes Chicago C,yes Miami,yes Cleveland"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709241+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20263162664B990",
+      "idx": 102,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20263162664B990-895BD8CE372",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago atlanta detroit",
+      "title": "yes Chicago C,yes Atlanta,yes Detroit"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709250+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20262AA0F2EF55C",
+      "idx": 103,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20262AA0F2EF55C-08045ACCC34",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "sean burke runs napoli",
+      "title": "yes Sean Burke: 4+,yes A's wins by over 2.5 runs,yes Napoli"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709262+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026218BC0D8C19",
+      "idx": 104,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026218BC0D8C19-6D5D021E3E4",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago los angeles atlanta",
+      "title": "yes Chicago C,yes Los Angeles D,yes Atlanta"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709279+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20262131515F3D0",
+      "idx": 105,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20262131515F3D0-7576101DAC1",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona atlanta tampa bay philadelphia new york san antonio",
+      "title": "yes Chicago C,yes Arizona,yes Atlanta,yes Tampa Bay,yes Philadelphia,yes New York Y,yes San Antonio"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709294+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026205A0A1111F",
+      "idx": 106,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026205A0A1111F-902E570A1B0",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago los angeles runs cleveland points scottie scheffler",
+      "title": "yes Chicago C,yes Los Angeles D wins by over 1.5 runs,no Cleveland wins by over 4.5 points,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709309+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20261FF18FD4D63",
+      "idx": 107,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20261FF18FD4D63-7E026B73E00",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago los angeles",
+      "title": "yes Chicago C,yes Los Angeles D"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709317+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20261FB086DD072",
+      "idx": 108,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20261FB086DD072-A27703E245E",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago cameron young scottie scheffler",
+      "title": "yes Chicago C,yes Cameron Young,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709327+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20261C6E1CAF13E",
+      "idx": 109,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20261C6E1CAF13E-FB03CD56FCA",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona los angeles san antonio stephon castle scottie scheffler",
+      "title": "yes Chicago C,yes Arizona,yes Los Angeles D,yes San Antonio,yes Stephon Castle: 15+,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709341+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202616C4CF9D9FA",
+      "idx": 110,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202616C4CF9D9FA-F380C131257",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago scottie scheffler",
+      "title": "yes Chicago C,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709349+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026161ECE4470C",
+      "idx": 111,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026161ECE4470C-A0DDFD49BBB",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona los angeles san antonio phoenix indiana",
+      "title": "yes Chicago C,yes Arizona,yes Los Angeles D,yes San Antonio,yes Phoenix,yes Los Angeles,yes Indiana"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709364+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202615A7A2F047A",
+      "idx": 112,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202615A7A2F047A-84B8EB25904",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona san diego antonio scottie scheffler",
+      "title": "yes Chicago C,yes Arizona,yes San Diego,yes San Antonio,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709377+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202615A5D3EA01B",
+      "idx": 113,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202615A5D3EA01B-4253EC65C02",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "cubs runs psg goals scored",
+      "title": "no Cubs wins by over 6.5 runs,yes PSG wins by over 1.5 goals,yes Over 2.5 goals scored"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709391+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202614B3C7822E5",
+      "idx": 114,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S202614B3C7822E5-1498C7F62A2",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "cubs runs kansas city los angeles san diego scored antonio points cameron young scottie",
+      "title": "yes Cubs wins by over 4.5 runs,no Kansas City wins by over 1.5 runs,yes Los Angeles D wins by over 2.5 runs,yes San Diego wins by over 1.5 runs,yes Over 5.5 runs scored,yes San Antonio wins by over 12.5 points,yes Cameron Young,yes Scottie Scheffler,yes Phoenix,yes Los Angeles"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709421+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026109D635743E",
+      "idx": 115,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026109D635743E-7EFC4BA1D8E",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago scottie scheffler",
+      "title": "yes Chicago C,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709429+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20260ED14E5DA09",
+      "idx": 116,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S20260ED14E5DA09-5403117B7EF",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago louis arizona los angeles san diego antonio phoenix las vegas indiana toronto",
+      "title": "yes Chicago C,yes St. Louis,yes Arizona,yes Los Angeles D,yes San Diego,yes San Antonio,yes Phoenix,yes Los Angeles,yes Las Vegas,yes Indiana,yes Toronto"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709446+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026083C64CC5D8",
+      "idx": 117,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026083C64CC5D8-3D749D224E7",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago houston arizona milan roma phoenix los angeles",
+      "title": "yes Chicago C,yes Houston,yes Arizona,yes Milan,yes Roma,yes Phoenix,yes Los Angeles"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709459+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S2026FC820548275",
+      "idx": 118,
+      "market_ticker": "KXMVECROSSCATEGORY-S2026FC820548275-7F717F04F07",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago louis arizona los angeles san diego atlanta tampa bay new york",
+      "title": "yes Chicago C,yes St. Louis,yes Arizona,yes Los Angeles D,yes San Diego,yes A's,yes Atlanta,yes Tampa Bay,yes New York Y"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709474+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S2026EFDE10828D2",
+      "idx": 119,
+      "market_ticker": "KXMVECROSSCATEGORY-S2026EFDE10828D2-18B39913B81",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago houston louis scottie scheffler",
+      "title": "yes Chicago C,yes Houston,yes St. Louis,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709485+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S2026EC0C9F97F87",
+      "idx": 120,
+      "market_ticker": "KXMVECROSSCATEGORY-S2026EC0C9F97F87-9044E0A82C6",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago houston louis scottie scheffler",
+      "title": "yes Chicago C,yes Houston,yes St. Louis,yes A's,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709496+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S2026EA4F36110AB",
+      "idx": 121,
+      "market_ticker": "KXMVECROSSCATEGORY-S2026EA4F36110AB-DC94148B993",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona san diego atlanta detroit kansas city antonio",
+      "title": "yes Chicago C,yes Arizona,yes San Diego,yes A's,yes Atlanta,yes Detroit,yes Kansas City,yes Chicago C,yes San Antonio"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709510+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S2026E5A059D6A1B",
+      "idx": 122,
+      "market_ticker": "KXMVECROSSCATEGORY-S2026E5A059D6A1B-4CEDABD5081",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago louis arizona los angeles san diego atlanta tampa bay",
+      "title": "yes Chicago C,yes St. Louis,yes Arizona,yes Los Angeles D,yes San Diego,yes A's,yes Atlanta,yes Tampa Bay"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709525+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S2026DF36B58473A",
+      "idx": 123,
+      "market_ticker": "KXMVECROSSCATEGORY-S2026DF36B58473A-4926E32D6D6",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago cincinnati",
+      "title": "yes Chicago C,yes Cincinnati"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709532+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S2026DAB18ED8595",
+      "idx": 124,
+      "market_ticker": "KXMVECROSSCATEGORY-S2026DAB18ED8595-853B0808538",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago los angeles xander schauffele",
+      "title": "yes Chicago C,yes Los Angeles D,yes Xander Schauffele"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709542+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S2026D445FFEF0B3",
+      "idx": 125,
+      "market_ticker": "KXMVECROSSCATEGORY-S2026D445FFEF0B3-473B4043DEC",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago dustin johnson scottie scheffler",
+      "title": "yes Chicago C,yes Dustin Johnson,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709551+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S2026CE126D55101",
+      "idx": 126,
+      "market_ticker": "KXMVECROSSCATEGORY-S2026CE126D55101-7492C78A8F3",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona atlanta san antonio",
+      "title": "yes Chicago C,yes Arizona,yes Atlanta,yes San Antonio"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709560+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S2026C090875B474",
+      "idx": 127,
+      "market_ticker": "KXMVECROSSCATEGORY-S2026C090875B474-AF13A841715",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago toronto atlanta detroit",
+      "title": "yes Chicago C,yes Toronto,yes Atlanta,yes Detroit"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709571+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S2026BD86AA6FE3F",
+      "idx": 128,
+      "market_ticker": "KXMVECROSSCATEGORY-S2026BD86AA6FE3F-FCF215DA138",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago toronto atlanta tampa bay philadelphia detroit new york kansas city minnesota texas seattle",
+      "title": "yes Chicago C,yes Toronto,yes Atlanta,yes Tampa Bay,yes Philadelphia,yes Detroit,yes New York M,yes New York Y,yes Kansas City,yes Minnesota,yes Chicago C,yes Texas,yes Seattle,yes Los Angeles D,yes San Francisco"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709596+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S2026BBD5EFC45C8",
+      "idx": 129,
+      "market_ticker": "KXMVECROSSCATEGORY-S2026BBD5EFC45C8-FE740390C59",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona san antonio psg goals scored",
+      "title": "yes Chicago C,yes Arizona,yes San Antonio,yes PSG wins by over 1.5 goals,yes Over 2.5 goals scored"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709611+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S2026BB384FD2493",
+      "idx": 130,
+      "market_ticker": "KXMVECROSSCATEGORY-S2026BB384FD2493-826E9AE4343",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago toronto atlanta tampa bay philadelphia detroit new york",
+      "title": "yes Chicago C,yes Toronto,yes Atlanta,yes Tampa Bay,yes Philadelphia,yes Detroit,yes New York M,yes New York Y,yes Chicago C"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709627+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S2026B75E4EF160F",
+      "idx": 131,
+      "market_ticker": "KXMVECROSSCATEGORY-S2026B75E4EF160F-FEC351A32EB",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago toronto atlanta tampa bay philadelphia detroit new york",
+      "title": "yes Chicago C,yes Toronto,yes Atlanta,yes Tampa Bay,yes Philadelphia,yes Detroit,yes New York M"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709640+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S20268DDAA4C56C5",
+      "idx": 132,
+      "market_ticker": "KXMVECROSSCATEGORY-S20268DDAA4C56C5-43F9766626F",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago toronto atlanta tampa bay philadelphia detroit new york kansas city minnesota texas seattle",
+      "title": "yes Chicago C,yes Toronto,yes Atlanta,yes Tampa Bay,yes Philadelphia,yes Detroit,yes New York M,yes New York Y,yes Kansas City,yes Minnesota,yes Chicago C,yes Texas,yes Seattle,yes Los Angeles D"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709661+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S20268DD57591166",
+      "idx": 133,
+      "market_ticker": "KXMVECROSSCATEGORY-S20268DD57591166-4389CB854DE",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago toronto atlanta tampa bay philadelphia detroit new york",
+      "title": "yes Chicago C,yes Toronto,yes Atlanta,yes Tampa Bay,yes Philadelphia,yes Detroit,yes New York M,yes New York Y"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709674+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S202689671066745",
+      "idx": 134,
+      "market_ticker": "KXMVECROSSCATEGORY-S202689671066745-8C7E1D99691",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona atlanta detroit san antonio",
+      "title": "yes Chicago C,yes Arizona,yes Atlanta,yes Detroit,yes Chicago C,yes San Antonio"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709686+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S202684CA55CA4B1",
+      "idx": 135,
+      "market_ticker": "KXMVECROSSCATEGORY-S202684CA55CA4B1-0F26CCFB87A",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago new york san antonio",
+      "title": "yes Chicago C,yes New York Y,yes San Antonio"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709695+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S2026819B6844107",
+      "idx": 136,
+      "market_ticker": "KXMVECROSSCATEGORY-S2026819B6844107-11E49F1EA7A",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona atlanta detroit kansas city san antonio",
+      "title": "yes Chicago C,yes Arizona,yes Atlanta,yes Detroit,yes Kansas City,yes Chicago C,yes San Antonio"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709707+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S20267BD462293E4",
+      "idx": 137,
+      "market_ticker": "KXMVECROSSCATEGORY-S20267BD462293E4-23AF73D7A78",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona san antonio psg goals",
+      "title": "yes Chicago C,yes Arizona,yes San Antonio,yes PSG wins by over 1.5 goals"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709719+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S20267A5D6757306",
+      "idx": 138,
+      "market_ticker": "KXMVECROSSCATEGORY-S20267A5D6757306-F6CED7FA729",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago toronto atlanta baltimore philadelphia detroit",
+      "title": "yes Chicago C,yes Toronto,yes Atlanta,yes Baltimore,yes Philadelphia,yes Detroit"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709734+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S20267A5D6757306",
+      "idx": 139,
+      "market_ticker": "KXMVECROSSCATEGORY-S20267A5D6757306-D1579539199",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago toronto atlanta tampa bay philadelphia detroit",
+      "title": "yes Chicago C,yes Toronto,yes Atlanta,yes Tampa Bay,yes Philadelphia,yes Detroit"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709745+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S202676F85D7D395",
+      "idx": 140,
+      "market_ticker": "KXMVECROSSCATEGORY-S202676F85D7D395-4B40E8A3982",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago houston arizona san antonio phoenix los angeles indiana",
+      "title": "yes Chicago C,yes Houston,yes Arizona,yes San Antonio,yes Phoenix,yes Los Angeles,yes Indiana"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709758+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S20267184B4FCBA6",
+      "idx": 141,
+      "market_ticker": "KXMVECROSSCATEGORY-S20267184B4FCBA6-F380C131257",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago scottie scheffler",
+      "title": "yes Chicago C,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709766+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S20267184B4FCBA6",
+      "idx": 142,
+      "market_ticker": "KXMVECROSSCATEGORY-S20267184B4FCBA6-7D9A56CD912",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago brooks koepka",
+      "title": "yes Chicago C,yes Brooks Koepka"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709790+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S20267184B4FCBA6",
+      "idx": 143,
+      "market_ticker": "KXMVECROSSCATEGORY-S20267184B4FCBA6-0E8E170C516",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago cameron young",
+      "title": "yes Chicago C,yes Cameron Young"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709798+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S2026700627A9C6F",
+      "idx": 144,
+      "market_ticker": "KXMVECROSSCATEGORY-S2026700627A9C6F-18CE1924012",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago toronto atlanta tampa bay philadelphia detroit new york kansas city minnesota texas seattle",
+      "title": "yes Chicago C,yes Toronto,yes Atlanta,yes Tampa Bay,yes Philadelphia,yes Detroit,yes New York M,yes New York Y,yes Kansas City,yes Minnesota,yes Chicago C,yes Texas,yes A's,yes Seattle,yes Los Angeles D,yes San Francisco"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709821+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S20266F7717A067D",
+      "idx": 145,
+      "market_ticker": "KXMVECROSSCATEGORY-S20266F7717A067D-3A4481B6EBF",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago louis arizona los angeles san diego atlanta",
+      "title": "yes Chicago C,yes St. Louis,yes Arizona,yes Los Angeles D,yes San Diego,yes A's,yes Atlanta"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709834+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S20266B633DAA10D",
+      "idx": 146,
+      "market_ticker": "KXMVECROSSCATEGORY-S20266B633DAA10D-433743F0872",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "nico hoerner max muncy scottie scheffler",
+      "title": "yes Nico Hoerner: 1+,yes Max Muncy: 1+,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709845+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S2026692AE55DA86",
+      "idx": 147,
+      "market_ticker": "KXMVECROSSCATEGORY-S2026692AE55DA86-249470D03A1",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago toronto atlanta philadelphia detroit",
+      "title": "yes Chicago C,yes Toronto,yes Atlanta,yes Philadelphia,yes Detroit"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709855+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S202664D52E242E8",
+      "idx": 148,
+      "market_ticker": "KXMVECROSSCATEGORY-S202664D52E242E8-64F534438F3",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago toronto atlanta",
+      "title": "yes Chicago C,yes Toronto,yes Atlanta"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709864+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S2026639C664C340",
+      "idx": 149,
+      "market_ticker": "KXMVECROSSCATEGORY-S2026639C664C340-D4BCE591E64",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago houston san antonio phoenix los angeles indiana",
+      "title": "yes Chicago C,yes Houston,yes San Antonio,yes Phoenix,yes Los Angeles,yes Indiana"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709877+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S202659DEFB758C4",
+      "idx": 150,
+      "market_ticker": "KXMVECROSSCATEGORY-S202659DEFB758C4-ECDC706ABE4",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago houston louis los angeles scottie scheffler",
+      "title": "yes Chicago C,yes Houston,yes St. Louis,yes Los Angeles D,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709889+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S202653D0A95AE29",
+      "idx": 151,
+      "market_ticker": "KXMVECROSSCATEGORY-S202653D0A95AE29-4BA9FA261CF",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona san diego atlanta detroit kansas city antonio",
+      "title": "yes Chicago C,yes Arizona,yes San Diego,yes Atlanta,yes Detroit,yes Kansas City,yes Chicago C,yes San Antonio"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709903+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S20265012019430E",
+      "idx": 152,
+      "market_ticker": "KXMVECROSSCATEGORY-S20265012019430E-6E2DD2AE872",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona atlanta detroit san antonio",
+      "title": "yes Chicago C,yes Arizona,yes Atlanta,yes Detroit,yes San Antonio"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709913+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S20264E8EB8BCC1C",
+      "idx": 153,
+      "market_ticker": "KXMVECROSSCATEGORY-S20264E8EB8BCC1C-72D2A071C2E",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago los angeles tampa bay detroit new york",
+      "title": "yes Chicago C,yes Los Angeles D,yes Tampa Bay,yes Detroit,yes New York Y"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709924+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S2026498CC1742E2",
+      "idx": 154,
+      "market_ticker": "KXMVECROSSCATEGORY-S2026498CC1742E2-412A4D397DE",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago arizona los angeles san antonio psg goals",
+      "title": "yes Chicago C,yes Arizona,yes Los Angeles D,yes San Antonio,yes PSG wins by over 1.5 goals"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709937+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S2026482C856D0DC",
+      "idx": 155,
+      "market_ticker": "KXMVECROSSCATEGORY-S2026482C856D0DC-837702BA588",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "runs scored scottie scheffler",
+      "title": "yes Over 8.5 runs scored,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709947+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S202643E2D9B902B",
+      "idx": 156,
+      "market_ticker": "KXMVECROSSCATEGORY-S202643E2D9B902B-78EC839674C",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago louis cameron young phoenix los angeles",
+      "title": "yes Chicago C,yes St. Louis,yes Cameron Young,yes Phoenix,yes Los Angeles"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709958+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S20263AD752A81FE",
+      "idx": 157,
+      "market_ticker": "KXMVECROSSCATEGORY-S20263AD752A81FE-B2A48EA54DC",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago houston scottie scheffler",
+      "title": "yes Chicago C,yes Houston,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709967+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S2026343B2CAED83",
+      "idx": 158,
+      "market_ticker": "KXMVECROSSCATEGORY-S2026343B2CAED83-EC028622757",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago los angeles runs scored xander schauffele",
+      "title": "yes Chicago C,yes Los Angeles D,no Over 12.5 runs scored,yes Xander Schauffele"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709980+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S20262C491519ECA",
+      "idx": 159,
+      "market_ticker": "KXMVECROSSCATEGORY-S20262C491519ECA-C58E1F7ABC5",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago toronto atlanta tampa bay philadelphia detroit new york kansas city minnesota",
+      "title": "yes Chicago C,yes Toronto,yes Atlanta,yes Tampa Bay,yes Philadelphia,yes Detroit,yes New York M,yes New York Y,yes Kansas City,yes Minnesota,yes Chicago C"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.709999+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S202610EECCB72D0",
+      "idx": 160,
+      "market_ticker": "KXMVECROSSCATEGORY-S202610EECCB72D0-43F04FE58FF",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago toronto atlanta tampa bay philadelphia detroit new york kansas city",
+      "title": "yes Chicago C,yes Toronto,yes Atlanta,yes Tampa Bay,yes Philadelphia,yes Detroit,yes New York M,yes New York Y,yes Kansas City,yes Chicago C"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710015+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S202609AC79E90AE",
+      "idx": 161,
+      "market_ticker": "KXMVECROSSCATEGORY-S202609AC79E90AE-2E524F85E30",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago toronto atlanta tampa bay philadelphia detroit new york kansas city minnesota texas",
+      "title": "yes Chicago C,yes Toronto,yes Atlanta,yes Tampa Bay,yes Philadelphia,yes Detroit,yes New York M,yes New York Y,yes Kansas City,yes Minnesota,yes Chicago C,yes Texas"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710034+00:00",
+      "close_time": "2026-05-18T23:40:00Z",
+      "event_ticker": "KXMVECROSSCATEGORY-S2026091E85BA314",
+      "idx": 162,
+      "market_ticker": "KXMVECROSSCATEGORY-S2026091E85BA314-C3257021418",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "chicago toronto atlanta tampa bay philadelphia detroit new york kansas city minnesota texas seattle",
+      "title": "yes Chicago C,yes Toronto,yes Atlanta,yes Tampa Bay,yes Philadelphia,yes Detroit,yes New York M,yes New York Y,yes Kansas City,yes Minnesota,yes Chicago C,yes Texas,yes Seattle"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710053+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026FE62210A123",
+      "idx": 163,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026FE62210A123-DCBA7A44ECC",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta new york los angeles ausar thompson scottie scheffler",
+      "title": "yes Atlanta,yes New York Y,yes Los Angeles D,yes Ausar Thompson: 3+,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710066+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026FE1A57CB446",
+      "idx": 164,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026FE1A57CB446-F7F212C52DA",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york los angeles trey yesavage scottie scheffler",
+      "title": "yes New York Y,yes Los Angeles D,yes Trey Yesavage: 6+,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710079+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026FC6D0CFEECB",
+      "idx": 165,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026FC6D0CFEECB-17093663F05",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta new york los angeles cleveland points san antonio scottie scheffler",
+      "title": "yes Atlanta,yes New York Y,yes Los Angeles D,no Cleveland wins by over 8.5 points,yes San Antonio wins by over 2.5 points,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710097+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026FB85F656770",
+      "idx": 166,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026FB85F656770-8C0D5580B84",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta los angeles scottie scheffler xander schauffele",
+      "title": "yes Atlanta,yes Los Angeles D,yes Scottie Scheffler,yes Xander Schauffele"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710108+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026FA6145EC441",
+      "idx": 167,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026FA6145EC441-5BD2AB19FC3",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta chicago houston los angeles new york texas san antonio phoenix washington",
+      "title": "yes Atlanta,yes Chicago C,yes Houston,yes Los Angeles D,yes A's,yes New York Y,yes Chicago C,yes Texas,yes San Antonio,yes Phoenix,yes Los Angeles,yes Washington"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710126+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026FA4694DC936",
+      "idx": 168,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026FA4694DC936-9623913D9D3",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york chicago los angeles bobby witt san antonio james harden scottie scheffler las",
+      "title": "yes New York Y,yes Chicago C,yes Los Angeles D,yes Bobby Witt Jr.: 1+,yes San Antonio,yes James Harden: 15+,yes Scottie Scheffler,yes Las Vegas"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710145+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F99717A2A26",
+      "idx": 169,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F99717A2A26-08204C8B014",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york runs scored san antonio min woo lee",
+      "title": "yes New York Y,no Over 9.5 runs scored,yes San Antonio,yes Min Woo Lee"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710157+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F9640AFC767",
+      "idx": 170,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F9640AFC767-D82A252C72D",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta new york los angeles scottie scheffler",
+      "title": "yes Atlanta,yes New York Y,yes Los Angeles D,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710168+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F7B240ADCB6",
+      "idx": 171,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F7B240ADCB6-90DF1C95BD2",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta new york chicago detroit san antonio scottie scheffler",
+      "title": "yes Atlanta,yes New York Y,yes Chicago C,yes Detroit,yes San Antonio,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710180+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F6352970FD7",
+      "idx": 172,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F6352970FD7-BB9D723DE98",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york brooks koepka",
+      "title": "yes New York Y,yes Brooks Koepka"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710189+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F53E86D8018",
+      "idx": 173,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F53E86D8018-CFFE769F259",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york xander schauffele",
+      "title": "yes New York Y,yes Xander Schauffele"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710197+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F53E86D8018",
+      "idx": 174,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F53E86D8018-CE054ABADAC",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york min woo lee",
+      "title": "yes New York Y,yes Min Woo Lee"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710205+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F53E86D8018",
+      "idx": 175,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F53E86D8018-A2A400D9A0F",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york scottie scheffler",
+      "title": "yes New York Y,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710213+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F53E86D8018",
+      "idx": 176,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F53E86D8018-98056262EA2",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york rory mcilroy",
+      "title": "yes New York Y,yes Rory McIlroy"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710221+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F53E86D8018",
+      "idx": 177,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F53E86D8018-789500B94DF",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york justin thomas",
+      "title": "yes New York Y,yes Justin Thomas"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710230+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F53E86D8018",
+      "idx": 178,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F53E86D8018-4EAC9461C99",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york chris gotterup",
+      "title": "yes New York Y,yes Chris Gotterup"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710238+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F53E86D8018",
+      "idx": 179,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F53E86D8018-1F9F191481F",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york maverick mcnealy",
+      "title": "yes New York Y,yes Maverick McNealy"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710246+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F4FBA123A09",
+      "idx": 180,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F4FBA123A09-CB7A6DBBC16",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta chicago cleveland points 218 scored brooks koepka submission",
+      "title": "yes Atlanta,yes Chicago C,no Cleveland wins by over 4.5 points,yes Over 218.5 points scored,yes Brooks Koepka,yes Submission"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710262+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F4D9E4572DF",
+      "idx": 181,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F4D9E4572DF-91CD5C3151E",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york cleveland",
+      "title": "yes New York Y,yes Cleveland"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710269+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F4D9E4572DF",
+      "idx": 182,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F4D9E4572DF-0B3C8715AB6",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york detroit",
+      "title": "yes New York Y,yes Detroit"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710277+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F3DE9EF56C9",
+      "idx": 183,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F3DE9EF56C9-98CC6E75669",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york chicago maverick mcnealy",
+      "title": "yes New York Y,yes Chicago C,yes Maverick McNealy"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710286+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F3DE9EF56C9",
+      "idx": 184,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F3DE9EF56C9-4E08BC4EA14",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york chicago scottie scheffler",
+      "title": "yes New York Y,yes Chicago C,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710295+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F34C9BFEAA8",
+      "idx": 185,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F34C9BFEAA8-988C63B82D1",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york runs scored scottie scheffler",
+      "title": "yes New York Y wins by over 1.5 runs,yes Over 6.5 runs scored,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710308+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F2A7053BC22",
+      "idx": 186,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F2A7053BC22-0FAD3AC06C1",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta cameron young scottie scheffler",
+      "title": "yes Atlanta,yes Cameron Young,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710318+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F1761541404",
+      "idx": 187,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F1761541404-54EEE34FD4D",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta new york arizona scottie scheffler cameron young hideki matsuyama xander schauffele",
+      "title": "yes Atlanta,yes New York Y,yes Arizona,yes Scottie Scheffler,yes Cameron Young,yes Hideki Matsuyama,yes Xander Schauffele"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710333+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F170439C655",
+      "idx": 188,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F170439C655-7804A72C136",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york runs scored scottie scheffler",
+      "title": "yes New York Y,no Over 10.5 runs scored,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710345+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F1477E29FAE",
+      "idx": 189,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F1477E29FAE-539E7A39E3E",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york tampa bay",
+      "title": "yes New York Y,yes A's,yes Tampa Bay"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710356+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F1390B9212C",
+      "idx": 190,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026F1390B9212C-DA6B8114CE7",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york chicago arizona atlanta san antonio",
+      "title": "yes New York Y,yes Chicago C,yes Arizona,yes Atlanta,yes San Antonio"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710368+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026EE87E671C40",
+      "idx": 191,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026EE87E671C40-0C7FA9EF2FF",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta chicago houston los angeles new york texas san antonio phoenix",
+      "title": "yes Atlanta,yes Chicago C,yes Houston,yes Los Angeles D,yes A's,yes New York Y,yes Chicago C,yes Texas,yes San Antonio,yes Phoenix,yes Los Angeles"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710385+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026EE17BD1C0A7",
+      "idx": 192,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026EE17BD1C0A7-320C284916B",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york cade cunningham maverick mcnealy",
+      "title": "yes New York Y,yes Cade Cunningham: 20+,yes Maverick McNealy"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710396+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026EC5A1C28D4E",
+      "idx": 193,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026EC5A1C28D4E-3873583D946",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york chicago arizona psg goals phoenix",
+      "title": "yes New York Y,yes Chicago C,yes Arizona,yes PSG wins by over 1.5 goals,yes Phoenix"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710409+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026EB4668C72FA",
+      "idx": 194,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026EB4668C72FA-5CEAEE8311B",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york runs scottie scheffler",
+      "title": "yes New York Y wins by over 1.5 runs,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710421+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026EA4B3130E02",
+      "idx": 195,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026EA4B3130E02-A125DB11BA7",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york chicago houston arizona los angeles miami tampa bay detroit san antonio",
+      "title": "yes New York Y,yes Chicago C,yes Houston,yes Arizona,yes Los Angeles D,yes A's,yes Miami,yes Tampa Bay,yes Detroit,yes San Antonio"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710443+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026EA2EA9EB21A",
+      "idx": 196,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026EA2EA9EB21A-0C9F2783D2C",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta los angeles tampa bay new york chicago texas san antonio phoenix",
+      "title": "yes Atlanta,yes Los Angeles D,yes A's,yes Atlanta,yes Tampa Bay,yes New York Y,yes Chicago C,yes Texas,yes San Antonio,yes Phoenix,yes Los Angeles"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710461+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E8921BB32CD",
+      "idx": 197,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E8921BB32CD-DFE017C75AD",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york trey yesavage scottie scheffler",
+      "title": "yes New York Y,yes Trey Yesavage: 6+,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710471+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E86D453971B",
+      "idx": 198,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E86D453971B-F3E46BAD29B",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york col avalanche",
+      "title": "yes New York Y,yes COL Avalanche"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710480+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E7232D7C61E",
+      "idx": 199,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E7232D7C61E-9A42A258EF5",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york los angeles scottie scheffler",
+      "title": "yes New York Y,yes Los Angeles D,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710489+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E7232D7C61E",
+      "idx": 200,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E7232D7C61E-0FE05096973",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york los angeles chris gotterup",
+      "title": "yes New York Y,yes Los Angeles D,yes Chris Gotterup"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710499+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E643F2F1F2F",
+      "idx": 201,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E643F2F1F2F-53FFA343E36",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta new york donovan mitchell evan mobley james harden scottie scheffler",
+      "title": "yes Atlanta,yes New York Y,yes Donovan Mitchell: 2+,yes Evan Mobley: 10+,yes James Harden: 15+,yes Evan Mobley: 6+,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710517+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E3BD5DF4862",
+      "idx": 202,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E3BD5DF4862-CEC98712AB9",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "boston runs new york chicago scottie scheffler",
+      "title": "no Boston wins by over 3.5 runs,no New York M wins by over 3.5 runs,no Chicago WS wins by over 3.5 runs,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710537+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E386E453F07",
+      "idx": 203,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E386E453F07-70F2F920A24",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york juan soto scottie scheffler",
+      "title": "yes New York Y,yes Juan Soto: 1+,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710548+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E0F54C7D7F3",
+      "idx": 204,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026E0F54C7D7F3-F729A85A77E",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta los angeles",
+      "title": "yes Atlanta,yes Los Angeles D"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710556+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DFE8435ED18",
+      "idx": 205,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DFE8435ED18-D6AE105F6E1",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york runs scored min woo lee",
+      "title": "yes New York Y,no Over 9.5 runs scored,yes Min Woo Lee"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710567+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DEC611A8C44",
+      "idx": 206,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DEC611A8C44-D3179592329",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta los angeles cade cunningham detroit evan mobley james harden duncan robinson ayo dosunmu",
+      "title": "yes Atlanta,yes Los Angeles D,yes Cade Cunningham: 6+,yes Detroit,yes Evan Mobley: 10+,yes James Harden: 15+,yes Duncan Robinson: 10+,yes Ayo Dosunmu: 10+,yes Jaden McDaniels: 10+,yes De'Aaron Fox: 10+,yes Stephon Castle: 10+,yes Jarrett Allen: 4+,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710597+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DC9D6B0B95A",
+      "idx": 207,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DC9D6B0B95A-4745C65879C",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "spencer strider sean burke runs",
+      "title": "yes Spencer Strider: 4+,yes Sean Burke: 4+,yes A's wins by over 2.5 runs"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710610+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DC30AA20BE8",
+      "idx": 208,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DC30AA20BE8-77C0EC01AE6",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "runs scored roma napoli goals",
+      "title": "yes Over 6.5 runs scored,yes Roma,yes Napoli wins by over 1.5 goals"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710622+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DB37D804F49",
+      "idx": 209,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DB37D804F49-88B5E6AE9E7",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york detroit san antonio xander schauffele",
+      "title": "yes New York Y,yes Detroit,yes San Antonio,yes Xander Schauffele"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710633+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DB37D804F49",
+      "idx": 210,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DB37D804F49-6CD2CC330EA",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york detroit san antonio scottie scheffler",
+      "title": "yes New York Y,yes Detroit,yes San Antonio,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710645+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DB37D804F49",
+      "idx": 211,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DB37D804F49-0B8EA483EEB",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york detroit san antonio cameron young",
+      "title": "yes New York Y,yes Detroit,yes San Antonio,yes Cameron Young"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710655+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DAC13EFDCC3",
+      "idx": 212,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DAC13EFDCC3-6B2A324DCF5",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta new york los angeles detroit san antonio las vegas",
+      "title": "yes Atlanta,yes New York Y,yes Los Angeles D,yes Detroit,yes San Antonio,yes Las Vegas"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710683+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DAAD9B109DD",
+      "idx": 213,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DAAD9B109DD-C97BFF18C1E",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta new york los angeles san antonio col avalanche mike perry francis ngannou ronda",
+      "title": "yes Atlanta,yes New York Y,yes Los Angeles D,yes San Antonio,yes COL Avalanche,yes Mike Perry,yes Francis Ngannou,yes Ronda Rousey"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710699+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DA36BD1280F",
+      "idx": 214,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026DA36BD1280F-F2B1131B16E",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta chicago arizona los angeles miami",
+      "title": "yes Atlanta,yes Chicago C,yes Arizona,yes Los Angeles D,yes Miami"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710710+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026D863E7172AD",
+      "idx": 215,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026D863E7172AD-C540EC29287",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta new york los angeles detroit las vegas",
+      "title": "yes Atlanta,yes New York Y,yes Los Angeles D,yes Detroit,yes Las Vegas"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710722+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026D51E20D9324",
+      "idx": 216,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026D51E20D9324-6493BDE3EF0",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta new york los angeles",
+      "title": "yes Atlanta,yes New York Y,yes Los Angeles D"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710732+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026D4C728FE036",
+      "idx": 217,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026D4C728FE036-B383CF91840",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "aaron judge corey seager xander schauffele scottie scheffler",
+      "title": "yes Aaron Judge: 1+,yes Corey Seager: 1+,yes Xander Schauffele,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710744+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026D2E044D9E23",
+      "idx": 218,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026D2E044D9E23-CC03A77DDCA",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "cam schlittler hideki matsuyama scottie scheffler xander schauffele",
+      "title": "yes Cam Schlittler: 3+,yes Hideki Matsuyama,yes Scottie Scheffler,yes Xander Schauffele"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710758+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026CFF06A576B8",
+      "idx": 219,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026CFF06A576B8-A77DF473758",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york chicago houston arizona san antonio scottie scheffler los angeles washington",
+      "title": "yes New York Y,yes Chicago C,yes Houston,yes Arizona,yes San Antonio,yes Scottie Scheffler,yes Los Angeles,yes Washington"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710773+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026CFF06A576B8",
+      "idx": 220,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026CFF06A576B8-4C161DF8CB8",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york chicago houston arizona san antonio cameron young los angeles washington",
+      "title": "yes New York Y,yes Chicago C,yes Houston,yes Arizona,yes San Antonio,yes Cameron Young,yes Los Angeles,yes Washington"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710788+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026CEE4C384C37",
+      "idx": 221,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026CEE4C384C37-BCCF692A037",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york chicago atlanta",
+      "title": "yes New York Y,yes Chicago C,yes Atlanta"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710796+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026CC2F575CED1",
+      "idx": 222,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026CC2F575CED1-744C14FC500",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta 210 points scored las vegas",
+      "title": "yes Atlanta,no Over 210.5 points scored,yes Las Vegas,yes Las Vegas"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710808+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026CC0C810ED93",
+      "idx": 223,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026CC0C810ED93-2CF2505EBAB",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta new york chicago detroit san antonio points scottie scheffler",
+      "title": "yes Atlanta,yes New York Y,yes Chicago C,yes Detroit,yes San Antonio wins by over 5.5 points,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710823+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026CBCAECE25A8",
+      "idx": 224,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026CBCAECE25A8-B5D27B8198A",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york chicago arizona san antonio brandon jenkins nicolle caliari modestas bukauskas robelis despaigne",
+      "title": "yes New York Y,yes Chicago C,yes Arizona,yes San Antonio,yes Brandon Jenkins,yes Nicolle Caliari,yes Modestas Bukauskas,yes Robelis Despaigne,yes David Mgoyan,yes Aline Pereira,yes Parnasse Salahdine,yes Phoenix,yes Los Angeles,yes Las Vegas"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710848+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026CB7C3805535",
+      "idx": 225,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026CB7C3805535-D6E738E161E",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta new york chicago scottie scheffler",
+      "title": "yes Atlanta,yes New York Y,yes Chicago C,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710861+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026CB0059B05CA",
+      "idx": 226,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026CB0059B05CA-72570B0B11C",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta los angeles tampa bay",
+      "title": "yes Atlanta,yes Los Angeles D,yes Tampa Bay"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710871+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026C96045B862C",
+      "idx": 227,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026C96045B862C-0AEB5515BD5",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta chicago houston los angeles new york texas san antonio washington",
+      "title": "yes Atlanta,yes Chicago C,yes Houston,yes Los Angeles D,yes A's,yes New York Y,yes Chicago C,yes Texas,yes San Antonio,yes Los Angeles,yes Washington"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710889+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026C817A39583B",
+      "idx": 228,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026C817A39583B-D8394D4682B",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta san antonio maverick mcnealy",
+      "title": "yes Atlanta,yes San Antonio,yes Maverick McNealy"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710898+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026C7D7970329A",
+      "idx": 229,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026C7D7970329A-288B46700EE",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york san antonio phoenix los angeles las vegas",
+      "title": "yes New York Y,yes San Antonio,yes Phoenix,yes Los Angeles,yes Las Vegas"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710909+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026C68086861CB",
+      "idx": 230,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026C68086861CB-6EBC8CD1F6C",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york chicago arizona psg goals phoenix los angeles",
+      "title": "yes New York Y,yes Chicago C,yes Arizona,yes PSG wins by over 1.5 goals,yes Phoenix,yes Los Angeles"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710924+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026C22F9D99164",
+      "idx": 231,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026C22F9D99164-AE250785844",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta new york evan mobley james harden scottie scheffler",
+      "title": "yes Atlanta,yes New York Y,yes Evan Mobley: 10+,yes James Harden: 15+,yes Evan Mobley: 6+,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710939+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026BFEB6AE261F",
+      "idx": 232,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026BFEB6AE261F-66A1D2DC91B",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york los angeles runs xander schauffele",
+      "title": "yes New York Y,yes Los Angeles D wins by over 2.5 runs,yes Xander Schauffele"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710952+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026BE50BAB07BB",
+      "idx": 233,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026BE50BAB07BB-1A5D40202E1",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york houston 198 points scored scottie scheffler",
+      "title": "yes New York Y,yes Houston,yes Over 198.5 points scored,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710964+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026BD97E9F0231",
+      "idx": 234,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026BD97E9F0231-990F8592D15",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york runs rory mcilroy scottie scheffler",
+      "title": "yes New York Y wins by over 1.5 runs,yes Rory McIlroy,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710976+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026BC1468C0E80",
+      "idx": 235,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026BC1468C0E80-E8B37FE676B",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta new york arizona cameron young hideki matsuyama scottie scheffler xander schauffele",
+      "title": "yes Atlanta,yes New York Y,yes Arizona,yes Cameron Young,yes Hideki Matsuyama,yes Scottie Scheffler,yes Xander Schauffele"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.710991+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B647BE8D93E",
+      "idx": 236,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B647BE8D93E-5CF15B5872B",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta los angeles chicago runs",
+      "title": "yes Atlanta,yes Los Angeles A,no Chicago WS wins by over 2.5 runs"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.711002+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B5E7571D1F2",
+      "idx": 237,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B5E7571D1F2-ED1973763A3",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta col avalanche",
+      "title": "yes Atlanta,yes COL Avalanche"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.711010+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B543270A369",
+      "idx": 238,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B543270A369-E6C8ED9A62F",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york chicago arizona san antonio brandon jenkins nicolle caliari phoenix los angeles las",
+      "title": "yes New York Y,yes Chicago C,yes Arizona,yes San Antonio,yes Brandon Jenkins,yes Nicolle Caliari,yes Phoenix,yes Los Angeles,yes Las Vegas"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.711026+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B46EBF7FEA7",
+      "idx": 239,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B46EBF7FEA7-EB6E921C8C9",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york juan soto ben rice scottie scheffler",
+      "title": "yes New York Y,yes Juan Soto: 1+,yes Ben Rice: 1+,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.711038+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B1A2A10E66F",
+      "idx": 240,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B1A2A10E66F-C890FB9E767",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "cam schlittler runs scored scottie scheffler",
+      "title": "yes Cam Schlittler: 5+,yes Over 6.5 runs scored,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.711050+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B17954D7C27",
+      "idx": 241,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026B17954D7C27-223A6D9F6CC",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta new york arizona cameron young hideki matsuyama xander schauffele",
+      "title": "yes Atlanta,yes New York Y,yes Arizona,yes Cameron Young,yes Hideki Matsuyama,yes Xander Schauffele"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.711067+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026AF9F40249B8",
+      "idx": 242,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026AF9F40249B8-D6358849068",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york chicago san antonio phoenix los angeles las vegas",
+      "title": "yes New York Y,yes Chicago C,yes San Antonio,yes Phoenix,yes Los Angeles,yes Las Vegas"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.711080+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026AEDE8D94DCE",
+      "idx": 243,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026AEDE8D94DCE-ED7C6D3EB84",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta aldrich potgieter scottie scheffler",
+      "title": "yes Atlanta,yes Aldrich Potgieter,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.711089+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026AEC7B9DEA6F",
+      "idx": 244,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026AEC7B9DEA6F-228F9CF48C6",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "aaron judge xander schauffele scottie scheffler",
+      "title": "yes Aaron Judge: 1+,yes Xander Schauffele,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.711100+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026AE7E7758C07",
+      "idx": 245,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026AE7E7758C07-6D99478C6E5",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york chicago houston arizona los angeles tampa bay detroit",
+      "title": "yes New York Y,yes Chicago C,yes Houston,yes Arizona,yes Los Angeles D,yes A's,yes Tampa Bay,yes Detroit,yes New York Y,yes Chicago C"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.711117+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026AE42744486A",
+      "idx": 246,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026AE42744486A-348145D6346",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta new york james harden evan mobley scottie scheffler",
+      "title": "yes Atlanta,yes New York Y,yes James Harden: 15+,yes Evan Mobley: 6+,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.711130+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026AD53E90BF38",
+      "idx": 247,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026AD53E90BF38-D9F37C2CFBD",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york los angeles detroit scottie scheffler",
+      "title": "yes New York Y,yes Los Angeles D,yes Detroit,yes Scottie Scheffler"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.711141+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026AD53E90BF38",
+      "idx": 248,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026AD53E90BF38-8CE7E76B379",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "new york los angeles detroit cameron young",
+      "title": "yes New York Y,yes Los Angeles D,yes Detroit,yes Cameron Young"
+    },
+    {
+      "as_of": "2026-05-17T04:54:57.711151+00:00",
+      "close_time": "2026-05-18T23:15:00Z",
+      "event_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026AC2F8ACBDBE",
+      "idx": 249,
+      "market_ticker": "KXMVESPORTSMULTIGAMEEXTENDED-S2026AC2F8ACBDBE-1B37F65368D",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "atlanta new york arizona cameron young",
+      "title": "yes Atlanta,yes New York Y,yes Arizona,yes Cameron Young"
+    }
+  ],
+  "pit_lookback_hours": null,
+  "pit_max_records": null,
+  "published_at_pit_eligible_records": 0,
+  "random_as_of": false,
+  "random_seed": null,
+  "records_by_source": {},
+  "reddit_historical_backfill": false,
+  "resume": false,
+  "run_id": "kalshi_live_250_espn_sentiment_20260516",
+  "since_close": null,
+  "sleep_seconds": 0.2,
+  "source": "events_json",
+  "sources": [
+    "espn"
+  ],
+  "stopped_early_reason": null,
+  "strict_pit_eligible_records": 0,
+  "synthesize_news": true,
+  "train_fraction": 0.7,
+  "until_close": null
+}

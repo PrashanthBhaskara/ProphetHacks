@@ -1,0 +1,40 @@
+[project]
+name = "dhruv-gpt-forecasting"
+version = "0.1.0"
+description = "OpenRouter-only GPT forecasting lane for Prophet Arena prediction markets."
+requires-python = ">=3.11"
+dependencies = [
+  "requests>=2.31",
+]
+
+[project.optional-dependencies]
+vendor = [
+  "lseg-data>=2.0",
+  "wrds>=3.3",
+]
+server = [
+  "fastapi>=0.110",
+  "uvicorn>=0.29",
+]
+test = [
+  "pytest>=8",
+]
+dev = [
+  "fastapi>=0.110",
+  "lseg-data>=2.0",
+  "pytest>=8",
+  "ruff>=0.8",
+  "uvicorn>=0.29",
+  "wrds>=3.3",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 140
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F"]

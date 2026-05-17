@@ -1,0 +1,199 @@
+{
+  "allow_historical_backfill": true,
+  "archive_files": {
+    "gdelt": "/Users/dhruvkohli/Desktop/Github Repos/ProphetHacks/dhruv_GPT_forecasting/data/external_evidence/backfills/topvol_random_asof_50_gdelt_digest_20260517/gdelt.jsonl"
+  },
+  "candle_stride_minutes": 1,
+  "chronological_oos": false,
+  "decision_budget_minutes": 5.0,
+  "digest_file": "/Users/dhruvkohli/Desktop/Github Repos/ProphetHacks/dhruv_GPT_forecasting/data/external_evidence/backfills/topvol_random_asof_50_gdelt_digest_20260517/news_digest.jsonl",
+  "digest_max_chars": 1800,
+  "digest_max_records": 8,
+  "errors": [
+    {
+      "as_of": "2026-04-18T07:05:00Z",
+      "error": "ConnectTimeout:HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=alexander+zverev+cobolli+semifinal+match&mode=artlist&format=json&maxrecords=12&sort=datedesc&startdatetime=20260417070500&enddatetime=20260418070500 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x3f68b0890>, 'Connection to api.gdeltproject.org timed out. (connect timeout=10)'))",
+      "market_ticker": "KXATPMATCH-26APR18ZVECOB-ZVE",
+      "source": "gdelt"
+    },
+    {
+      "as_of": "2026-04-02T00:43:00Z",
+      "error": "ReadTimeout:HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Read timed out. (read timeout=10)",
+      "market_ticker": "KXWTAMATCH-26MAR31BAPZAR-ZAR",
+      "source": "gdelt"
+    },
+    {
+      "as_of": "2026-03-07T20:36:00Z",
+      "error": "ReadTimeout:HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Read timed out. (read timeout=10)",
+      "market_ticker": "KXNCAAMBGAME-26MAR07WASHORE-ORE",
+      "source": "gdelt"
+    },
+    {
+      "as_of": "2026-03-05T19:12:00Z",
+      "error": "ReadTimeout:HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Read timed out. (read timeout=10)",
+      "market_ticker": "KXNBAGAME-26MAR07GSWOKC-GSW",
+      "source": "gdelt"
+    },
+    {
+      "as_of": "2026-02-28T15:33:00Z",
+      "error": "ReadTimeout:HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Read timed out. (read timeout=10)",
+      "market_ticker": "KXATPMATCH-26FEB28COBTIA-TIA",
+      "source": "gdelt"
+    },
+    {
+      "as_of": "2026-03-08T16:58:00Z",
+      "error": "ReadTimeout:HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Read timed out. (read timeout=10)",
+      "market_ticker": "KXNBAGAME-26MAR08HOUSAS-SAS",
+      "source": "gdelt"
+    },
+    {
+      "as_of": "2026-03-10T17:22:00Z",
+      "error": "ReadTimeout:HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Read timed out. (read timeout=10)",
+      "market_ticker": "KXNBAGAME-26MAR10MINLAL-LAL",
+      "source": "gdelt"
+    },
+    {
+      "as_of": "2026-03-13T23:30:00Z",
+      "error": "ConnectTimeout:HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=justin+rose+players+championship&mode=artlist&format=json&maxrecords=12&sort=datedesc&startdatetime=20260312233000&enddatetime=20260313233000 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x3f68b2c60>, 'Connection to api.gdeltproject.org timed out. (connect timeout=10)'))",
+      "market_ticker": "KXPGATOUR-THPC26-JROS",
+      "source": "gdelt"
+    }
+  ],
+  "errors_by_source": {
+    "gdelt": 8
+  },
+  "events_json": null,
+  "force_cheap": false,
+  "gated_only": false,
+  "horizon_hours": 0.25,
+  "max_fetch_errors": 8,
+  "max_horizon_hours": null,
+  "min_history_snapshots": 5,
+  "min_horizon_minutes": 5.0,
+  "n_packets": 50,
+  "n_packets_attempted": 9,
+  "n_packets_skipped_resume": 8,
+  "n_records": 13,
+  "packet_rows": [
+    {
+      "as_of": "2026-04-18T07:05:00Z",
+      "close_time": "2026-04-18T13:01:13Z",
+      "event_ticker": "KXATPMATCH-26APR18ZVECOB",
+      "idx": 8,
+      "market_ticker": "KXATPMATCH-26APR18ZVECOB-ZVE",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "alexander zverev cobolli semifinal match",
+      "title": "Will Alexander Zverev win the Zverev vs Cobolli: Semifinal match?"
+    },
+    {
+      "as_of": "2026-04-02T00:43:00Z",
+      "close_time": "2026-04-02T03:01:50Z",
+      "event_ticker": "KXWTAMATCH-26MAR31BAPZAR",
+      "idx": 9,
+      "market_ticker": "KXWTAMATCH-26MAR31BAPZAR-ZAR",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "renata zarazua baptiste round match",
+      "title": "Will Renata Zarazua win the Baptiste vs Zarazua : Round Of 32 match?"
+    },
+    {
+      "as_of": "2026-03-07T20:36:00Z",
+      "close_time": "2026-03-08T06:34:51Z",
+      "event_ticker": "KXNCAAMBGAME-26MAR07WASHORE",
+      "idx": 10,
+      "market_ticker": "KXNCAAMBGAME-26MAR07WASHORE-ORE",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "washington oregon winner",
+      "title": "Washington at Oregon Winner?"
+    },
+    {
+      "as_of": "2026-03-05T19:12:00Z",
+      "close_time": "2026-03-08T04:10:32Z",
+      "event_ticker": "KXNBAGAME-26MAR07GSWOKC",
+      "idx": 11,
+      "market_ticker": "KXNBAGAME-26MAR07GSWOKC-GSW",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "golden state oklahoma city winner",
+      "title": "Golden State at Oklahoma City Winner?"
+    },
+    {
+      "as_of": "2026-02-28T15:33:00Z",
+      "close_time": "2026-03-01T05:20:36Z",
+      "event_ticker": "KXATPMATCH-26FEB28COBTIA",
+      "idx": 12,
+      "market_ticker": "KXATPMATCH-26FEB28COBTIA-TIA",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "frances tiafoe cobolli final match",
+      "title": "Will Frances Tiafoe win the Cobolli vs Tiafoe : Final match?"
+    },
+    {
+      "as_of": "2026-03-08T16:58:00Z",
+      "close_time": "2026-03-09T02:59:04Z",
+      "event_ticker": "KXNBAGAME-26MAR08HOUSAS",
+      "idx": 13,
+      "market_ticker": "KXNBAGAME-26MAR08HOUSAS-SAS",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "houston san antonio winner",
+      "title": "Houston at San Antonio Winner?"
+    },
+    {
+      "as_of": "2026-05-02T12:51:00Z",
+      "close_time": "2026-05-03T02:05:38Z",
+      "event_ticker": "KXNBASPREAD-26MAY02PHIBOS",
+      "idx": 14,
+      "market_ticker": "KXNBASPREAD-26MAY02PHIBOS-BOS5",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "boston points",
+      "title": "Boston wins by over 5.5 points?"
+    },
+    {
+      "as_of": "2026-03-10T17:22:00Z",
+      "close_time": "2026-03-11T05:43:54Z",
+      "event_ticker": "KXNBAGAME-26MAR10MINLAL",
+      "idx": 15,
+      "market_ticker": "KXNBAGAME-26MAR10MINLAL-LAL",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "minnesota los angeles winner",
+      "title": "Minnesota at Los Angeles L Winner?"
+    },
+    {
+      "as_of": "2026-03-13T23:30:00Z",
+      "close_time": "2026-03-15T22:20:17Z",
+      "event_ticker": "KXPGATOUR-THPC26",
+      "idx": 16,
+      "market_ticker": "KXPGATOUR-THPC26-JROS",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "justin rose players championship",
+      "title": "Will Justin Rose win the THE PLAYERS Championship?"
+    }
+  ],
+  "published_at_pit_eligible_records": 9,
+  "random_as_of": true,
+  "random_seed": 20260517,
+  "records_by_source": {
+    "gdelt": 12,
+    "pit_news_digest": 1
+  },
+  "reddit_historical_backfill": false,
+  "resume": true,
+  "run_id": "topvol_random_asof_50_gdelt_digest_20260517",
+  "since_close": "2026-02-16T00:00:00Z",
+  "sleep_seconds": 6.0,
+  "source": "topvol",
+  "sources": [
+    "gdelt"
+  ],
+  "stopped_early_reason": "max_fetch_errors_reached",
+  "strict_pit_eligible_records": 0,
+  "synthesize_news": true,
+  "train_fraction": 0.7,
+  "until_close": null
+}

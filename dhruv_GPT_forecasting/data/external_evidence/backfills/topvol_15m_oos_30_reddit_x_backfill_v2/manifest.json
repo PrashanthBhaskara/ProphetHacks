@@ -1,0 +1,363 @@
+{
+  "allow_historical_backfill": true,
+  "archive_files": {
+    "reddit": "/Users/dhruvkohli/Desktop/Github Repos/ProphetHacks/dhruv_GPT_forecasting/data/external_evidence/backfills/topvol_15m_oos_30_reddit_x_backfill_v2/reddit.jsonl",
+    "x": "/Users/dhruvkohli/Desktop/Github Repos/ProphetHacks/dhruv_GPT_forecasting/data/external_evidence/backfills/topvol_15m_oos_30_reddit_x_backfill_v2/x.jsonl"
+  },
+  "candle_stride_minutes": 1,
+  "chronological_oos": true,
+  "errors": [],
+  "errors_by_source": {},
+  "force_cheap": true,
+  "gated_only": false,
+  "horizon_hours": 0.25,
+  "n_packets": 30,
+  "n_records": 324,
+  "packet_rows": [
+    {
+      "as_of": "2026-04-18T04:37:00Z",
+      "close_time": "2026-04-18T04:53:46Z",
+      "event_ticker": "KXNBA-26",
+      "idx": 0,
+      "market_ticker": "KXNBA-26-GSW",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "golden state 2026 pro basketball finals",
+      "title": "Will the Golden State win the 2026 Pro Basketball Finals?"
+    },
+    {
+      "as_of": "2026-04-18T04:38:00Z",
+      "close_time": "2026-04-18T04:53:15Z",
+      "event_ticker": "KXNBAGAME-26APR17GSWPHX",
+      "idx": 1,
+      "market_ticker": "KXNBAGAME-26APR17GSWPHX-GSW",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "golden state phoenix winner",
+      "title": "Golden State at Phoenix Winner?"
+    },
+    {
+      "as_of": "2026-04-18T04:38:00Z",
+      "close_time": "2026-04-18T04:53:15Z",
+      "event_ticker": "KXNBAGAME-26APR17GSWPHX",
+      "idx": 2,
+      "market_ticker": "KXNBAGAME-26APR17GSWPHX-PHX",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "golden state phoenix winner",
+      "title": "Golden State at Phoenix Winner?"
+    },
+    {
+      "as_of": "2026-04-18T04:45:00Z",
+      "close_time": "2026-04-18T05:00:34Z",
+      "event_ticker": "KXMLBGAME-26APR172140TEXSEA",
+      "idx": 3,
+      "market_ticker": "KXMLBGAME-26APR172140TEXSEA-SEA",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "texas seattle winner",
+      "title": "Texas vs Seattle Winner?"
+    },
+    {
+      "as_of": "2026-04-18T04:45:00Z",
+      "close_time": "2026-04-18T05:00:34Z",
+      "event_ticker": "KXMLBGAME-26APR172140TEXSEA",
+      "idx": 4,
+      "market_ticker": "KXMLBGAME-26APR172140TEXSEA-TEX",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "texas seattle winner",
+      "title": "Texas vs Seattle Winner?"
+    },
+    {
+      "as_of": "2026-04-18T04:45:00Z",
+      "close_time": "2026-04-18T05:01:43Z",
+      "event_ticker": "KXNBASPREAD-26APR17GSWPHX",
+      "idx": 5,
+      "market_ticker": "KXNBASPREAD-26APR17GSWPHX-PHX2",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "phoenix points",
+      "title": "Phoenix wins by over 2.5 points?"
+    },
+    {
+      "as_of": "2026-04-18T04:46:00Z",
+      "close_time": "2026-04-18T05:01:43Z",
+      "event_ticker": "KXNBASPREAD-26APR17GSWPHX",
+      "idx": 6,
+      "market_ticker": "KXNBASPREAD-26APR17GSWPHX-PHX5",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "phoenix points",
+      "title": "Phoenix wins by over 5.5 points?"
+    },
+    {
+      "as_of": "2026-04-18T04:46:00Z",
+      "close_time": "2026-04-18T05:01:42Z",
+      "event_ticker": "KXNBASPREAD-26APR17GSWPHX",
+      "idx": 7,
+      "market_ticker": "KXNBASPREAD-26APR17GSWPHX-PHX8",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "phoenix points",
+      "title": "Phoenix wins by over 8.5 points?"
+    },
+    {
+      "as_of": "2026-04-18T04:46:00Z",
+      "close_time": "2026-04-18T05:01:45Z",
+      "event_ticker": "KXNBATOTAL-26APR17GSWPHX",
+      "idx": 8,
+      "market_ticker": "KXNBATOTAL-26APR17GSWPHX-203",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "golden state phoenix total points 203 scored",
+      "title": "Golden State at Phoenix: Total Points"
+    },
+    {
+      "as_of": "2026-04-18T05:16:00Z",
+      "close_time": "2026-04-18T05:31:01Z",
+      "event_ticker": "KXATPCHALLENGERMATCH-26APR17HOLBRO",
+      "idx": 9,
+      "market_ticker": "KXATPCHALLENGERMATCH-26APR17HOLBRO-BRO",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "liam broady holmgren quarterfinal match",
+      "title": "Will Liam Broady win the Holmgren vs Broady: Quarterfinal match?"
+    },
+    {
+      "as_of": "2026-04-18T05:16:00Z",
+      "close_time": "2026-04-18T05:31:01Z",
+      "event_ticker": "KXATPCHALLENGERMATCH-26APR17HOLBRO",
+      "idx": 10,
+      "market_ticker": "KXATPCHALLENGERMATCH-26APR17HOLBRO-HOL",
+      "n_errors": 0,
+      "n_records": 0,
+      "query": "august holmgren broady quarterfinal match",
+      "title": "Will August Holmgren win the Holmgren vs Broady: Quarterfinal match?"
+    },
+    {
+      "as_of": "2026-04-18T12:46:00Z",
+      "close_time": "2026-04-18T13:01:13Z",
+      "event_ticker": "KXATPMATCH-26APR18ZVECOB",
+      "idx": 11,
+      "market_ticker": "KXATPMATCH-26APR18ZVECOB-ZVE",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "alexander zverev cobolli semifinal match",
+      "title": "Will Alexander Zverev win the Zverev vs Cobolli: Semifinal match?"
+    },
+    {
+      "as_of": "2026-04-18T13:52:00Z",
+      "close_time": "2026-04-18T14:07:48Z",
+      "event_ticker": "KXIPLGAME-26APR18DCRCB",
+      "idx": 12,
+      "market_ticker": "KXIPLGAME-26APR18DCRCB-DC",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "royal challengers bengaluru delhi capitals winner",
+      "title": "Royal Challengers Bengaluru vs Delhi Capitals Winner?"
+    },
+    {
+      "as_of": "2026-04-18T13:52:00Z",
+      "close_time": "2026-04-18T14:07:48Z",
+      "event_ticker": "KXIPLGAME-26APR18DCRCB",
+      "idx": 13,
+      "market_ticker": "KXIPLGAME-26APR18DCRCB-RCB",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "royal challengers bengaluru delhi capitals winner",
+      "title": "Royal Challengers Bengaluru vs Delhi Capitals Winner?"
+    },
+    {
+      "as_of": "2026-04-18T14:15:00Z",
+      "close_time": "2026-04-18T14:30:57Z",
+      "event_ticker": "KXWTAMATCH-26APR18SVIMUC",
+      "idx": 14,
+      "market_ticker": "KXWTAMATCH-26APR18SVIMUC-SVI",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "elina svitolina muchova semifinal match",
+      "title": "Will Elina Svitolina win the Svitolina vs Muchova: Semifinal match?"
+    },
+    {
+      "as_of": "2026-04-18T14:55:00Z",
+      "close_time": "2026-04-18T15:10:43Z",
+      "event_ticker": "KXATPMATCH-26APR18MOLSHE",
+      "idx": 15,
+      "market_ticker": "KXATPMATCH-26APR18MOLSHE-SHE",
+      "n_errors": 0,
+      "n_records": 0,
+      "query": "ben shelton molcan semifinal match",
+      "title": "Will Ben Shelton win the Molcan vs Shelton: Semifinal match?"
+    },
+    {
+      "as_of": "2026-04-18T15:50:00Z",
+      "close_time": "2026-04-18T16:05:19Z",
+      "event_ticker": "KXATPMATCH-26APR18JODFIL",
+      "idx": 16,
+      "market_ticker": "KXATPMATCH-26APR18JODFIL-FIL",
+      "n_errors": 0,
+      "n_records": 0,
+      "query": "arthur fils jodar semifinal match",
+      "title": "Will Arthur Fils win the Jodar vs Fils: Semifinal match?"
+    },
+    {
+      "as_of": "2026-04-18T15:50:00Z",
+      "close_time": "2026-04-18T16:05:19Z",
+      "event_ticker": "KXATPMATCH-26APR18JODFIL",
+      "idx": 17,
+      "market_ticker": "KXATPMATCH-26APR18JODFIL-JOD",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "rafael jodar fils semifinal match",
+      "title": "Will Rafael Jodar win the Jodar vs Fils: Semifinal match?"
+    },
+    {
+      "as_of": "2026-04-18T18:01:00Z",
+      "close_time": "2026-04-18T18:16:41Z",
+      "event_ticker": "KXIPLGAME-26APR18CSKSRH",
+      "idx": 18,
+      "market_ticker": "KXIPLGAME-26APR18CSKSRH-CSK",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "sunrisers hyderabad chennai super kings winner",
+      "title": "Sunrisers Hyderabad vs Chennai Super Kings Winner?"
+    },
+    {
+      "as_of": "2026-04-18T18:01:00Z",
+      "close_time": "2026-04-18T18:16:41Z",
+      "event_ticker": "KXIPLGAME-26APR18CSKSRH",
+      "idx": 19,
+      "market_ticker": "KXIPLGAME-26APR18CSKSRH-SRH",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "sunrisers hyderabad chennai super kings winner",
+      "title": "Sunrisers Hyderabad vs Chennai Super Kings Winner?"
+    },
+    {
+      "as_of": "2026-04-18T18:20:00Z",
+      "close_time": "2026-04-18T18:35:18Z",
+      "event_ticker": "KXEPLGAME-26APR18TOTBRI",
+      "idx": 20,
+      "market_ticker": "KXEPLGAME-26APR18TOTBRI-TOT",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "tottenham brighton winner",
+      "title": "Tottenham vs Brighton Winner?"
+    },
+    {
+      "as_of": "2026-04-18T19:35:00Z",
+      "close_time": "2026-04-18T19:50:47Z",
+      "event_ticker": "KXNBAGAME-26APR18TORCLE",
+      "idx": 21,
+      "market_ticker": "KXNBAGAME-26APR18TORCLE-CLE",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "toronto cleveland winner",
+      "title": "Toronto at Cleveland Winner?"
+    },
+    {
+      "as_of": "2026-04-18T19:35:00Z",
+      "close_time": "2026-04-18T19:50:47Z",
+      "event_ticker": "KXNBAGAME-26APR18TORCLE",
+      "idx": 22,
+      "market_ticker": "KXNBAGAME-26APR18TORCLE-TOR",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "toronto cleveland winner",
+      "title": "Toronto at Cleveland Winner?"
+    },
+    {
+      "as_of": "2026-04-18T19:36:00Z",
+      "close_time": "2026-04-18T19:51:35Z",
+      "event_ticker": "KXNBASPREAD-26APR18TORCLE",
+      "idx": 23,
+      "market_ticker": "KXNBASPREAD-26APR18TORCLE-CLE9",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "cleveland points",
+      "title": "Cleveland wins by over 9.5 points?"
+    },
+    {
+      "as_of": "2026-04-18T20:00:00Z",
+      "close_time": "2026-04-18T20:15:22Z",
+      "event_ticker": "KXMLBGAME-26APR181335KCNYY",
+      "idx": 24,
+      "market_ticker": "KXMLBGAME-26APR181335KCNYY-NYY",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "kansas city new york winner",
+      "title": "Kansas City vs New York Y Winner?"
+    },
+    {
+      "as_of": "2026-04-18T20:11:00Z",
+      "close_time": "2026-04-18T20:26:33Z",
+      "event_ticker": "KXATPCHALLENGERMATCH-26APR18REIKEN",
+      "idx": 25,
+      "market_ticker": "KXATPCHALLENGERMATCH-26APR18REIKEN-KEN",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "jack kennedy reis silva semifinal match",
+      "title": "Will Jack Kennedy win the Reis Da Silva vs Kennedy: Semifinal match?"
+    },
+    {
+      "as_of": "2026-04-18T20:11:00Z",
+      "close_time": "2026-04-18T20:26:33Z",
+      "event_ticker": "KXATPCHALLENGERMATCH-26APR18REIKEN",
+      "idx": 26,
+      "market_ticker": "KXATPCHALLENGERMATCH-26APR18REIKEN-REI",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "joao lucas reis silva kennedy semifinal match",
+      "title": "Will Joao Lucas Reis Da Silva win the Reis Da Silva vs Kennedy: Semifinal match?"
+    },
+    {
+      "as_of": "2026-04-18T20:46:00Z",
+      "close_time": "2026-04-18T21:01:10Z",
+      "event_ticker": "KXMLBGAME-26APR181420NYMCHC",
+      "idx": 27,
+      "market_ticker": "KXMLBGAME-26APR181420NYMCHC-CHC",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "new york chicago winner",
+      "title": "New York M vs Chicago C Winner?"
+    },
+    {
+      "as_of": "2026-04-18T20:46:00Z",
+      "close_time": "2026-04-18T21:01:10Z",
+      "event_ticker": "KXMLBGAME-26APR181420NYMCHC",
+      "idx": 28,
+      "market_ticker": "KXMLBGAME-26APR181420NYMCHC-NYM",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "new york chicago winner",
+      "title": "New York M vs Chicago C Winner?"
+    },
+    {
+      "as_of": "2026-04-18T20:50:00Z",
+      "close_time": "2026-04-18T21:05:10Z",
+      "event_ticker": "KXEPLGAME-26APR18CFCMUN",
+      "idx": 29,
+      "market_ticker": "KXEPLGAME-26APR18CFCMUN-MUN",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "chelsea manchester united winner",
+      "title": "Chelsea vs Manchester United Winner?"
+    }
+  ],
+  "published_at_pit_eligible_records": 0,
+  "records_by_source": {
+    "reddit": 324
+  },
+  "reddit_historical_backfill": true,
+  "run_id": "topvol_15m_oos_30_reddit_x_backfill_v2",
+  "since_close": "2026-02-16T00:00:00Z",
+  "source": "topvol",
+  "sources": [
+    "reddit",
+    "x"
+  ],
+  "strict_pit_eligible_records": 0,
+  "train_fraction": 0.7,
+  "until_close": null
+}
