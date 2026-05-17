@@ -48,12 +48,3 @@ def get_market(ticker: str) -> dict | None:
         return data.get("market") or data
     except requests.HTTPError:
         return None
-
-
-def get_event_markets(event_ticker: str) -> list[dict]:
-    """Return all markets under an event ticker."""
-    try:
-        data = _get(f"/events/{event_ticker}")
-        return data.get("markets") or []
-    except requests.HTTPError:
-        return []
