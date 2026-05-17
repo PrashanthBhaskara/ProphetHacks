@@ -2,18 +2,15 @@ name: Render auto-deploy
 
 # Pings Render's Deploy Hook on every push to main so the live
 # https://prophet-hacks-forecast.onrender.com service rebuilds from
-# the new HEAD. We use this (rather than the Render GitHub App) because
-# the App would need to be installed by the repo owner; the Deploy Hook
-# only needs the RENDER_DEPLOY_HOOK secret, which the workspace owner
-# has already added to this repo.
-#
-# Manually triggerable via the Actions tab too (workflow_dispatch).
+# the new HEAD. Long-form curl flags are used here because the secret
+# URL happens to contain substrings like `-sS`, `-o`, `-w`, `-X`,
+# which makes GitHub's secret-masking corrupt the actual command in
+# weird ways; long flags avoid the collision.
 
 on:
   push:
     branches: [main]
     paths-ignore:
-      # Pushes touching nothing the server actually uses shouldn't rebuild.
       - '**/*.md'
       - 'docs/**'
       - '.gitignore'
@@ -27,16 +24,26 @@ jobs:
     steps:
       - name: Trigger Render deploy
         env:
-          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+          HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK }}
         run: |
-          if [ -z "$HOOK" ]; then
-            echo "RENDER_DEPLOY_HOOK secret not set; aborting." >&2
+          if [ "${HOOK_URL:-}" = "" ]; then
+            echo "RENDER_DEPLOY_HOOK secret is not configured" >&2
             exit 1
           fi
-          response=$(curl -sS -o /dev/null -w "%{http_code}" -X POST "$HOOK")
-          echo "Render Deploy Hook responded with HTTP $response"
-          # Render returns 200 on accepted deploy requests, 201 on queued ones.
-          case "$response" in
-            200|201|202) echo "Deploy triggered." ;;
-            *) echo "Unexpected status from Render."; exit 1 ;;
+          status=$(curl \
+            --silent \
+            --show-error \
+            --request POST \
+            --output /dev/null \
+            --write-out "%{http_code}" \
+            "$HOOK_URL")
+          echo "Render Deploy Hook responded: HTTP $status"
+          case "$status" in
+            200|201|202)
+              echo "Deploy queued."
+              ;;
+            *)
+              echo "Unexpected HTTP $status from Render" >&2
+              exit 1
+              ;;
           esac
