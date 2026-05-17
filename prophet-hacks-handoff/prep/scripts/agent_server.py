@@ -23,6 +23,11 @@ import json
 import logging
 import os
 import sys
+import time
+from concurrent.futures import (
+    ThreadPoolExecutor,
+    TimeoutError as FuturesTimeoutError,
+)
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
@@ -39,6 +44,13 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_CONFIG_PATH = Path(__file__).resolve().parents[1] / "config" / "ensemble.example.json"
 CONFIG_PATH = Path(os.environ.get("PROPHET_CONFIG", DEFAULT_CONFIG_PATH))
+
+# Wall-clock budget for the entire /predict call (lane fan-out + aggregation +
+# judge). 9m30s — leaves ~90s of slack over the grok lane's 8-minute budget so
+# a stuck grok call can fall back cleanly before the outer deadline fires.
+# On timeout we return market price: market_mid for binary Kalshi events,
+# uniform across `outcomes` otherwise. Override with ENSEMBLE_TIMEOUT_SECONDS.
+DEFAULT_ENSEMBLE_TIMEOUT_SECONDS = 570.0
 
 
 # --- Wire schema (Prophet Arena dev docs) ---------------------------------
@@ -117,18 +129,50 @@ def health() -> dict:
     }
 
 
-@app.post("/predict", response_model=PredictionResponse)
-def predict_endpoint(event: ArenaEvent) -> PredictionResponse:
+def _market_price_response(packet, outcomes: list[str]) -> PredictionResponse:
+    """Build a market-price response mapped onto `outcomes`.
+
+    Used as the timeout/error fallback. Binary YES/NO events with a Kalshi
+    quote return market_mid; everything else returns uniform across outcomes
+    (best we can do when no market price is available).
+    """
+    kalshi = getattr(packet, "kalshi", None)
+    if tuple(outcomes) == ("YES", "NO") and kalshi is not None:
+        try:
+            mid = float(kalshi.market_mid)
+        except (TypeError, ValueError, AttributeError):
+            mid = 0.5
+        dist = {"YES": mid, "NO": 1.0 - mid}
+    else:
+        share = 1.0 / max(1, len(outcomes))
+        dist = {o: share for o in outcomes}
+    return PredictionResponse(
+        probabilities=[
+            OutcomeProbability(market=o, probability=float(dist.get(o, 0.0)))
+            for o in outcomes
+        ]
+    )
+
+
+def _compute_ensemble(event: ArenaEvent, deadline: float) -> PredictionResponse:
+    """Inner ensemble computation. Caller enforces the wall-clock deadline.
+
+    Lanes that haven't completed by the deadline are dropped from the
+    aggregate; aggregation still runs against whatever finished in time.
+    Returns the calibrated PredictionResponse mapped onto event.outcomes.
+    """
     packet = packet_from_arena_event(event.model_dump())
 
     if not _models:
-        # Degenerate case: no lanes enabled. Return uniform over outcomes so the
-        # eval server still gets a valid response.
+        # No lanes enabled — uniform over outcomes is the best we can do.
         share = 1.0 / max(1, len(event.outcomes))
         return PredictionResponse(
             probabilities=[OutcomeProbability(market=o, probability=share) for o in event.outcomes]
         )
 
+    # Inner parallel exec is delegated to forecast_members_parallel. Per-lane
+    # 8-minute budgets live in forecasters/base.py's forecast_from_config; the
+    # outer 9m30s budget is enforced by predict_endpoint via fut.result(timeout=).
     run = forecast_members_parallel(_models, packet, continue_on_error=True)
     forecasts = run.members
     errors = run.errors
@@ -136,26 +180,18 @@ def predict_endpoint(event: ArenaEvent) -> PredictionResponse:
         logger.warning("lane failed: %s", error)
 
     if not forecasts:
-        # All lanes failed (provider outage, bad key, etc). Don't 502 the eval —
-        # degrade to the anchor distribution that the empty-members path in
-        # aggregate_forecasts already produces (market_mid for binary Kalshi,
-        # uniform otherwise). Strictly better than returning no answer.
+        # All lanes failed or timed out. Don't 502 the eval — degrade to the
+        # anchor distribution that the empty-members path in aggregate_forecasts
+        # already produces (market_mid for binary Kalshi, uniform otherwise).
         logger.warning("all lanes failed for %s: %s", packet.market_ticker, "; ".join(errors))
-        supervisor = aggregate_forecasts(
-            packet,
-            [],
-            calibration=_calibration,
-            market_anchor_weight=_market_anchor_weight,
-            judge=_judge,
-        )
-    else:
-        supervisor = aggregate_forecasts(
-            packet,
-            forecasts,
-            calibration=_calibration,
-            market_anchor_weight=_market_anchor_weight,
-            judge=_judge,
-        )
+
+    supervisor = aggregate_forecasts(
+        packet,
+        forecasts,
+        calibration=_calibration,
+        market_anchor_weight=_market_anchor_weight,
+        judge=_judge,
+    )
 
     # Map calibrated distribution onto the event's outcomes exactly (preserve order).
     dist = supervisor.calibrated_probabilities
@@ -165,6 +201,40 @@ def predict_endpoint(event: ArenaEvent) -> PredictionResponse:
             for o in event.outcomes
         ]
     )
+
+
+@app.post("/predict", response_model=PredictionResponse)
+def predict_endpoint(event: ArenaEvent) -> PredictionResponse:
+    """Wall-clock-bounded /predict.
+
+    Runs the full ensemble (lane fan-out + calibration + judge) inside a
+    deadline. If the whole flow hasn't returned within ENSEMBLE_TIMEOUT_SECONDS
+    (default 480s = 8 min), we abandon it and return market price.
+    """
+    budget = float(os.environ.get("ENSEMBLE_TIMEOUT_SECONDS", DEFAULT_ENSEMBLE_TIMEOUT_SECONDS))
+    deadline = time.monotonic() + budget
+
+    supervisor_pool = ThreadPoolExecutor(max_workers=1)
+    try:
+        fut = supervisor_pool.submit(_compute_ensemble, event, deadline)
+        try:
+            return fut.result(timeout=budget)
+        except FuturesTimeoutError:
+            packet = packet_from_arena_event(event.model_dump())
+            logger.warning(
+                "ensemble exceeded %.0fs budget for %s; returning market price",
+                budget, packet.market_ticker,
+            )
+            return _market_price_response(packet, event.outcomes)
+        except Exception as exc:  # noqa: BLE001
+            packet = packet_from_arena_event(event.model_dump())
+            logger.exception(
+                "ensemble raised %s for %s; returning market price",
+                type(exc).__name__, packet.market_ticker,
+            )
+            return _market_price_response(packet, event.outcomes)
+    finally:
+        supervisor_pool.shutdown(wait=False, cancel_futures=True)
 
 
 # --- Local predict() entrypoint for `prophet forecast predict --local` ---
