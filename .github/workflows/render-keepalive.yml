@@ -1,0 +1,33 @@
+name: Render keepalive
+
+# Pings the Render free-tier forecast service every 10 minutes so it doesn't
+# spin down during the 2-week post-submission eval window. Render free
+# instances sleep after 15 min of inactivity and cold-start at 30-60s, which
+# would show up as a timeout for whoever is polling our endpoint.
+#
+# DELETE THIS WORKFLOW after the eval window closes.
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Ping /healthz
+        run: |
+          for attempt in 1 2 3; do
+            echo "Attempt $attempt..."
+            if curl -sf --max-time 90 \
+                -w "\nstatus=%{http_code} time=%{time_total}s\n" \
+                https://prophet-hacks-forecast.onrender.com/healthz; then
+              exit 0
+            fi
+            echo "Attempt $attempt failed."
+            sleep 30
+          done
+          echo "All 3 attempts failed."
+          exit 1
