@@ -28,6 +28,7 @@ from fastapi import FastAPI, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 
 from . import calibration, kalshi
+from .kalshi import get_event_markets
 
 VERSION = "1.0.0"
 CACHE_TTL_SECONDS = int(os.environ.get("CACHE_TTL_SECONDS", "60"))
@@ -226,6 +227,57 @@ def _extract_tickers(payload: Any) -> list[str]:
     return out[:MAX_BATCH]
 
 
+def _predict_outcomes(event_ticker: str, outcomes: list[str]) -> list[dict]:
+    """Look up an event's markets and return per-outcome-label probabilities.
+
+    Matches each outcome label to the market whose yes_sub_title contains it
+    (case-insensitive). Falls back to 1/N uniform if no match found.
+    """
+    markets = get_event_markets(event_ticker)
+    n = max(1, len(outcomes))
+    uniform = round(1.0 / n, 6)
+
+    results = []
+    for outcome in outcomes:
+        outcome_lower = outcome.lower()
+        matched = None
+        for m in markets:
+            sub = (m.get("yes_sub_title") or m.get("subtitle") or "").lower()
+            title = (m.get("title") or "").lower()
+            if outcome_lower in sub or outcome_lower in title:
+                matched = m
+                break
+
+        if matched is not None:
+            raw_p, source = _market_implied_p(matched)
+            p = calibration.apply(raw_p)
+            results.append({
+                "market": outcome,
+                "probability": round(p, 6),
+                "market_ticker": matched.get("ticker"),
+                "source": source,
+                "status": matched.get("status"),
+                "ts": int(time.time()),
+                "cached": False,
+            })
+        else:
+            results.append({
+                "market": outcome,
+                "probability": uniform,
+                "source": "no_match",
+                "ts": int(time.time()),
+                "cached": False,
+            })
+
+    # Normalize so probabilities sum to 1
+    total = sum(r["probability"] for r in results)
+    if total > 0:
+        for r in results:
+            r["probability"] = round(r["probability"] / total, 6)
+
+    return results
+
+
 @app.post("/predict")
 async def predict_post(request: Request) -> dict[str, Any]:
     """Maximally tolerant POST endpoint.
@@ -239,12 +291,38 @@ async def predict_post(request: Request) -> dict[str, Any]:
     except Exception:
         body = None
 
-    tickers = _extract_tickers(body) if body is not None else []
+    if not body:
+        log.warning("predict_post empty body")
+        return {
+            "rationale": "no market identifiers found in request body; returning uniform fallback",
+            "probabilities": [{"market": "fallback", "probability": 0.5}],
+            "predictions": [],
+            "p_yes": 0.5,
+            "ts": int(time.time()),
+        }
 
+    # Multi-outcome path: body has an outcomes list — look up the event and
+    # match each outcome label to its Kalshi market by yes_sub_title.
+    outcomes = body.get("outcomes") if isinstance(body, dict) else None
+    event_ticker = (
+        (body.get("event_ticker") or body.get("market_ticker"))
+        if isinstance(body, dict) else None
+    )
+    if outcomes and len(outcomes) > 0 and event_ticker:
+        outcome_results = _predict_outcomes(event_ticker, outcomes)
+        sources = list({r.get("source", "?") for r in outcome_results})
+        log.info("predict_post event=%s outcomes=%d sources=%s", event_ticker, len(outcome_results), sources)
+        return {
+            "rationale": f"Per-outcome Kalshi market mid-price for {event_ticker}.",
+            "probabilities": [{"market": r["market"], "probability": r["probability"]} for r in outcome_results],
+            "predictions": outcome_results,
+            "ts": int(time.time()),
+        }
+
+    # Single-ticker fallback path
+    tickers = _extract_tickers(body)
     if not tickers:
         log.warning("predict_post no tickers found in body=%r", body)
-        # Even with no tickers, return the schema judges expect so we don't
-        # fail format validation. Single uniform-distribution outcome.
         return {
             "rationale": "no market identifiers found in request body; returning uniform fallback",
             "probabilities": [{"market": "fallback", "probability": 0.5}],
@@ -257,41 +335,17 @@ async def predict_post(request: Request) -> dict[str, Any]:
     log.info("predict_post n=%d first=%s p_yes=%.4f",
              len(results), tickers[0], results[0].get("p_yes", -1))
 
-    # Build the probabilities array judges validate against. For multi-
-    # outcome events (e.g. NBA championship with 4 finalists), normalize
-    # so the array sums to 1 — Kalshi binary YES prices for mutually
-    # exclusive outcomes are close to but not exactly summing to 1
-    # because of bid-ask spread.
-    raw_ps = [float(r["p_yes"]) for r in results]
-    total = sum(raw_ps)
-    if total > 0 and len(raw_ps) > 1:
-        norm_ps = [p / total for p in raw_ps]
-        normalized = True
-    else:
-        norm_ps = raw_ps
-        normalized = False
-
     probabilities = [
-        {
-            "market": results[i]["market_ticker"],
-            "probability": round(norm_ps[i], 6),
-        }
-        for i in range(len(results))
+        {"market": r["market_ticker"], "probability": round(float(r["p_yes"]), 6)}
+        for r in results
     ]
 
-    rationale = (
-        f"Probabilities derived from Kalshi market mid-price across "
-        f"{len(probabilities)} outcome(s)"
-        + (", normalized to sum to 1." if normalized else ".")
-    )
-
     response: dict[str, Any] = {
-        "rationale": rationale,
+        "rationale": f"Probabilities derived from Kalshi market mid-price across {len(probabilities)} outcome(s).",
         "probabilities": probabilities,
         "predictions": results,
         "ts": int(time.time()),
     }
-    # Single-outcome convenience fields for clients that just want one number.
     if len(results) == 1:
         r = results[0]
         response["market_ticker"] = r["market_ticker"]
