@@ -136,11 +136,15 @@ def main() -> int:
                     continue
                 yes_ask = _normalize_price(m, "yes_ask")
                 no_ask = _normalize_price(m, "no_ask")
+                yes_bid = _normalize_price(m, "yes_bid")
+                no_bid = _normalize_price(m, "no_bid")
                 last_price = _normalize_price(m, "last_price")
                 trajectory[ticker].append((snap_time, {
                     "t": snap_time,
                     "yes_ask": yes_ask,
                     "no_ask": no_ask,
+                    "yes_bid": yes_bid,
+                    "no_bid": no_bid,
                     "last_price": last_price,
                 }))
                 prev = latest_by_ticker.get(ticker)
@@ -183,6 +187,7 @@ def main() -> int:
             "market_ticker", "event_ticker", "category", "title", "close_time",
             "latest_snapshot_time", "latest_yes_ask", "latest_no_ask",
             "latest_last_price", "n_snapshots", "outcome",
+            "latest_yes_bid", "latest_no_bid",
         ])
         for ticker, (snap_time, latest) in latest_by_ticker.items():
             cat = _category_label(_event_prefix(latest.get("event_ticker") or ""))
@@ -198,6 +203,8 @@ def main() -> int:
                 _normalize_price(latest, "last_price"),
                 len(trajectory[ticker]),
                 outcomes[ticker]["outcome"],
+                _normalize_price(latest, "yes_bid"),
+                _normalize_price(latest, "no_bid"),
             ])
 
     # Summary.md
