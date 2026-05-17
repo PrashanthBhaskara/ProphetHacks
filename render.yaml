@@ -1,0 +1,31 @@
+# Render Blueprint: Prophet Hacks forecast API.
+# Docs: https://render.com/docs/blueprint-spec
+#
+# Why these choices for the 2-week eval window:
+#   - plan: starter -> stays warm 24/7. Free spins down after 15 min idle,
+#     which causes 30-60s cold starts when judges poll. Not acceptable.
+#   - healthCheckPath: /healthz -> Render uses this for zero-downtime
+#     restarts and to detect a wedged process. We restart if it 5xxes.
+#   - autoDeploy: true -> push to the configured branch and Render rebuilds.
+#   - numInstances: 1 -> the workload is tiny (cached Kalshi GETs).
+#
+# Cost: $7/mo prorated, so ~$3.50 for the 2-week window.
+
+services:
+  - type: web
+    name: prophet-hacks-forecast
+    runtime: python
+    region: oregon
+    plan: starter
+    branch: claude/unruffled-jang-bad5fc
+    autoDeploy: true
+    healthCheckPath: /healthz
+    buildCommand: pip install --upgrade pip && pip install -r server/requirements.txt
+    startCommand: uvicorn server.main:app --host 0.0.0.0 --port $PORT --workers 2 --log-level info
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: CACHE_TTL_SECONDS
+        value: "60"
+      - key: MAX_BATCH
+        value: "200"
