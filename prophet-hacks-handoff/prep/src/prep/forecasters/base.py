@@ -41,6 +41,17 @@ def build_user_prompt(packet: MarketPacket) -> str:
     }
     schema = {
         "forecast": {
+            "prior_probabilities": {
+                outcome: "float 0.01-0.99 — market/base-rate prior before your evidence adjustment"
+                for outcome in packet.outcomes
+            },
+            "probability_adjustments": [
+                {
+                    "outcome": "one listed outcome or ALL",
+                    "delta": "signed float adjustment from prior to final probability",
+                    "reason": "one short source-backed reason",
+                },
+            ],
             "probabilities": probabilities_schema,
             "confidence": "float 0-1 — how confident you are in this distribution overall",
             "uncertainty": "float 0-1 — residual uncertainty after your reasoning",
@@ -52,7 +63,7 @@ def build_user_prompt(packet: MarketPacket) -> str:
             "context_market_analysis": "how related/sibling markets influenced your estimate, if provided",
             "key_evidence": [
                 {
-                    "claim": "...",
+                    "claim": "concise claim, <=160 chars",
                     "source": "...",
                     "source_type": "packet, context_market, official_primary, reputable_reporting, search_result, etc.",
                     "source_timestamp": "ISO timestamp or date strictly before MARKET_PACKET.as_of",
@@ -63,9 +74,9 @@ def build_user_prompt(packet: MarketPacket) -> str:
                 {
                     "source": "...",
                     "source_timestamp": "ISO timestamp or date strictly before MARKET_PACKET.as_of",
-                    "cutoff_check": "why this source was observable before MARKET_PACKET.as_of",
+                    "cutoff_check": "concise proof source was observable before MARKET_PACKET.as_of",
                     "used": "boolean",
-                    "reason": "why used or excluded",
+                    "reason": "why used or excluded, <=120 chars",
                 },
             ],
             "counterarguments": [{"claim": "...", "impact": "-0.02 to <outcome>"}],
@@ -84,10 +95,19 @@ def build_user_prompt(packet: MarketPacket) -> str:
     outcome_list = ", ".join(repr(o) for o in packet.outcomes)
     return (
         f"Forecast this market. The event has {len(packet.outcomes)} possible outcomes: {outcome_list}. "
-        "Estimate the probability of each outcome. For mutually-exclusive outcomes the probabilities "
+        "Estimate the probability of each outcome. First set prior_probabilities from market_implied_probabilities "
+        "when available, otherwise from base rates and related-market constraints. Then make small, explicit "
+        "probability_adjustments only when timestamp-valid evidence justifies moving away from the prior. "
+        "For mutually-exclusive outcomes the final probabilities "
         "should be coherent (roughly sum to 1.0). For non-exclusive outcomes (rare) treat each as an "
         "independent binary.\n\n"
         f"MARKET_PACKET:\n{json.dumps(packet.to_dict(), indent=2, sort_keys=True)}\n\n"
+        "OUTPUT_BUDGET:\n"
+        "- Keep reasoning concise so the full JSON completes.\n"
+        "- key_evidence: at most 5 items.\n"
+        "- source_audit: at most 8 items.\n"
+        "- counterarguments, assumptions, information_gaps, what_would_change_my_mind: at most 3 items each.\n"
+        "- Each free-text field should be one short sentence.\n\n"
         f"REQUIRED_JSON_SCHEMA:\n{json.dumps(schema, indent=2)}"
     )
 

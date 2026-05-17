@@ -113,7 +113,9 @@ and the research-page convention `arena_brier_score_higher_is_better`
 (`1 - classical_brier`). Each scored row also gets a same-event market
 baseline when market-implied probabilities are available, so the report can
 show `model_vs_market.mean_model_minus_market_brier` on exactly the sampled
-events.
+events. Add `--market-blend-weight W` to also score a calibrated prior blend:
+`final = market + W * (Gemini - market)`, preserving the raw Gemini score for
+comparison.
 
 Search grounding is opt-in so normal smoke tests do not spend extra calls or
 introduce hidden leakage. When enabled, the Gemini prompt requires every used

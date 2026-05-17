@@ -46,7 +46,7 @@ MODEL_PRESETS = {
         "api_key_env": "GEMINI_API_KEY",
         "enabled": True,
         "weight": 1.0,
-        "temperature": 0.1,
+        "temperature": 0.0,
         "max_tokens": 1800,
         "system_prompt_path": "prompts/gemini_context_forecasting_system.txt",
     },
@@ -57,7 +57,7 @@ MODEL_PRESETS = {
         "api_key_env": "GEMINI_API_KEY",
         "enabled": True,
         "weight": 1.0,
-        "temperature": 0.1,
+        "temperature": 0.0,
         "max_tokens": 2200,
         "system_prompt_path": "prompts/gemini_context_forecasting_system.txt",
     },
@@ -188,6 +188,49 @@ def _market_baseline(event: ArenaBacktestEvent) -> dict[str, Any] | None:
     }
 
 
+def _blend_probabilities(
+    model_probabilities: dict[str, float],
+    market_probabilities: dict[str, float],
+    outcomes: list[str],
+    model_weight: float,
+) -> dict[str, float] | None:
+    if not 0.0 <= model_weight <= 1.0:
+        raise ValueError("model_weight must be between 0 and 1")
+    blended: dict[str, float] = {}
+    for outcome in outcomes:
+        model_prob = _coerce_probability(model_probabilities.get(outcome))
+        market_prob = _coerce_probability(market_probabilities.get(outcome))
+        if model_prob is None or market_prob is None:
+            return None
+        blended[outcome] = max(0.0, min(1.0, market_prob + model_weight * (model_prob - market_prob)))
+    return blended
+
+
+def _calibrated_blend(
+    event: ArenaBacktestEvent,
+    model_probabilities: dict[str, float],
+    baseline: dict[str, Any] | None,
+    *,
+    model_weight: float,
+) -> dict[str, Any] | None:
+    if baseline is None:
+        return None
+    probabilities = _blend_probabilities(
+        model_probabilities,
+        baseline["probabilities"],
+        event.outcomes,
+        model_weight,
+    )
+    if probabilities is None:
+        return None
+    return {
+        "probabilities": probabilities,
+        "model_weight": model_weight,
+        "market_weight": 1.0 - model_weight,
+        "score": _score_row(event, probabilities),
+    }
+
+
 def _event_lookup_key(event: ArenaBacktestEvent) -> str:
     if event.submission_id:
         return event.submission_id
@@ -217,7 +260,12 @@ def _event_lookup_for_rows(rows: list[dict[str, Any]]) -> dict[str, ArenaBacktes
     return lookup
 
 
-def _add_market_baseline(row: dict[str, Any], event: ArenaBacktestEvent) -> dict[str, Any]:
+def _add_market_baseline(
+    row: dict[str, Any],
+    event: ArenaBacktestEvent,
+    *,
+    blend_model_weight: float = 0.0,
+) -> dict[str, Any]:
     baseline = _market_baseline(event)
     if baseline is None:
         return row
@@ -229,15 +277,44 @@ def _add_market_baseline(row: dict[str, Any], event: ArenaBacktestEvent) -> dict
         market_brier = baseline["score"]["classical_brier"]
         updated["model_minus_market_brier"] = model_brier - market_brier
         updated["model_beats_market"] = model_brier < market_brier
+        if blend_model_weight > 0:
+            raw_probs = _raw_probabilities(updated)
+            blend = _calibrated_blend(
+                event,
+                raw_probs,
+                baseline,
+                model_weight=blend_model_weight,
+            )
+            if blend is not None:
+                updated["calibrated_blend_probabilities"] = blend["probabilities"]
+                updated["calibrated_blend_score"] = blend["score"]
+                updated["calibration"] = {
+                    "type": "market_linear_blend",
+                    "model_weight": blend["model_weight"],
+                    "market_weight": blend["market_weight"],
+                }
+                updated["calibrated_minus_market_brier"] = (
+                    blend["score"]["classical_brier"] - market_brier
+                )
+                updated["calibrated_minus_raw_brier"] = (
+                    blend["score"]["classical_brier"] - model_brier
+                )
     return updated
 
 
-def _add_market_baselines_to_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def _add_market_baselines_to_rows(
+    rows: list[dict[str, Any]],
+    *,
+    blend_model_weight: float = 0.0,
+) -> list[dict[str, Any]]:
     lookup = _event_lookup_for_rows(rows)
     enriched = []
     for row in rows:
         event = lookup.get(_event_key(row))
-        enriched.append(_add_market_baseline(row, event) if event else row)
+        enriched.append(
+            _add_market_baseline(row, event, blend_model_weight=blend_model_weight)
+            if event else row
+        )
     return enriched
 
 
@@ -359,6 +436,7 @@ def _event_traits(event: ArenaBacktestEvent, args: argparse.Namespace) -> dict[s
         "outcome_count": len(event.outcomes),
         "sample_mode": "binary_nonbinary" if args.stratified else args.sample_mode,
         "google_search_enabled": bool(args.enable_google_search),
+        "market_blend_weight": float(getattr(args, "market_blend_weight", 0.0)),
     }
 
 
@@ -519,6 +597,43 @@ def _model_report(
                 "ties_n": sum(1 for value in diffs if value == 0),
                 "better_baseline": "model" if sum(diffs) / len(diffs) < 0 else "market",
             }
+    calibrated_rows = [row for row in rows if row.get("calibrated_blend_score")]
+    if calibrated_rows:
+        report["calibrated_blend"] = _score_summary(
+            calibrated_rows,
+            bootstrap_resamples,
+            seed,
+            score_key="calibrated_blend_score",
+        )
+        calibration = calibrated_rows[0].get("calibration") or {}
+        report["calibrated_blend"]["calibration"] = calibration
+        market_diffs = [
+            row["calibrated_blend_score"]["classical_brier"] - row["market_baseline_score"]["classical_brier"]
+            for row in calibrated_rows
+            if row.get("market_baseline_score")
+        ]
+        raw_diffs = [
+            row["calibrated_blend_score"]["classical_brier"] - row["score"]["classical_brier"]
+            for row in calibrated_rows
+        ]
+        if market_diffs:
+            report["calibrated_blend_vs_market"] = {
+                "n": len(market_diffs),
+                "mean_calibrated_minus_market_brier": sum(market_diffs) / len(market_diffs),
+                "calibrated_beats_market_n": sum(1 for value in market_diffs if value < 0),
+                "market_beats_calibrated_n": sum(1 for value in market_diffs if value > 0),
+                "ties_n": sum(1 for value in market_diffs if value == 0),
+                "better_baseline": "calibrated" if sum(market_diffs) / len(market_diffs) < 0 else "market",
+            }
+        if raw_diffs:
+            report["calibrated_blend_vs_raw_model"] = {
+                "n": len(raw_diffs),
+                "mean_calibrated_minus_raw_brier": sum(raw_diffs) / len(raw_diffs),
+                "calibrated_beats_raw_n": sum(1 for value in raw_diffs if value < 0),
+                "raw_beats_calibrated_n": sum(1 for value in raw_diffs if value > 0),
+                "ties_n": sum(1 for value in raw_diffs if value == 0),
+                "better_baseline": "calibrated" if sum(raw_diffs) / len(raw_diffs) < 0 else "raw_model",
+            }
     return report
 
 
@@ -620,6 +735,12 @@ def main() -> int:
     parser.add_argument("--category", default=None)
     parser.add_argument("--max-outcomes", type=int, default=0, help="skip very large outcome sets to control token cost; 0 disables")
     parser.add_argument("--max-tokens", type=int, default=0, help="override model max output tokens; useful for search-grounded runs")
+    parser.add_argument(
+        "--market-blend-weight",
+        type=float,
+        default=0.0,
+        help="also score a calibrated linear blend: final = market + weight * (model - market); 0 disables",
+    )
     parser.add_argument("--out", type=Path, default=None)
     parser.add_argument("--overwrite", action="store_true")
     parser.add_argument("--enable-google-search", action="store_true", help="enable Gemini Google Search grounding; prompt enforces source dates before as_of")
@@ -634,9 +755,15 @@ def main() -> int:
     parser.add_argument("--bootstrap-resamples", type=int, default=1000)
     args = parser.parse_args()
 
+    if not 0.0 <= args.market_blend_weight <= 1.0:
+        raise SystemExit("--market-blend-weight must be between 0 and 1")
+
     if args.report_existing:
         rows = list(_load_cache(args.report_existing).values())
-        rows = _add_market_baselines_to_rows(rows)
+        rows = _add_market_baselines_to_rows(
+            rows,
+            blend_model_weight=args.market_blend_weight,
+        )
         scored = [row for row in rows if row.get("score")]
         group_by = None if args.group_report_by == "none" else args.group_report_by
         print(f"Read audit log: {args.report_existing}")
@@ -679,8 +806,15 @@ def main() -> int:
             key = (config.name, row_event_key)
             if key in cache:
                 cached = cache[key]
-                if cached.get("score") and not cached.get("market_baseline_score"):
-                    cached = _add_market_baseline(cached, event)
+                if cached.get("score") and (
+                    not cached.get("market_baseline_score")
+                    or (args.market_blend_weight > 0 and not cached.get("calibrated_blend_score"))
+                ):
+                    cached = _add_market_baseline(
+                        cached,
+                        event,
+                        blend_model_weight=args.market_blend_weight,
+                    )
                     _append_row(out_path, cached)
                     cache[key] = cached
                 print(f"[{done}/{total}] cached {config.name} {event.event['event_ticker']}", flush=True)
@@ -722,6 +856,27 @@ def main() -> int:
                         score["classical_brier"] - baseline["score"]["classical_brier"]
                     )
                     row["model_beats_market"] = row["model_minus_market_brier"] < 0
+                    if args.market_blend_weight > 0:
+                        blend = _calibrated_blend(
+                            event,
+                            raw_probs,
+                            baseline,
+                            model_weight=args.market_blend_weight,
+                        )
+                        if blend is not None:
+                            row["calibrated_blend_probabilities"] = blend["probabilities"]
+                            row["calibrated_blend_score"] = blend["score"]
+                            row["calibration"] = {
+                                "type": "market_linear_blend",
+                                "model_weight": blend["model_weight"],
+                                "market_weight": blend["market_weight"],
+                            }
+                            row["calibrated_minus_market_brier"] = (
+                                blend["score"]["classical_brier"] - baseline["score"]["classical_brier"]
+                            )
+                            row["calibrated_minus_raw_brier"] = (
+                                blend["score"]["classical_brier"] - score["classical_brier"]
+                            )
             except Exception as exc:  # noqa: BLE001
                 if not args.continue_on_error:
                     raise
