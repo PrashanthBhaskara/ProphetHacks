@@ -219,9 +219,17 @@ class ForecasterConfig:
     system_prompt_path: str | None = None
     enable_google_search: bool = False
     mock_edge_bps: float = 0.0
+    # Claude agent fields
+    backtest_mode: bool = False
+    evidence_cutoff: str | None = None  # ISO-8601 UTC or "auto" (uses packet.as_of)
+    agent_prompt: str | None = None     # filename under forecasters/prompts/
+    use_polymarket_prior: bool | None = None
+    polymarket_map_only: bool = True
+    llm_backend: str | None = None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "ForecasterConfig":
+        poly = data.get("use_polymarket_prior")
         return cls(
             name=data["name"],
             provider=data["provider"],
@@ -236,6 +244,12 @@ class ForecasterConfig:
             system_prompt_path=data.get("system_prompt_path"),
             enable_google_search=bool(data.get("enable_google_search", False)),
             mock_edge_bps=float(data.get("mock_edge_bps", 0.0)),
+            backtest_mode=bool(data.get("backtest_mode", False)),
+            evidence_cutoff=data.get("evidence_cutoff"),
+            agent_prompt=data.get("agent_prompt"),
+            use_polymarket_prior=None if poly is None else bool(poly),
+            polymarket_map_only=bool(data.get("polymarket_map_only", True)),
+            llm_backend=data.get("llm_backend"),
         )
 
 
@@ -292,6 +306,14 @@ def forecast_from_config(config: ForecasterConfig, packet: MarketPacket) -> Mode
         return forecast(config, packet)
     if config.provider == "openrouter":
         from .openrouter import forecast
+        return forecast(config, packet)
+    if config.provider in (
+        "claude_agent",
+        "claude_filtered_research",
+        "claude_independent",
+        "claude_grounded",
+    ):
+        from .claude_agent import forecast
         return forecast(config, packet)
     raise ValueError(f"Unknown forecaster provider: {config.provider}")
 
