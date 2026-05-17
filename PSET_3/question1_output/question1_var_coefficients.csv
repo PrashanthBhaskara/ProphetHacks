@@ -1,5 +1,0 @@
-equation,regressor,estimate
-pi_t,pi_t_minus_1,0.7855505854877631
-pi_t,x_t_minus_1,0.006918439563453043
-x_t,pi_t_minus_1,0.053060961509908196
-x_t,x_t_minus_1,0.9716226043262877

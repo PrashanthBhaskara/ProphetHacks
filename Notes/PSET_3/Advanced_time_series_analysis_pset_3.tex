@@ -1,0 +1,957 @@
+\documentclass[11pt]{article}
+\pagestyle{empty}
+
+\setlength{\topmargin}{-.75in}
+\setlength{\textheight}{9.2in}
+\setlength{\oddsidemargin}{-.25in}
+\setlength{\evensidemargin}{-.25in}
+\setlength{\textwidth}{6.75in}
+\setlength{\parskip}{4pt}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{mathtools}
+
+\makeatletter
+\renewcommand\section{\@startsection{section}{1}{\z@}%
+  {-3.5ex \@plus -1ex \@minus -.2ex}%
+  {2.3ex \@plus .2ex}%
+  {\normalfont\Large}}
+\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
+  {-3.25ex\@plus -1ex \@minus -.2ex}%
+  {1.5ex \@plus .2ex}%
+  {\normalfont\large}}
+\makeatother
+
+\newcommand{\QOneGeneratedPath}{question1_output/question1_generated.tex}
+\IfFileExists{\QOneGeneratedPath}{}{
+  \renewcommand{\QOneGeneratedPath}{PSET_3/question1_output/question1_generated.tex}
+}
+\input{\QOneGeneratedPath}
+\newcommand{\QThreeGeneratedPath}{question3_output/question3_generated.tex}
+\newcommand{\QThreeSVARIRFPath}{question3_output/figures/q3_svar_iv_ebp_irf.pdf}
+\newcommand{\QThreeFVDPath}{question3_output/figures/q3_svar_iv_ebp_fvd.pdf}
+\newcommand{\QThreeIRFComparisonPath}{question3_output/figures/q3_ebp_irf_comparison.pdf}
+\newcommand{\QThreeCIPath}{question3_output/figures/q3_optional_ci_panels.pdf}
+\IfFileExists{\QThreeGeneratedPath}{}{
+  \renewcommand{\QThreeGeneratedPath}{PSET_3/question3_output/question3_generated.tex}
+  \renewcommand{\QThreeSVARIRFPath}{PSET_3/question3_output/figures/q3_svar_iv_ebp_irf.pdf}
+  \renewcommand{\QThreeFVDPath}{PSET_3/question3_output/figures/q3_svar_iv_ebp_fvd.pdf}
+  \renewcommand{\QThreeIRFComparisonPath}{PSET_3/question3_output/figures/q3_ebp_irf_comparison.pdf}
+  \renewcommand{\QThreeCIPath}{PSET_3/question3_output/figures/q3_optional_ci_panels.pdf}
+}
+\input{\QThreeGeneratedPath}
+\newcommand{\QFourGeneratedPath}{question4_output/question4_generated.tex}
+\newcommand{\QFourFigurePath}{question4_output/figures/q4_sign_restricted_output_irf.pdf}
+\IfFileExists{\QFourGeneratedPath}{}{
+  \renewcommand{\QFourGeneratedPath}{PSET_3/question4_output/question4_generated.tex}
+  \renewcommand{\QFourFigurePath}{PSET_3/question4_output/figures/q4_sign_restricted_output_irf.pdf}
+}
+\input{\QFourGeneratedPath}
+
+\title{Advanced Time Series PSET 3}
+\author{Dhruv Kohli}
+\date{May 2026}
+
+\begin{document}
+
+\maketitle
+
+\section*{Question 1}
+
+The NKPC is
+\[
+\pi_t
+=c+\gamma_f E_t(\pi_{t+1})+\gamma_b\pi_{t-1}+\lambda x_t+\nu_t,
+\qquad
+\gamma_b=1-\gamma_f,
+\]
+and inflation is assumed to satisfy
+\[
+\pi_t=\mu_\pi+\rho_\pi\pi_{t-1}+\rho_x x_{t-1}+\eta_t,
+\qquad
+(\nu_t,\eta_t)' \overset{i.i.d.}{\sim} (0,\Sigma).
+\]
+We measure inflation as
+\[
+\pi_t=100\Delta\log(\texttt{GDPDEF}_t),
+\]
+the quarter-over-quarter log change in the GDP deflator in percentage points.
+
+\subsection*{(i)}
+Since the information set at date \(t\) contains current and lagged \((\pi_t,x_t)\), rational
+expectations and the inflation ADL imply
+\[
+E_t(\pi_{t+1})=\mu_\pi+\rho_\pi\pi_t+\rho_x x_t.
+\]
+Substituting this into the NKPC gives
+\[
+\pi_t
+=c+\gamma_f(\mu_\pi+\rho_\pi\pi_t+\rho_x x_t)
++(1-\gamma_f)\pi_{t-1}+\lambda x_t+\nu_t.
+\]
+Let
+\[
+d(\theta)\equiv \lambda+\gamma_f\rho_x.
+\]
+When \(d(\theta)\neq 0\), rearranging the NKPC gives
+\[
+x_t
+=
+\frac{\mu_\pi(1-\gamma_f\rho_\pi-\gamma_f)-c}{d(\theta)}
++\frac{(1-\gamma_f\rho_\pi)\rho_\pi-(1-\gamma_f)}{d(\theta)}\pi_{t-1}
++\frac{(1-\gamma_f\rho_\pi)\rho_x}{d(\theta)}x_{t-1}
++\frac{(1-\gamma_f\rho_\pi)\eta_t-\nu_t}{d(\theta)}.
+\]
+Combining this equation with the ADL equation for \(\pi_t\), the vector
+\[
+y_t\equiv(\pi_t,x_t)'
+\]
+follows a bivariate VAR(1),
+\[
+y_t=a+A(\theta)y_{t-1}+u_t,
+\]
+where the four slope coefficients are
+\[
+A(\theta)
+=
+\begin{pmatrix}
+\rho_\pi & \rho_x\\[4pt]
+\dfrac{(1-\gamma_f\rho_\pi)\rho_\pi-(1-\gamma_f)}
+{\lambda+\gamma_f\rho_x}
+&
+\dfrac{(1-\gamma_f\rho_\pi)\rho_x}
+{\lambda+\gamma_f\rho_x}
+\end{pmatrix}.
+\]
+The intercepts and innovations are
+\[
+a=
+\begin{pmatrix}
+\mu_\pi\\[3pt]
+\dfrac{\mu_\pi(1-\gamma_f\rho_\pi-\gamma_f)-c}{\lambda+\gamma_f\rho_x}
+\end{pmatrix},
+\qquad
+u_t=
+\begin{pmatrix}
+\eta_t\\[3pt]
+\dfrac{(1-\gamma_f\rho_\pi)\eta_t-\nu_t}{\lambda+\gamma_f\rho_x}
+\end{pmatrix}.
+\]
+Because \((\nu_t,\eta_t)'\) is i.i.d., \(u_t\) is also an i.i.d. reduced-form innovation.
+
+\subsection*{(ii)}
+We estimate the unrestricted reduced-form VAR(1)
+\[
+y_t=a+A y_{t-1}+u_t
+\]
+by least squares using the same source data and sample as PSET 2, Question 6:
+\texttt{GDPDEF} and quarterly-average \texttt{UNRATE}, restricted to the largest
+overlapping sample before 2020 and using the percentage-point inflation scaling stated above.
+The raw sample is \QOneRawStart--\QOneRawEnd\ (\QOneRawN\ quarters), and the VAR
+regression sample is \QOneVARStart--\QOneVAREnd\ (\QOneVARN\ observations).
+
+The estimated intercepts are
+\[
+\hat a_\pi=\QOneInterceptPi,
+\qquad
+\hat a_x=\QOneInterceptX.
+\]
+The estimated slope matrix is
+\[
+\widehat A
+=
+\begin{pmatrix}
+\QOneAOneOne & \QOneAOneTwo\\
+\QOneATwoOne & \QOneATwoTwo
+\end{pmatrix},
+\]
+with rows corresponding to the \(\pi_t\) and \(x_t\) equations and columns corresponding
+to \(\pi_{t-1}\) and \(x_{t-1}\). The largest absolute eigenvalue of \(\widehat A\) is
+\(\QOneMaxEigen\).
+
+The minimum-distance estimator uses the restriction
+\[
+\widehat\theta
+=
+\arg\min_{\theta}
+\{\operatorname{vec}(\widehat A)-\operatorname{vec}(A(\theta))\}'
+W
+\{\operatorname{vec}(\widehat A)-\operatorname{vec}(A(\theta))\}.
+\]
+We use \(W=I_4\). Since the model gives four reduced-form slope coefficients for the four
+parameters \(\theta=(\gamma_f,\lambda,\rho_\pi,\rho_x)'\), the estimate is exactly
+identified. In particular,
+\[
+\widehat\rho_\pi=\widehat A_{11},
+\qquad
+\widehat\rho_x=\widehat A_{12},
+\]
+and, using the last two VAR coefficients,
+\[
+\widehat\gamma_f
+=
+\frac{\widehat A_{22}(1-\widehat\rho_\pi)+\widehat A_{21}\widehat\rho_x}
+{\widehat A_{21}\widehat\rho_\pi\widehat\rho_x
++\widehat A_{22}(1-\widehat\rho_\pi^2)},
+\]
+\[
+\widehat\lambda
+=
+\frac{(1-\widehat\gamma_f\widehat\rho_\pi)\widehat\rho_x}{\widehat A_{22}}
+-\widehat\gamma_f\widehat\rho_x.
+\]
+The resulting estimates are:
+\[
+\begin{array}{lccc}
+\toprule
+\text{Parameter} & \text{Estimate} & \text{95\% bootstrap lower} & \text{95\% bootstrap upper}\\
+\midrule
+\gamma_f & \QOneGammaF & \QOneGammaFCILower & \QOneGammaFCIUpper\\
+\lambda & \QOneLambda & \QOneLambdaCILower & \QOneLambdaCIUpper\\
+\rho_\pi & \QOneRhoPi & \QOneRhoPiCILower & \QOneRhoPiCIUpper\\
+\rho_x & \QOneRhoX & \QOneRhoXCILower & \QOneRhoXCIUpper\\
+\bottomrule
+\end{array}
+\]
+
+\subsection*{(iii)}
+We compute the confidence intervals using a recursive residual bootstrap for the fitted
+VAR(1). The procedure is:
+
+\begin{enumerate}
+\item Estimate the VAR(1) by OLS and collect the centered residual vectors
+\(\hat u_t-\bar{\hat u}\).
+\item For each bootstrap draw \(b=1,\ldots,\QOneBootstrapReps\), sample residual vectors
+with replacement from the centered empirical residual distribution, preserving the
+cross-equation dependence between the \(\pi_t\) and \(x_t\) shocks.
+\item Starting from the observed initial value \(y_0^*=y_0\), recursively generate
+\[
+y_t^*=\hat a+\widehat A y_{t-1}^*+u_t^*.
+\]
+\item Re-estimate the VAR(1) on the bootstrap sample and recompute
+\(\widehat\theta^*=(\widehat\gamma_f^*,\widehat\lambda^*,
+\widehat\rho_\pi^*,\widehat\rho_x^*)'\) using the same minimum-distance inversion.
+\item Report the 2.5th and 97.5th percentiles of the bootstrap estimates.
+\end{enumerate}
+
+We use \(\QOneBootstrapReps\) bootstrap repetitions with random seed \(\QOneBootstrapSeed\);
+all \(\QOneBootstrapUsed\) repetitions produced nonsingular estimates. This bootstrap relies
+on the VAR(1) restriction derived above, stationarity of the fitted VAR, and the i.i.d.
+innovation assumption. The i.i.d. assumption is exactly the extra structure imposed in the
+question, since the reduced-form VAR innovations are linear transformations of
+\((\nu_t,\eta_t)'\).
+
+\section*{Question 2}
+
+We observe
+\[
+y_t=\mu+z_t,
+\]
+where \(\mu\) is unknown and \(\{z_t\}\) is mean zero, strictly stationary, and weakly
+dependent. The sample mean is
+\[
+\widehat\mu=\frac{1}{T}\sum_{t=1}^T y_t.
+\]
+The long-run variance needed for inference on \(\mu\) is
+\[
+\Omega=\operatorname{LRV}(z_t)=\sum_{\ell=-\infty}^{\infty}\Gamma_z(\ell).
+\]
+Since \(y_t\) differs from \(z_t\) only by a constant, the population autocovariances of
+\(\{y_t\}\) and \(\{z_t\}\) are the same. The kernel HAC estimator is
+\[
+\widehat\Omega
+=
+\sum_{\ell=-(T-1)}^{T-1}
+k\!\left(\frac{\ell}{S_T}\right)\widehat\Gamma(\ell),
+\]
+where, for \(\ell\geq 0\),
+\[
+\widehat\Gamma(\ell)
+=
+\frac{1}{T}\sum_{t=\ell+1}^T
+(y_t-\widehat\mu)(y_{t-\ell}-\widehat\mu),
+\qquad
+\widehat\Gamma(-\ell)=\widehat\Gamma(\ell)
+\]
+in this scalar problem.
+
+Under the Andrews assumptions, the one-dimensional MSE-optimal
+bandwidth is
+\[
+S_T^*
+=
+\left[
+\frac{q^* k_{q^*}^2}{\int_{-\infty}^{\infty} k(x)^2\,dx}
+\alpha(q^*)T
+\right]^{1/(2q^*+1)},
+\]
+where
+\[
+\alpha(q)=
+\left(\frac{s_z^{(q)}(0)}{\Omega}\right)^2,
+\qquad
+s_z^{(q)}(0)=
+\sum_{\ell=-\infty}^{\infty}|\ell|^q\Gamma_z(\ell).
+\]
+
+\subsection*{(i)}
+Under the stationary AR(1) working model
+\[
+z_t=\rho z_{t-1}+\varepsilon_t,
+\qquad
+\varepsilon_t\sim WN(0,\sigma^2),
+\qquad
+|\rho|<1.
+\]
+Its autocovariance function is
+\[
+\Gamma_z(\ell)=\frac{\sigma^2}{1-\rho^2}\rho^{|\ell|}.
+\]
+Therefore
+\[
+\Omega
+=
+\frac{\sigma^2}{1-\rho^2}
+\left(1+2\sum_{\ell=1}^{\infty}\rho^\ell\right)
+=
+\frac{\sigma^2}{1-\rho^2}
+\left(\frac{1+\rho}{1-\rho}\right)
+=
+\frac{\sigma^2}{(1-\rho)^2}.
+\]
+For any \(q>0\), the zero-lag term in \(s_z^{(q)}(0)\) is zero, and since
+\(|\rho|<1\) the following series is absolutely convergent:
+\[
+s_z^{(q)}(0)
+=
+2\sum_{\ell=1}^{\infty}\ell^q\Gamma_z(\ell)
+=
+\frac{2\sigma^2}{1-\rho^2}
+\sum_{\ell=1}^{\infty}\ell^q\rho^\ell.
+\]
+Thus
+\[
+\frac{s_z^{(q)}(0)}{\Omega}
+=
+\frac{2(1-\rho)}{1+\rho}
+\sum_{\ell=1}^{\infty}\ell^q\rho^\ell,
+\]
+and
+\[
+\alpha(q)
+=
+\left[
+\frac{2(1-\rho)}{1+\rho}
+\sum_{\ell=1}^{\infty}\ell^q\rho^\ell
+\right]^2.
+\]
+Substituting this into Andrews's formula gives
+\[
+S_T^*
+=
+\left[
+\frac{q^*k_{q^*}^2T}{\int_{-\infty}^{\infty} k(x)^2\,dx}
+\left\{
+\frac{2(1-\rho)}{1+\rho}
+\sum_{\ell=1}^{\infty}\ell^{q^*}\rho^\ell
+\right\}^2
+\right]^{1/(2q^*+1)}.
+\]
+This depends only on \(T\), \(\rho\), and the chosen kernel. The innovation variance
+\(\sigma^2\) cancels, as it should: the plug-in bandwidth is determined by persistence,
+not by the scale of the series.
+
+\subsection*{(ii)}
+The Bartlett kernel is
+\[
+k(x)=\max\{1-|x|,0\}.
+\]
+Near zero, \(k(x)=1-|x|\), so
+\[
+k_1=\lim_{x\to 0}\frac{1-k(x)}{|x|}=1.
+\]
+For \(q>1\),
+\[
+\frac{1-k(x)}{|x|^q}=|x|^{1-q}\to\infty,
+\]
+so the characteristic exponent is \(q^*=1\). Also
+\[
+\int_{-\infty}^{\infty} k(x)^2\,dx
+=
+\int_{-1}^{1}(1-|x|)^2\,dx
+=
+2\int_0^1(1-x)^2\,dx
+=
+\frac{2}{3}.
+\]
+For \(q=1\),
+\[
+\sum_{\ell=1}^{\infty}\ell\rho^\ell
+=
+\frac{\rho}{(1-\rho)^2},
+\]
+so
+\[
+\frac{s_z^{(1)}(0)}{\Omega}
+=
+\frac{2(1-\rho)}{1+\rho}
+\frac{\rho}{(1-\rho)^2}
+=
+\frac{2\rho}{1-\rho^2},
+\]
+and
+\[
+\alpha(1)=\frac{4\rho^2}{(1-\rho^2)^2}.
+\]
+Substituting \(q^*=1\), \(k_1=1\), and \(\int k^2=2/3\) into the optimal bandwidth
+formula gives
+\[
+S_{T,\mathrm{Bartlett}}^*
+=
+\left[
+\frac{1}{2/3}
+\frac{4\rho^2}{(1-\rho^2)^2}T
+\right]^{1/3}
+=
+\left[
+\frac{6\rho^2}{(1-\rho^2)^2}T
+\right]^{1/3}.
+\]
+Equivalently,
+\[
+S_{T,\mathrm{Bartlett}}^*
+=
+\left(\frac{6\rho^2}{(1-\rho^2)^2}\right)^{1/3}T^{1/3}.
+\]
+For example, if \(\rho=0.25\), this gives approximately \(0.75T^{1/3}\), matching the
+standard rule of thumb.
+
+For the quadratic spectral kernel,
+\[
+k(x)
+=
+\frac{25}{12\pi^2x^2}
+\left[
+\frac{\sin(6\pi x/5)}{6\pi x/5}
+-\cos(6\pi x/5)
+\right],
+\qquad x\neq 0,
+\]
+with \(k(0)=1\). The problem states that
+\[
+\int_{-\infty}^{\infty}k(x)^2\,dx=1,
+\qquad
+q^*=2,
+\qquad
+k_2=1.421223.
+\]
+To verify the local expansion, set \(a=6\pi/5\). Since
+\[
+\frac{\sin(ax)}{ax}=1-\frac{a^2x^2}{6}+\frac{a^4x^4}{120}+O(x^6),
+\qquad
+\cos(ax)=1-\frac{a^2x^2}{2}+\frac{a^4x^4}{24}+O(x^6),
+\]
+we have
+\[
+\frac{\sin(ax)}{ax}-\cos(ax)
+=
+\frac{a^2x^2}{3}-\frac{a^4x^4}{30}+O(x^6).
+\]
+Multiplying by \(25/(12\pi^2x^2)\) gives
+\[
+k(x)=1-\frac{18\pi^2}{125}x^2+O(x^4),
+\]
+so
+\[
+k_2=\frac{18\pi^2}{125}=1.421223\ldots,
+\qquad q^*=2.
+\]
+
+For \(q=2\),
+\[
+\sum_{\ell=1}^{\infty}\ell^2\rho^\ell
+=
+\frac{\rho(1+\rho)}{(1-\rho)^3},
+\]
+and therefore
+\[
+\frac{s_z^{(2)}(0)}{\Omega}
+=
+\frac{2(1-\rho)}{1+\rho}
+\frac{\rho(1+\rho)}{(1-\rho)^3}
+=
+\frac{2\rho}{(1-\rho)^2}.
+\]
+Thus
+\[
+\alpha(2)=\frac{4\rho^2}{(1-\rho)^4}.
+\]
+Substituting \(q^*=2\), \(k_2=1.421223\), and \(\int k^2=1\),
+\[
+S_{T,\mathrm{QS}}^*
+=
+\left[
+2(1.421223)^2
+\frac{4\rho^2}{(1-\rho)^4}T
+\right]^{1/5}
+=
+\left[
+\frac{8(1.421223)^2\rho^2}{(1-\rho)^4}T
+\right]^{1/5}.
+\]
+Equivalently,
+\[
+S_{T,\mathrm{QS}}^*
+=
+1.3221
+\left[
+\frac{4\rho^2}{(1-\rho)^4}T
+\right]^{1/5},
+\qquad
+1.3221=\{2(1.421223)^2\}^{1/5}.
+\]
+
+The difference in rates is coming from the kernel smoothness at the origin:
+Bartlett has \(q^*=1\), so its bandwidth is proportional to \(T^{1/3}\), while QS has
+\(q^*=2\), so its bandwidth is proportional to \(T^{1/5}\). The denominators also line
+up with the AR(1) autocovariances: Bartlett depends on \(1-\rho^2\) because
+\(s_z^{(1)}(0)/\Omega=2\rho/(1-\rho^2)\), whereas QS depends on \((1-\rho)^4\)
+because \(s_z^{(2)}(0)/\Omega=2\rho/(1-\rho)^2\). If \(\rho=0\), the leading bias
+term in the Andrews expansion is zero, so the plug-in formulas return \(S_T^*=0\).
+In practice we would impose an integer bandwidth rule, but this white-noise edge case
+is a feature of the plug-in MSE calculation rather than an algebraic problem.
+
+\section*{Question 3}
+
+We collect the four macro-financial variables in
+\[
+y_t=(\texttt{ipgr}_t,\texttt{infl}_t,\texttt{gs1}_t,\texttt{ebp}_t)'.
+\]
+The external instrument is \(z_t=\texttt{ff4\_tc}_t\),
+the high-frequency change in three-month-ahead federal funds futures prices around
+FOMC announcements. This is the same type of high-frequency policy surprise emphasized
+by Gertler and Karadi (2015): it uses variation in futures
+prices in a narrow policy-announcement window as an external source of monetary policy
+variation, avoiding the simultaneity problem that arises when financial variables enter
+the VAR. Following the question, we include an intercept and \(\QThreeLags\) lags in
+every VAR and regression. The one-year Treasury rate, \(\texttt{gs1}\), is the policy
+indicator, and all responses below are normalized so that the impact response of
+\(\texttt{gs1}\) equals \(1\) (100 basis points).
+
+\subsection*{(i)}
+We estimate the reduced-form VAR
+\[
+y_t=c+\sum_{j=1}^{p}A_j y_{t-j}+\eta_t,
+\qquad p=\QThreeLags,
+\]
+by least squares. Let
+\[
+\Sigma=E(\eta_t\eta_t'),
+\qquad
+\gamma=E(\eta_t z_t).
+\]
+Under the SVAR-IV assumptions,
+\[
+\eta_t=H\varepsilon_t,
+\qquad
+E(z_t\varepsilon_{1t})\neq 0,
+\qquad
+E(z_t\varepsilon_{jt})=0\quad(j\geq 2),
+\]
+with \(E(\varepsilon_t\varepsilon_t')=I\). Therefore
+\(\gamma=h_1 E(z_t\varepsilon_{1t})\), where \(h_1\) is the first column of \(H\), so
+\(\gamma\) is proportional to the impact vector of the monetary policy shock. With the
+unit-variance structural-shock
+normalization,
+\[
+h_1
+=
+\frac{\gamma}{(\gamma'\Sigma^{-1}\gamma)^{1/2}},
+\]
+up to sign. We choose the sign so the \(\texttt{gs1}\) impact response is positive. The
+estimated first-stage regression of the \(\texttt{gs1}\) VAR residual on \(\texttt{ff4\_tc}\)
+has \(F=\QThreeSVARFirstStageF\) and \(R^2=\QThreeSVARFirstStageRTwo\%\), so the
+instrument is relevant in this sample.
+
+Let \(\Psi_h\) denote the VAR moving-average coefficient matrices, with
+\[
+\Psi_0=I,
+\qquad
+\Psi_h=\sum_{j=1}^{\min(p,h)}A_j\Psi_{h-j}.
+\]
+The normalized impulse response is
+\[
+\operatorname{IRF}_h
+=
+\Psi_h\frac{h_1}{e_{\texttt{gs1}}'h_1},
+\qquad h=0,1,\ldots,\QThreeHorizon.
+\]
+The resulting EBP response is shown in Figure~\ref{fig:q3-svar-irf}. The impact
+response is \(\QThreeSVAREBPHZero\) percentage points. It remains positive for the whole
+36-month window, falling to \(\QThreeSVAREBPHTwelve\) after 12 months and
+\(\QThreeSVAREBPHThirtySix\) after 36 months. The sign and magnitude are consistent with the
+main Gertler-Karadi mechanism: a contractionary policy surprise raises credit costs,
+and the excess bond premium moves by a large amount relative to the one-year rate
+normalization.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.78\textwidth]{\QThreeSVARIRFPath}
+\caption{SVAR-IV impulse response of the excess bond premium to a monetary policy
+shock that raises \(\texttt{gs1}\) by 100 basis points on impact.}
+\label{fig:q3-svar-irf}
+\end{figure}
+
+\subsection*{(ii)}
+For the EBP forecast variance decomposition, use the unit-variance impact vector \(h_1\),
+not the 100-basis-point rescaled vector. For horizon \(\ell\geq 1\),
+\[
+\operatorname{FVD}_{\texttt{ebp},1,\ell}
+=
+\frac{\sum_{h=0}^{\ell-1}
+\left(e_{\texttt{ebp}}'\Psi_h h_1\right)^2}
+{\sum_{h=0}^{\ell-1}
+e_{\texttt{ebp}}'\Psi_h\Sigma\Psi_h'e_{\texttt{ebp}}}.
+\]
+The numerator is the forecast-error variance contribution of the monetary shock, and
+the denominator is the total reduced-form VAR forecast-error variance. The estimated
+FVD is plotted in Figure~\ref{fig:q3-fvd}. Monetary policy shocks explain about
+\(\QThreeFVDHOne\%\) of the one-month EBP forecast-error variance,
+\(\QThreeFVDHTwelve\%\) at 12 months, and \(\QThreeFVDHThirtySix\%\) at 36 months.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.78\textwidth]{\QThreeFVDPath}
+\caption{SVAR-IV forecast variance decomposition of the excess bond premium with
+respect to the monetary policy shock.}
+\label{fig:q3-fvd}
+\end{figure}
+
+\subsection*{(iii)}
+We next drop the invertibility assumption. Following the standard LP-IV argument, form
+\[
+w_t=(z_t,y_t')'
+=
+(\texttt{ff4\_tc}_t,\texttt{ipgr}_t,\texttt{infl}_t,\texttt{gs1}_t,\texttt{ebp}_t)'.
+\]
+We estimate a VAR(\(\QThreeLags\)) for \(w_t\), order \(z_t\) first, and use a recursive
+Cholesky shock to the first variable. Since \(z_t\) is only a noisy proxy for the monetary
+shock, the absolute scale of this recursive shock is not structural. However, the
+attenuation from measurement error is common across horizons and variables, so the
+relative IRF is valid after normalizing by the impact response of \(\texttt{gs1}\). Thus we
+again divide the responses by the impact response of \(\texttt{gs1}\).
+
+The recursive-VAR LP-IV estimate is close to the SVAR-IV estimate on impact:
+\(\QThreeLPVAREBPHZero\) percentage points for EBP. It then decays somewhat faster,
+reaching \(\QThreeLPVAREBPHTwelve\) at 12 months and \(\QThreeLPVAREBPHThirtySix\) at 36 months.
+The comparison is shown in Figure~\ref{fig:q3-irf-comparison}.
+
+\subsection*{(iv)}
+The direct 2SLS implementation estimates, for each horizon \(h=0,\ldots,\QThreeHorizon\),
+\[
+\texttt{ebp}_{t+h}
+=
+\alpha_h+\beta_h\texttt{gs1}_t
++\delta_h'X_{t-1}+u_{t+h|t},
+\]
+using \(z_t=\texttt{ff4\_tc}_t\) as an instrument for \(\texttt{gs1}_t\). The control vector
+\(X_{t-1}\) contains an intercept, \(\QThreeLags\) lags of \(y_t\), and \(\QThreeLags\)
+lags of \(z_t\). With a single endogenous regressor and a single IV, the coefficient can
+be written after residualizing on controls as
+\[
+\widehat\beta_h
+=
+\frac{\tilde z'\tilde y_h}{\tilde z'\widetilde{\texttt{gs1}}},
+\]
+where tildes denote residuals after projection on \(X_{t-1}\). The first-stage \(F\)-statistic
+at \(h=0\) is \(\QThreeLPFirstStageF\), with partial \(R^2=\QThreeLPPartialRTwo\%\).
+
+The 2SLS LP-IV estimates are more jagged than the VAR-based estimates, which is expected
+because each horizon is estimated separately and no VAR propagation restrictions are
+imposed. The impact response is mechanically the same as the recursive-VAR LP-IV impact
+response, \(\QThreeLPTwoSLSEBPHZero\). At longer horizons the direct estimates are larger:
+\(\QThreeLPTwoSLSEBPHTwelve\) at 12 months and \(\QThreeLPTwoSLSEBPHThirtySix\) at 36 months.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.78\textwidth]{\QThreeIRFComparisonPath}
+\caption{EBP impulse responses from SVAR-IV, recursive-VAR LP-IV, and direct 2SLS
+LP-IV. All responses are normalized to a 100 basis point impact response of
+\(\texttt{gs1}\).}
+\label{fig:q3-irf-comparison}
+\end{figure}
+
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+Horizon & SVAR-IV & LP-IV recursive VAR & LP-IV 2SLS\\
+\midrule
+0 & \QThreeSVAREBPHZero & \QThreeLPVAREBPHZero & \QThreeLPTwoSLSEBPHZero\\
+6 & \QThreeSVAREBPHSix & \QThreeLPVAREBPHSix & \QThreeLPTwoSLSEBPHSix\\
+12 & \QThreeSVAREBPHTwelve & \QThreeLPVAREBPHTwelve & \QThreeLPTwoSLSEBPHTwelve\\
+24 & \QThreeSVAREBPHTwentyFour & \QThreeLPVAREBPHTwentyFour & \QThreeLPTwoSLSEBPHTwentyFour\\
+36 & \QThreeSVAREBPHThirtySix & \QThreeLPVAREBPHThirtySix & \QThreeLPTwoSLSEBPHThirtySix\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{(v)}
+We know the key testable implication of invertibility with an external IV:
+if the monetary policy shock is invertible with respect to \(\{y_t\}\), then the proxy
+\(z_t\) should not Granger-cause \(y_t\) conditional on lags of \(y_t\). Intuitively,
+under invertibility the useful shock component of \(z_t\) is already contained in the
+history of \(y_t\), while the measurement-error component of \(z_t\) is not useful for
+forecasting.
+
+Using the VAR specification in part (iii), we test the joint null that lags 1 through
+\(\QThreeLags\) of \(\texttt{ff4\_tc}\) have zero coefficients in the four \(y_t\) equations.
+This imposes \(4\times \QThreeLags=\QThreeInvertDF\) restrictions. The Gaussian
+VAR likelihood-ratio statistic is
+\[
+LR
+=
+T\left(\log|\widehat\Sigma_R|-\log|\widehat\Sigma_U|\right),
+\]
+where \(\widehat\Sigma_U\) is the residual covariance matrix from the unrestricted
+\(y_t\) equations with lags of \((z_t,y_t')'\), and \(\widehat\Sigma_R\) is from the
+restricted equations with only lags of \(y_t\). The result is
+\[
+LR=\QThreeInvertLR,
+\qquad
+df=\QThreeInvertDF,
+\qquad
+p\text{-value}=\QThreeInvertPValue.
+\]
+Thus we do not reject the no-Granger-causality implication of invertibility. This does not
+prove invertibility, but it means this particular testable implication is not contradicted
+by this VAR specification.
+
+\subsection*{(vi)}
+We compute confidence intervals by a recursive residual bootstrap for the joint VAR in
+\[
+w_t=(z_t,y_t')'.
+\]
+This is the reduced-form object used in the recursive-VAR LP-IV estimator, and it also
+gives the time-series model for \(z_t\) that is needed when bootstrapping SVAR-IV with
+an external instrument. After estimating the VAR(\(\QThreeLags\)) for \(w_t\), we center
+the joint residuals, resample the residual vectors with replacement, hold the first
+\(\QThreeLags\) observations fixed, and recursively generate
+\[
+w_t^*
+=\widehat c+\sum_{j=1}^{\QThreeLags}\widehat A_j w_{t-j}^*+u_t^*.
+\]
+For each artificial sample, we re-estimate the SVAR-IV IRF, the SVAR-IV FVD, the
+recursive-VAR LP-IV IRF, and the direct 2SLS LP-IV IRF exactly as above. This means the
+bootstrap includes uncertainty about the VAR propagation, the reduced-form covariance
+matrix, the proxy covariance
+\[
+\widehat{\gamma}=\frac{1}{T}\sum_t\widehat{\eta}_t z_t,
+\]
+and the first-stage relationship used in the 2SLS local projections.
+
+For a scalar object \(\theta_h\), we report the equal-tailed percentile interval
+\[
+\left[
+q_{0.05,h}^*,
+q_{0.95,h}^*
+\right],
+\]
+where \(q_{\alpha,h}^*\) is the \(\alpha\)-quantile of the bootstrap estimates
+\(\widehat\theta_h^*\). We use \QThreeBootstrapReps\ bootstrap repetitions with random
+seed \(\QThreeBootstrapSeed\), and all \QThreeBootstrapUsed\ repetitions produced finite
+estimates. The validity of this procedure relies on the maintained finite-order VAR
+approximation for \(w_t\), stable dynamics, and i.i.d. joint VAR innovations. It is the
+standard strong-instrument bootstrap approximation rather than a weak-IV-robust
+procedure; the first-stage statistics above are why this is a reasonable approximation
+here.
+
+The selected 90\% confidence intervals for the EBP impulse responses are:
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+Estimator & \(h=0\) & \(h=12\) & \(h=36\)\\
+\midrule
+SVAR-IV &
+\(\QThreeSVAREBPHZero\,[\QThreeCISVAREBPLowerZero,\QThreeCISVAREBPUpperZero]\) &
+\(\QThreeSVAREBPHTwelve\,[\QThreeCISVAREBPLowerTwelve,\QThreeCISVAREBPUpperTwelve]\) &
+\(\QThreeSVAREBPHThirtySix\,[\QThreeCISVAREBPLowerThirtySix,\QThreeCISVAREBPUpperThirtySix]\)\\
+LP-IV recursive VAR &
+\(\QThreeLPVAREBPHZero\,[\QThreeCILPVAREBPLowerZero,\QThreeCILPVAREBPUpperZero]\) &
+\(\QThreeLPVAREBPHTwelve\,[\QThreeCILPVAREBPLowerTwelve,\QThreeCILPVAREBPUpperTwelve]\) &
+\(\QThreeLPVAREBPHThirtySix\,[\QThreeCILPVAREBPLowerThirtySix,\QThreeCILPVAREBPUpperThirtySix]\)\\
+LP-IV 2SLS &
+\(\QThreeLPTwoSLSEBPHZero\,[\QThreeCILPTwoSLSEBPLowerZero,\QThreeCILPTwoSLSEBPUpperZero]\) &
+\(\QThreeLPTwoSLSEBPHTwelve\,[\QThreeCILPTwoSLSEBPLowerTwelve,\QThreeCILPTwoSLSEBPUpperTwelve]\) &
+\(\QThreeLPTwoSLSEBPHThirtySix\,[\QThreeCILPTwoSLSEBPLowerThirtySix,\QThreeCILPTwoSLSEBPUpperThirtySix]\)\\
+\bottomrule
+\end{tabular}
+\end{center}
+For the EBP forecast variance decomposition, the selected 90\% confidence intervals,
+reported in percent, are:
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+ & \(\ell=1\) & \(\ell=12\) & \(\ell=36\)\\
+\midrule
+SVAR-IV FVD &
+\(\QThreeFVDHOne\,[\QThreeCIFVDLowerOne,\QThreeCIFVDUpperOne]\) &
+\(\QThreeFVDHTwelve\,[\QThreeCIFVDLowerTwelve,\QThreeCIFVDUpperTwelve]\) &
+\(\QThreeFVDHThirtySix\,[\QThreeCIFVDLowerThirtySix,\QThreeCIFVDUpperThirtySix]\)\\
+\bottomrule
+\end{tabular}
+\end{center}
+Figure~\ref{fig:q3-ci-panels} plots the point estimates and intervals across all horizons.
+The direct 2SLS intervals are much wider than the two VAR-based intervals, especially at
+medium and long horizons. That is the empirical cost of estimating each horizon separately
+without imposing the VAR propagation restrictions. The SVAR-IV and recursive-VAR LP-IV
+bands are tighter, but they are also more model-dependent because their horizon profiles
+come from the estimated VAR law of motion.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.90\textwidth]{\QThreeCIPath}
+\caption{Point estimates and 90\% recursive-residual bootstrap confidence intervals for
+the SVAR-IV IRF, SVAR-IV FVD, recursive-VAR LP-IV IRF, and direct 2SLS LP-IV IRF.}
+\label{fig:q3-ci-panels}
+\end{figure}
+
+\clearpage
+\section*{Question 4}
+
+We use the FRED series \texttt{INDPRO}, \texttt{PCEPI}, and \texttt{GS1}. Output growth
+and inflation are monthly log growth rates in annualized percentage points,
+\[
+g_t=1200\Delta\log(\texttt{INDPRO}_t),
+\qquad
+\pi_t=1200\Delta\log(\texttt{PCEPI}_t),
+\]
+and the real interest rate is
+\[
+r_t=\texttt{GS1}_t-\pi_t.
+\]
+After constructing these variables, we keep observations dated \QFourSampleStart--\QFourSampleEnd,
+so the VAR sample after \(\QFourLags\) lags is \QFourVARStart--\QFourVAREnd\
+(\(\QFourVARN\) observations). Let
+\[
+y_t=(g_t,\pi_t,r_t)'.
+\]
+
+We estimate the reduced-form VAR(\(\QFourLags\))
+\[
+y_t=c+\sum_{j=1}^{\QFourLags} A_j y_{t-j}+\eta_t,
+\qquad
+E(\eta_t\eta_t')=\Sigma,
+\]
+by least squares. The largest absolute eigenvalue of the companion matrix is
+\(\QFourMaxEigen\), so the estimated propagation is stable. Using the standard state-space
+notation, define the companion state
+\[
+s_t=(y_t',y_{t-1}',\ldots,y_{t-\QFourLags+1}')',
+\]
+and write deviations from the deterministic intercept as
+\[
+s_t=F s_{t-1}+G\eta_t,\qquad y_t=J s_t.
+\]
+Here \(F\) contains \(A_1,\ldots,A_{\QFourLags}\) in its first block row and identity
+matrices below the diagonal, \(G=(I_3,0,\ldots,0)'\), and \(J=(I_3,0,\ldots,0)\).
+Thus the reduced-form moving-average matrices are
+\[
+\Psi_\ell=J F^\ell G,\qquad \ell=0,1,\ldots,\QFourHorizon.
+\]
+This is the standard linear state-space state-transition logic: an impulse to
+the innovation changes the state through \(G\), propagates through \(F^\ell\), and is read
+off by \(J\).
+
+Let \(C\) be the lower Cholesky factor of \(\widehat\Sigma\), so \(CC'=\widehat\Sigma\).
+Every exactly identified orthogonalization can be written as
+\[
+\eta_t=CQ\varepsilon_t,\qquad QQ'=I_3,\qquad E(\varepsilon_t\varepsilon_t')=I_3.
+\]
+For a candidate first column \(q=Q e_1\), the impulse response to the first
+unit-variance structural shock is
+\[
+\theta_\ell(q)=e_g'\Psi_\ell Cq,\qquad \ell=0,1,\ldots,36,
+\]
+where \(e_g\) selects output growth. The contractionary monetary shock is restricted to
+raise the real rate and lower inflation at horizons \(0,1,2\):
+\[
+e_r'\Psi_h Cq\geq 0,
+\qquad
+e_\pi'\Psi_h Cq\leq 0,
+\qquad h=0,1,2.
+\]
+There is no sign restriction on output growth and no restriction on the other two shocks.
+Because Haar measure is invariant to relabeling columns, restricting the first column is
+without loss of generality for the one-shock object. We draw \QFourRotationDraws\
+orthogonal matrices from Haar measure using QR decompositions of Gaussian matrices,
+normalizing the diagonal of \(R\) to be positive as required in the assignment. Of these,
+\QFourAcceptedDraws\ draws satisfy the restrictions, for an acceptance rate of
+\QFourAcceptanceRate\%.
+
+\subsection*{(i)}
+The estimated identified-set bounds for \(\theta_\ell\) are the pointwise minimum and
+maximum values of \(\theta_\ell(q)\) across the retained rotations. Selected horizons are:
+\[
+\begin{array}{lrrrr}
+\toprule
+\text{Horizon} & \text{Lower bound} & \text{Upper bound} & \text{Midpoint} & \text{Posterior median}\\
+\midrule
+0  & \QFourLowerZero & \QFourUpperZero & \QFourMidZero & \QFourMedianZero\\
+6  & \QFourLowerSix & \QFourUpperSix & \QFourMidSix & \QFourMedianSix\\
+12 & \QFourLowerTwelve & \QFourUpperTwelve & \QFourMidTwelve & \QFourMedianTwelve\\
+24 & \QFourLowerTwentyFour & \QFourUpperTwentyFour & \QFourMidTwentyFour & \QFourMedianTwentyFour\\
+36 & \QFourLowerThirtySix & \QFourUpperThirtySix & \QFourMidThirtySix & \QFourMedianThirtySix\\
+\bottomrule
+\end{array}
+\]
+On impact, the output-growth response is only partially pinned down:
+\([\QFourLowerZero,\QFourUpperZero]\). This wide interval is exactly the point of
+sign-restriction identification: many different rotations are observationally
+equivalent and satisfy the same qualitative monetary-policy restrictions.
+
+\subsection*{(ii)}
+For the Bayesian thought experiment, we treat the reduced-form VAR estimates as fixed and
+interpret Haar measure, truncated to the sign-restricted set, as the posterior over \(Q\).
+The posterior median and equal-tailed 68\% credible set are therefore the 50th, 16th, and
+84th percentiles of the retained \(\theta_\ell(q)\) draws. At the same selected horizons:
+\[
+\begin{array}{lrrr}
+\toprule
+\text{Horizon} & \text{68\% lower} & \text{Median} & \text{68\% upper}\\
+\midrule
+0  & \QFourCredLowerZero & \QFourMedianZero & \QFourCredUpperZero\\
+6  & \QFourCredLowerSix & \QFourMedianSix & \QFourCredUpperSix\\
+12 & \QFourCredLowerTwelve & \QFourMedianTwelve & \QFourCredUpperTwelve\\
+24 & \QFourCredLowerTwentyFour & \QFourMedianTwentyFour & \QFourCredUpperTwentyFour\\
+36 & \QFourCredLowerThirtySix & \QFourMedianThirtySix & \QFourCredUpperThirtySix\\
+\bottomrule
+\end{array}
+\]
+These credible sets summarize the arbitrary Haar weighting over rotations. They are not
+frequentist confidence sets for the identified set and, as we know, they
+need not cover the full range of sign-restriction-consistent responses.
+
+\subsection*{(iii)}
+Figure~\ref{fig:q4-sign-restricted-irf} plots the identified-set bounds, posterior median,
+68\% credible set, and identified-set midpoint. The posterior median is not close to the
+center of the identified set at every horizon. The largest absolute gap between the median
+and midpoint is \(\QFourMaxMedianGap\) annualized percentage points, occurring at horizon
+\(\QFourMaxMedianGapHorizon\). For example, at horizon 12 the identified-set midpoint is
+\(\QFourMidTwelve\), while the posterior median is \(\QFourMedianTwelve\). This illustrates
+that the truncated Haar prior supplies a weighting inside the identified
+set rather than a neutral estimate of its center.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.82\textwidth]{\QFourFigurePath}
+\caption{Output-growth response to a one-standard-deviation contractionary monetary
+policy shock under the sign restrictions that inflation falls and the real rate rises at
+horizons 0, 1, and 2.}
+\label{fig:q4-sign-restricted-irf}
+\end{figure}
+
+\end{document}

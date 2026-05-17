@@ -1,0 +1,87 @@
+{
+  "allow_historical_backfill": true,
+  "archive_files": {
+    "gdelt": "/Users/dhruvkohli/Desktop/Github Repos/ProphetHacks/dhruv_GPT_forecasting/data/external_evidence/backfills/topvol_15m_oos_5_gdelt_backfill_smoke/gdelt.jsonl"
+  },
+  "candle_stride_minutes": 1,
+  "chronological_oos": true,
+  "errors": [
+    {
+      "as_of": "2026-04-18T04:45:00Z",
+      "error": "HTTPError:429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=texas+seattle+winner&mode=artlist&format=json&maxrecords=12&sort=datedesc&startdatetime=20260417044500&enddatetime=20260418044500",
+      "market_ticker": "KXMLBGAME-26APR172140TEXSEA-SEA",
+      "source": "gdelt"
+    }
+  ],
+  "errors_by_source": {
+    "gdelt": 1
+  },
+  "events_json": null,
+  "force_cheap": true,
+  "gated_only": false,
+  "horizon_hours": 0.25,
+  "n_packets": 5,
+  "n_packets_attempted": 4,
+  "n_records": 24,
+  "packet_rows": [
+    {
+      "as_of": "2026-04-18T04:37:00Z",
+      "close_time": "2026-04-18T04:53:46Z",
+      "event_ticker": "KXNBA-26",
+      "idx": 0,
+      "market_ticker": "KXNBA-26-GSW",
+      "n_errors": 0,
+      "n_records": 0,
+      "query": "golden state 2026 pro basketball finals",
+      "title": "Will the Golden State win the 2026 Pro Basketball Finals?"
+    },
+    {
+      "as_of": "2026-04-18T04:38:00Z",
+      "close_time": "2026-04-18T04:53:15Z",
+      "event_ticker": "KXNBAGAME-26APR17GSWPHX",
+      "idx": 1,
+      "market_ticker": "KXNBAGAME-26APR17GSWPHX-GSW",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "golden state phoenix winner",
+      "title": "Golden State at Phoenix Winner?"
+    },
+    {
+      "as_of": "2026-04-18T04:38:00Z",
+      "close_time": "2026-04-18T04:53:15Z",
+      "event_ticker": "KXNBAGAME-26APR17GSWPHX",
+      "idx": 2,
+      "market_ticker": "KXNBAGAME-26APR17GSWPHX-PHX",
+      "n_errors": 0,
+      "n_records": 12,
+      "query": "golden state phoenix winner",
+      "title": "Golden State at Phoenix Winner?"
+    },
+    {
+      "as_of": "2026-04-18T04:45:00Z",
+      "close_time": "2026-04-18T05:00:34Z",
+      "event_ticker": "KXMLBGAME-26APR172140TEXSEA",
+      "idx": 3,
+      "market_ticker": "KXMLBGAME-26APR172140TEXSEA-SEA",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "texas seattle winner",
+      "title": "Texas vs Seattle Winner?"
+    }
+  ],
+  "published_at_pit_eligible_records": 24,
+  "records_by_source": {
+    "gdelt": 24
+  },
+  "reddit_historical_backfill": false,
+  "run_id": "topvol_15m_oos_5_gdelt_backfill_smoke",
+  "since_close": "2026-02-16T00:00:00Z",
+  "sleep_seconds": 2.0,
+  "source": "topvol",
+  "sources": [
+    "gdelt"
+  ],
+  "strict_pit_eligible_records": 0,
+  "train_fraction": 0.7,
+  "until_close": null
+}

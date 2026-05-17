@@ -50,6 +50,20 @@ ODDPOOL_BASE = "https://api.oddpool.com"
 ODDSPIPE_BASE = "https://oddspipe.com"
 
 
+def load_local_env(path: Path = PREP_ROOT / ".env") -> None:
+    if not path.exists():
+        return
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        value = value.strip().strip('"').strip("'")
+        if key and key not in os.environ:
+            os.environ[key] = value
+
+
 def utc_now() -> datetime:
     return datetime.now(timezone.utc)
 
@@ -159,6 +173,26 @@ def chunked(items: list[Any], size: int) -> Iterable[list[Any]]:
         yield items[i:i + size]
 
 
+def iter_kalshi_pages(
+    path: str,
+    params: dict[str, Any],
+    key: str,
+    *,
+    pause: float,
+) -> Iterable[list[dict[str, Any]]]:
+    cursor: str | None = None
+    while True:
+        p = dict(params)
+        if cursor:
+            p["cursor"] = cursor
+        data = kalshi._get(path, p)  # noqa: SLF001 - internal thin REST helper.
+        yield data.get(key, [])
+        cursor = data.get("cursor") or None
+        if not cursor:
+            break
+        time.sleep(pause)
+
+
 def window_chunks(start: datetime, end: datetime, *, interval_minutes: int) -> Iterable[tuple[datetime, datetime]]:
     """Split candle requests into provider-friendly windows."""
     if interval_minutes == 1:
@@ -264,6 +298,30 @@ def collect_kalshi_official(args: argparse.Namespace, markets: list[dict[str, An
     write_json(args.out / "kalshi" / "cutoff.json", cutoff)
 
     if args.trades:
+        if args.global_trades:
+            for historical in (True, False):
+                out_name = "all_historical.jsonl" if historical else "all_live.jsonl"
+                path = "/historical/trades" if historical else "/markets/trades"
+                params = {"limit": 1000, "min_ts": unix_s(start), "max_ts": unix_s(end)}
+                out_path = args.out / "kalshi" / "trades" / out_name
+                total = 0
+                source = "kalshi_official_historical_trades" if historical else "kalshi_official_live_trades"
+                for page_num, page in enumerate(iter_kalshi_pages(path, params, "trades", pause=args.pause), start=1):
+                    total += append_jsonl(
+                        out_path,
+                        (
+                            source_row(
+                                source,
+                                trade,
+                            )
+                            for trade in page
+                        )
+                    )
+                    if page_num == 1 or page_num % 25 == 0:
+                        print(f"  {source}: {total} rows", flush=True)
+                time.sleep(args.pause)
+            return
+
         for m in markets:
             ticker = m.get("ticker")
             if not ticker:
@@ -607,6 +665,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--l2", action=argparse.BooleanOptionalAction, default=False,
                         help="Collect full-depth order books where available.")
     parser.add_argument("--trades", action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--global-trades", action="store_true",
+                        help="Pull the official Kalshi trade tape once across all tickers instead of per market.")
     parser.add_argument("--candles", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--current-depth", type=int, default=0,
                         help="Kalshi current orderbook depth, 0 means all levels.")
@@ -629,6 +689,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main() -> int:
+    load_local_env()
     args = build_parser().parse_args()
     args.out = args.out.resolve()
     start = parse_dt(args.since, default=datetime(2023, 1, 1, tzinfo=timezone.utc))

@@ -1,0 +1,124 @@
+{
+  "allow_historical_backfill": true,
+  "archive_files": {
+    "gdelt": "/Users/dhruvkohli/Desktop/Github Repos/ProphetHacks/dhruv_GPT_forecasting/data/external_evidence/backfills/prophet_subset_1200_gdelt_batch000_050_20260516/gdelt.jsonl"
+  },
+  "candle_stride_minutes": null,
+  "chronological_oos": false,
+  "decision_budget_minutes": null,
+  "digest_file": "/Users/dhruvkohli/Desktop/Github Repos/ProphetHacks/dhruv_GPT_forecasting/data/external_evidence/backfills/prophet_subset_1200_gdelt_batch000_050_20260516/news_digest.jsonl",
+  "digest_max_chars": 2400,
+  "digest_max_records": 10,
+  "errors": [
+    {
+      "as_of": "2025-09-27T00:07:01.572522+00:00",
+      "error": "HTTPError:429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28%22Above+%24450%22+OR+%22Above+%24500%22+OR+%22Above+%24600%22+OR+%22Above+%24700%22%29+total+rwa+real+world+asset+capitalization+avalanche+blockchain&mode=artlist&format=json&maxrecords=25&sort=datedesc&startdatetime=20250924000701&enddatetime=20250927000701",
+      "market_ticker": "31c70ba3-62a3-4ecb-95de-94545bbee4ab",
+      "source": "gdelt"
+    },
+    {
+      "as_of": "2025-10-25T00:40:13.330633+00:00",
+      "error": "HTTPError:429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28%22Memphis%22+OR+%22Indiana%22%29+professional+basketball+team+memphis+indiana+game+scheduled+for&mode=artlist&format=json&maxrecords=25&sort=datedesc&startdatetime=20251022004013&enddatetime=20251025004013",
+      "market_ticker": "180b2947-04db-42dc-a5b8-a222490f02a0",
+      "source": "gdelt"
+    },
+    {
+      "as_of": "2025-10-05T10:35:34.031273+00:00",
+      "error": "ReadTimeout:HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Read timed out. (read timeout=10)",
+      "market_ticker": "b6a253c3-7750-466a-a762-c0d7ee8c8e76",
+      "source": "gdelt"
+    }
+  ],
+  "errors_by_source": {
+    "gdelt": 3
+  },
+  "events_json": null,
+  "force_cheap": false,
+  "gated_only": false,
+  "horizon_hours": 0.25,
+  "max_fetch_errors": 25,
+  "max_horizon_hours": null,
+  "min_history_snapshots": null,
+  "min_horizon_minutes": null,
+  "n_packets": 50,
+  "n_packets_attempted": 5,
+  "n_packets_skipped_resume": 5,
+  "n_records": 0,
+  "packet_rows": [
+    {
+      "as_of": "2025-09-27T00:07:01.572522+00:00",
+      "close_time": "2025-10-24T23:03:44.980276+00:00",
+      "event_ticker": "KXRWAMCAPAVAX-AVALANCHE-26JAN01",
+      "idx": 0,
+      "market_ticker": "31c70ba3-62a3-4ecb-95de-94545bbee4ab",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "(\"Above $450\" OR \"Above $500\" OR \"Above $600\" OR \"Above $700\") total rwa real world asset capitalization avalanche blockchain",
+      "title": "What will be the total RWA (real-world asset) market capitalization on the Avalanche blockchain in US dollars at 10:00 AM ET on January 1, 2026?"
+    },
+    {
+      "as_of": "2025-10-25T00:40:13.330633+00:00",
+      "close_time": "2025-10-26T02:42:30.464754+00:00",
+      "event_ticker": "KXNBAGAME-25OCT25INDMEM",
+      "idx": 1,
+      "market_ticker": "180b2947-04db-42dc-a5b8-a222490f02a0",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "(\"Memphis\" OR \"Indiana\") professional basketball team memphis indiana game scheduled for",
+      "title": "Which professional basketball team, Memphis or Indiana, will win the game scheduled for Oct 25, 2025?"
+    },
+    {
+      "as_of": "2025-10-17T00:53:08.075849+00:00",
+      "close_time": "2025-10-20T14:00:00+00:00",
+      "event_ticker": "KXTRUMPSAY-25OCT20B",
+      "idx": 2,
+      "market_ticker": "c76d76ec-0303-4685-a0b9-8f72e7c29fc5",
+      "n_errors": 0,
+      "n_records": 0,
+      "query": "between october 2025 and before donald trump state word ufc including its plural possessive",
+      "title": "Between 12:01 AM ET on October 13, 2025 and before October 20, 2025, will Donald Trump state the word \"UFC\" (including its plural or possessive forms)?"
+    },
+    {
+      "as_of": "2025-06-28T19:01:52.476526+00:00",
+      "close_time": "2025-06-29T04:38:31.027364+00:00",
+      "event_ticker": "KXUFCFIGHT-25JUN28PANKAR",
+      "idx": 3,
+      "market_ticker": "c417db23-bbf3-4f05-9a60-2b0ceb722df6",
+      "n_errors": 0,
+      "n_records": 0,
+      "query": "(\"Alexandre Pantoja\" OR \"Kai Kara-France\") professional mma fighter alexandre pantoja kai kara france",
+      "title": "Which professional MMA fighter, Alexandre Pantoja or Kai Kara-France, will win the Pantoja vs Kara-France fight scheduled for Jun 28, 2025?"
+    },
+    {
+      "as_of": "2025-10-05T10:35:34.031273+00:00",
+      "close_time": "2025-10-07T14:00:00+00:00",
+      "event_ticker": "KXSWIFTMENTION-25OCT06",
+      "idx": 4,
+      "market_ticker": "b6a253c3-7750-466a-a762-c0d7ee8c8e76",
+      "n_errors": 1,
+      "n_records": 0,
+      "query": "taylor swift say engage engaged tonight show starring jimmy fallon starting october 6th during",
+      "title": "Will Taylor Swift say \"Engage\" or \"Engaged\" on The Tonight Show Starring Jimmy Fallon starting on October 6th?"
+    }
+  ],
+  "pit_lookback_hours": 72,
+  "pit_max_records": 25,
+  "published_at_pit_eligible_records": 0,
+  "random_as_of": false,
+  "random_seed": null,
+  "records_by_source": {},
+  "reddit_historical_backfill": false,
+  "resume": true,
+  "run_id": "prophet_subset_1200_gdelt_batch000_050_20260516",
+  "since_close": null,
+  "sleep_seconds": 0.0,
+  "source": "prophet_subset_1200",
+  "sources": [
+    "gdelt"
+  ],
+  "stopped_early_reason": "manifest_only_refresh",
+  "strict_pit_eligible_records": 0,
+  "synthesize_news": true,
+  "train_fraction": 0.7,
+  "until_close": null
+}
