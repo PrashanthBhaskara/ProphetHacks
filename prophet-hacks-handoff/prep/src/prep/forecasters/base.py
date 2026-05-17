@@ -41,17 +41,44 @@ def build_user_prompt(packet: MarketPacket) -> str:
     }
     schema = {
         "forecast": {
+            "prior_probabilities": {
+                outcome: "float 0.01-0.99 — market/base-rate prior before your evidence adjustment"
+                for outcome in packet.outcomes
+            },
+            "probability_adjustments": [
+                {
+                    "outcome": "one listed outcome or ALL",
+                    "delta": "signed float adjustment from prior to final probability",
+                    "reason": "one short source-backed reason",
+                },
+            ],
             "probabilities": probabilities_schema,
             "confidence": "float 0-1 — how confident you are in this distribution overall",
             "uncertainty": "float 0-1 — residual uncertainty after your reasoning",
-            "trade_recommendation": "BUY_YES, BUY_NO, BUY_YES_SMALL, BUY_NO_SMALL, or NO_TRADE (binary-market trading only)",
         },
         "reasoning_track": {
             "summary": "short thesis covering the whole distribution",
             "base_rate": "base-rate reasoning",
             "market_analysis": "how Kalshi price (if available) influenced your estimate",
             "context_market_analysis": "how related/sibling markets influenced your estimate, if provided",
-            "key_evidence": [{"claim": "...", "source": "...", "impact": "+0.03 to <outcome>"}],
+            "key_evidence": [
+                {
+                    "claim": "concise claim, <=160 chars",
+                    "source": "...",
+                    "source_type": "packet, context_market, official_primary, reputable_reporting, search_result, etc.",
+                    "source_timestamp": "ISO timestamp or date strictly before MARKET_PACKET.as_of",
+                    "impact": "+0.03 to <outcome>",
+                },
+            ],
+            "source_audit": [
+                {
+                    "source": "...",
+                    "source_timestamp": "ISO timestamp or date strictly before MARKET_PACKET.as_of",
+                    "cutoff_check": "concise proof source was observable before MARKET_PACKET.as_of",
+                    "used": "boolean",
+                    "reason": "why used or excluded, <=120 chars",
+                },
+            ],
             "counterarguments": [{"claim": "...", "impact": "-0.02 to <outcome>"}],
             "assumptions": ["..."],
             "information_gaps": ["..."],
@@ -62,16 +89,25 @@ def build_user_prompt(packet: MarketPacket) -> str:
             "rules_clarity": "low, medium, or high",
             "liquidity_quality": "low, medium, or high",
             "market_disagreement_reason": "short string",
-            "should_defer_to_market": "boolean (binary markets only)",
+            "should_defer_to_market": "boolean — true when market-implied or base-rate priors should dominate",
         },
     }
     outcome_list = ", ".join(repr(o) for o in packet.outcomes)
     return (
         f"Forecast this market. The event has {len(packet.outcomes)} possible outcomes: {outcome_list}. "
-        "Estimate the probability of each outcome. For mutually-exclusive outcomes the probabilities "
+        "Estimate the probability of each outcome. First set prior_probabilities from market_implied_probabilities "
+        "when available, otherwise from base rates and related-market constraints. Then make small, explicit "
+        "probability_adjustments only when timestamp-valid evidence justifies moving away from the prior. "
+        "For mutually-exclusive outcomes the final probabilities "
         "should be coherent (roughly sum to 1.0). For non-exclusive outcomes (rare) treat each as an "
         "independent binary.\n\n"
         f"MARKET_PACKET:\n{json.dumps(packet.to_dict(), indent=2, sort_keys=True)}\n\n"
+        "OUTPUT_BUDGET:\n"
+        "- Keep reasoning concise so the full JSON completes.\n"
+        "- key_evidence: at most 5 items.\n"
+        "- source_audit: at most 8 items.\n"
+        "- counterarguments, assumptions, information_gaps, what_would_change_my_mind: at most 3 items each.\n"
+        "- Each free-text field should be one short sentence.\n\n"
         f"REQUIRED_JSON_SCHEMA:\n{json.dumps(schema, indent=2)}"
     )
 
@@ -151,6 +187,7 @@ def forecast_from_response(
             market_analysis=str(reasoning.get("market_analysis", "")),
             context_market_analysis=str(reasoning.get("context_market_analysis", "")),
             key_evidence=list(reasoning.get("key_evidence") or []),
+            source_audit=list(reasoning.get("source_audit") or []),
             counterarguments=list(reasoning.get("counterarguments") or []),
             assumptions=list(reasoning.get("assumptions") or []),
             information_gaps=list(reasoning.get("information_gaps") or []),
@@ -180,6 +217,7 @@ class ForecasterConfig:
     reasoning_effort: str | None = None
     system_prompt: str | None = None
     system_prompt_path: str | None = None
+    enable_google_search: bool = False
     mock_edge_bps: float = 0.0
     # Claude agent fields
     backtest_mode: bool = False
@@ -204,6 +242,7 @@ class ForecasterConfig:
             reasoning_effort=data.get("reasoning_effort"),
             system_prompt=data.get("system_prompt"),
             system_prompt_path=data.get("system_prompt_path"),
+            enable_google_search=bool(data.get("enable_google_search", False)),
             mock_edge_bps=float(data.get("mock_edge_bps", 0.0)),
             backtest_mode=bool(data.get("backtest_mode", False)),
             evidence_cutoff=data.get("evidence_cutoff"),
