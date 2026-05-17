@@ -29,8 +29,8 @@ from ..schemas import (
     clamp_prob,
 )
 
-# Maximum Kalshi–Polymarket mid gap before excluding the Poly prior
-_MAX_KALSHI_POLY_GAP = 0.15
+# Maximum Kalshi–Polymarket mid gap before excluding the Poly prior (8pp)
+_MAX_KALSHI_POLY_GAP = 0.08
 from .base import (
     ForecasterConfig,
     forecast_from_response,
@@ -155,7 +155,7 @@ def _compute_prior(
     ask_sz = getattr(q, "yes_ask_size", None) or 0.0
     spread = q.spread or 0.0
 
-    k_micro = clamp_prob(_microprice(bid, ask, bid_sz, ask_sz) if (bid and ask) else q.market_mid)
+    k_micro = clamp_prob(q.multilevel_microprice(n=3) if q.yes_bid_levels else (_microprice(bid, ask, bid_sz, ask_sz) if (bid and ask) else q.market_mid))
     depth = bid_sz + ask_sz
     k_weight = math.exp(-spread / 0.05) * (min(1.0, depth / 5000) if depth > 0 else 0.5)
     k_weight = max(0.1, k_weight)
@@ -165,7 +165,7 @@ def _compute_prior(
 
     if use_polymarket and not backtest_mode:
         try:
-            priors = get_market_priors({"market_ticker": packet.market_ticker})
+            priors = get_market_priors(packet)
             if priors:
                 pq = priors[0].quote
                 pm_mid = pq.market_mid
@@ -292,7 +292,7 @@ def _call_openrouter(system: str, config: ForecasterConfig) -> str:
             "Content-Type": "application/json",
         },
         json=payload,
-        timeout=120,
+        timeout=480,
     )
     resp.raise_for_status()
     body = resp.json()
@@ -369,9 +369,12 @@ def forecast(config: ForecasterConfig, packet: MarketPacket) -> ModelForecast:
         evidence_cutoff = packet.as_of
 
     use_polymarket = bool(getattr(config, "use_polymarket_prior", True))
-    p_prior, sigma, poly_note = _compute_prior(packet, backtest_mode, use_polymarket)
-    regime = _classify(packet)
-    prior_weight = _compute_prior_weight(packet.kalshi.spread, regime["depth_total"], regime["ttc_band"])
+    p_prior, _, poly_note = _compute_prior(packet, backtest_mode, use_polymarket)
+    ttc_hours = time_to_close_hours(packet)
+
+    q = packet.kalshi
+    spread_pp = round((q.spread or 0.0) * 100, 1)
+    depth_usd = (getattr(q, "yes_bid_size", None) or 0.0) + (getattr(q, "yes_ask_size", None) or 0.0)
 
     mode_block = (
         _BACKTEST_MODE.format(cutoff=evidence_cutoff)
@@ -387,19 +390,15 @@ def forecast(config: ForecasterConfig, packet: MarketPacket) -> ModelForecast:
         "rules": packet.rules or "",
         "description": packet.retrieval.get("description") or "",
         "close_time": packet.close_time or "",
-        "prior": {
-            "p_yes": round(p_prior, 3),
-            "sigma": round(sigma, 3),
-            "prior_weight": round(prior_weight, 2),
-            "liquidity": regime["liquidity"],
-            "liquidity_explanation": regime["regime_explanation"],
-            "spread_pp": round(regime["spread_pp"], 1),
-            "depth_usd": regime["depth_total"],
-            "ttc_hours": round(regime["ttc_hours"], 1),
-            "ttc_band": regime["ttc_band"],
-            "ttc_explanation": regime["ttc_explanation"],
+        "market": {
+            "yes_bid": q.yes_bid,
+            "yes_ask": q.yes_ask,
+            "mid": round(p_prior, 3),
+            "spread_pp": spread_pp,
+            "open_interest": q.open_interest,
+            "depth_usd": round(depth_usd, 0),
+            "ttc_hours": round(ttc_hours, 1) if ttc_hours is not None else None,
             "polymarket": poly_note,
-            "recency_note": regime["recency_carveout_block"] or None,
         },
     }, indent=2)
 
@@ -409,6 +408,8 @@ def forecast(config: ForecasterConfig, packet: MarketPacket) -> ModelForecast:
         raw_text = _call_openrouter(system, config)
         raw = _extract_json(raw_text)
         result = _parse_response(config, packet, raw, p_prior)
+    except requests.Timeout:
+        result = _prior_result(config, packet, p_prior, "Timeout after 8 minutes — returning microprice prior")
     except Exception as exc:
         result = _prior_result(config, packet, p_prior, f"API error: {exc}")
 
