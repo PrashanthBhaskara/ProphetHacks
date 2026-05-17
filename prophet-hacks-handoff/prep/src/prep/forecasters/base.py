@@ -4,6 +4,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
+import os
+from concurrent.futures import (
+    ThreadPoolExecutor,
+    TimeoutError as FuturesTimeoutError,
+)
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -16,6 +22,15 @@ from prep.schemas import (
     ReasoningTrack,
     clamp_prob,
 )
+
+logger = logging.getLogger(__name__)
+
+# Per-lane wall-clock budget. Every dispatched forecaster gets at most this
+# long before we drop a market-mirror placeholder into the ensemble in its
+# place. The grok adapter has its own finer-grained 480s timeout internally
+# (per-request, bidir-aware); this is the outer safety net for every lane
+# including grok. Override with LANE_TIMEOUT_SECONDS.
+DEFAULT_LANE_TIMEOUT_SECONDS = 480.0
 
 
 SYSTEM_PROMPT = """\
@@ -297,16 +312,77 @@ def heuristic_trade_recommendation(p_yes: float, packet: MarketPacket, min_edge:
     return "NO_TRADE"
 
 
-def forecast_from_config(config: ForecasterConfig, packet: MarketPacket) -> ModelForecast:
+def _market_mirror_model_forecast(
+    config: ForecasterConfig,
+    packet: MarketPacket,
+    reason: str,
+) -> ModelForecast:
+    """Build a market-mirror ModelForecast for the lane-timeout path.
+
+    Binary YES/NO with Kalshi quote: probabilities track market_mid.
+    Multi-outcome (or non-Kalshi): uniform across packet.outcomes.
+
+    Marks `should_defer_to_market=True` so the ensemble aggregator weights
+    this lane down rather than treating it as an opinionated forecast.
+    """
+    outs = packet.outcomes or ["YES", "NO"]
+    kalshi = getattr(packet, "kalshi", None)
+    mid = 0.5
+    if kalshi is not None:
+        try:
+            mid = float(kalshi.market_mid)
+        except (TypeError, ValueError, AttributeError):
+            mid = 0.5
+
+    if tuple(outs) == ("YES", "NO"):
+        probs = {"YES": mid, "NO": 1.0 - mid}
+    else:
+        n = max(1, len(outs))
+        probs = {o: 1.0 / n for o in outs}
+
+    response = {
+        "forecast": {
+            "probabilities": probs,
+            "confidence": 0.30,
+            "uncertainty": 0.70,
+        },
+        "reasoning_track": {
+            "summary": f"Lane {config.name} hit wall-clock budget ({reason}); mirroring market.",
+            "base_rate": "",
+            "market_analysis": "Lane timeout: deferring to market price.",
+        },
+        "diagnostics": {
+            "evidence_quality": "low",
+            "rules_clarity": "medium",
+            "liquidity_quality": "medium",
+            "market_disagreement_reason": "",
+            "should_defer_to_market": True,
+        },
+        "lane_timeout": {"reason": reason},
+    }
+    return forecast_from_response(
+        provider=config.provider,
+        model_id=config.model,
+        packet=packet,
+        response=response,
+        raw_response={"lane_timeout": {"reason": reason}},
+    )
+
+
+def _dispatch_provider(config: ForecasterConfig):
+    """Resolve the provider-specific forecast() callable."""
     if config.provider == "mock":
         from .mock import forecast
-        return forecast(config, packet)
+        return forecast
     if config.provider == "gemini":
         from .gemini import forecast
-        return forecast(config, packet)
+        return forecast
     if config.provider == "openrouter":
         from .openrouter import forecast
-        return forecast(config, packet)
+        return forecast
+    if config.provider == "grok":
+        from .grok import forecast
+        return forecast
     if config.provider in (
         "claude_agent",
         "claude_filtered_research",
@@ -314,8 +390,38 @@ def forecast_from_config(config: ForecasterConfig, packet: MarketPacket) -> Mode
         "claude_grounded",
     ):
         from .claude_agent import forecast
-        return forecast(config, packet)
+        return forecast
     raise ValueError(f"Unknown forecaster provider: {config.provider}")
+
+
+def forecast_from_config(config: ForecasterConfig, packet: MarketPacket) -> ModelForecast:
+    """Run a provider-specific forecaster under an 8-minute wall-clock budget.
+
+    On timeout, returns a market-mirror ModelForecast so the ensemble still
+    receives a valid distribution from this lane. Other exceptions (unknown
+    provider, missing API key, parse failure) propagate to the caller; the
+    agent server's lane fan-out treats those as lane failures and excludes
+    them from the aggregate, which already falls back to the market anchor
+    when zero lanes succeed.
+    """
+    provider_forecast = _dispatch_provider(config)
+
+    budget = float(os.environ.get("LANE_TIMEOUT_SECONDS", DEFAULT_LANE_TIMEOUT_SECONDS))
+    pool = ThreadPoolExecutor(max_workers=1)
+    try:
+        fut = pool.submit(provider_forecast, config, packet)
+        try:
+            return fut.result(timeout=budget)
+        except FuturesTimeoutError:
+            logger.warning(
+                "lane %s (%s) exceeded %.0fs budget; returning market mirror",
+                config.name, config.provider, budget,
+            )
+            return _market_mirror_model_forecast(
+                config, packet, f"lane_timeout_{int(budget)}s"
+            )
+    finally:
+        pool.shutdown(wait=False, cancel_futures=True)
 
 
 def clamped_market_plus_edge(packet: MarketPacket, edge_bps: float) -> float:
