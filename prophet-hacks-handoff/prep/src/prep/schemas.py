@@ -37,6 +37,11 @@ class KalshiQuote:
     volume: float | None = None
     open_interest: float | None = None
     snapshot_time: str | None = None
+    yes_bid_size: float | None = None
+    yes_ask_size: float | None = None
+    # Top-N order book levels: list of (price, size) sorted best-first
+    yes_bid_levels: list[tuple[float, float]] = field(default_factory=list)
+    no_bid_levels: list[tuple[float, float]] = field(default_factory=list)
 
     @property
     def market_mid(self) -> float:
@@ -51,6 +56,32 @@ class KalshiQuote:
         if self.yes_ask is None or self.no_ask is None:
             return None
         return max(0.0, self.yes_ask + self.no_ask - 1.0)
+
+    def multilevel_microprice(self, n: int = 3) -> float:
+        """Volume-weighted microprice from the top-n bid and ask levels.
+
+        yes_bid_levels = [(price, size), ...] sorted best-bid first (descending price)
+        no_bid_levels  = [(price, size), ...] sorted best-ask first (ascending yes-ask price)
+        Falls back to the simple top-of-book microprice if level data is absent.
+        """
+        yes_levels = self.yes_bid_levels[:n]
+        no_levels = self.no_bid_levels[:n]
+        if not yes_levels or not no_levels:
+            return self.market_mid
+
+        bid_sz = sum(s for _, s in yes_levels)
+        ask_sz = sum(s for _, s in no_levels)
+        if bid_sz + ask_sz < 1.0:
+            return self.market_mid
+
+        vw_bid = sum(p * s for p, s in yes_levels) / bid_sz
+        # no_bid levels sorted descending by NO price; best NO bid → lowest YES ask = 1 - NO price
+        vw_ask = sum((1.0 - p) * s for p, s in no_levels) / ask_sz
+        # Microprice: weight mid toward whichever side has more size
+        mid = (vw_bid + vw_ask) / 2.0
+        imbalance = (ask_sz - bid_sz) / (bid_sz + ask_sz)
+        spread = max(0.0, vw_ask - vw_bid)
+        return clamp_prob(mid + imbalance * spread * 0.5)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
