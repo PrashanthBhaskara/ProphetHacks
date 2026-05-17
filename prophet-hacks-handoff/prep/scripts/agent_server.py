@@ -30,7 +30,7 @@ from concurrent.futures import (
 )
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
@@ -320,9 +320,10 @@ def _compute_ensemble(event: ArenaEvent, deadline: float) -> PredictionResponse:
 
 
 @app.post("/predict", response_model=PredictionResponse)
-def predict(event: ArenaEvent) -> PredictionResponse:
+async def predict(request: Request) -> PredictionResponse:
     """Wall-clock-bounded /predict.
 
+    Accepts either a single Event object or a list containing one Event object.
     Runs the full ensemble (lane fan-out + calibration + judge) inside a
     deadline. If the whole flow hasn't returned within ENSEMBLE_TIMEOUT_SECONDS
     (default 570s), we abandon it and return market price.
@@ -333,6 +334,23 @@ def predict(event: ArenaEvent) -> PredictionResponse:
     global _models, _calibration, _market_anchor_weight, _judge
     if not _models:
         _models, _calibration, _market_anchor_weight, _judge = _load_models()
+
+    try:
+        body = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON body")
+
+    if isinstance(body, list):
+        if not body:
+            raise HTTPException(status_code=422, detail="Event list is empty")
+        event_data = body[0]
+    else:
+        event_data = body
+
+    try:
+        event = ArenaEvent.model_validate(event_data)
+    except Exception as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
 
     budget = float(os.environ.get("ENSEMBLE_TIMEOUT_SECONDS", DEFAULT_ENSEMBLE_TIMEOUT_SECONDS))
     deadline = time.monotonic() + budget
