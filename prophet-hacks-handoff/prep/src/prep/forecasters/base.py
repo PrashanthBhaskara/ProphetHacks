@@ -234,6 +234,10 @@ class ForecasterConfig:
     system_prompt_path: str | None = None
     enable_google_search: bool = False
     mock_edge_bps: float = 0.0
+    adapter_config_path: str | None = None
+    deadline_seconds: float | None = None
+    use_live_data: bool | None = None
+    use_gpt: bool | None = None
     # Claude agent fields
     backtest_mode: bool = False
     evidence_cutoff: str | None = None  # ISO-8601 UTC or "auto" (uses packet.as_of)
@@ -259,6 +263,10 @@ class ForecasterConfig:
             system_prompt_path=data.get("system_prompt_path"),
             enable_google_search=bool(data.get("enable_google_search", False)),
             mock_edge_bps=float(data.get("mock_edge_bps", 0.0)),
+            adapter_config_path=data.get("adapter_config_path"),
+            deadline_seconds=None if data.get("deadline_seconds") is None else float(data.get("deadline_seconds")),
+            use_live_data=None if data.get("use_live_data") is None else bool(data.get("use_live_data")),
+            use_gpt=None if data.get("use_gpt") is None else bool(data.get("use_gpt")),
             backtest_mode=bool(data.get("backtest_mode", False)),
             evidence_cutoff=data.get("evidence_cutoff"),
             agent_prompt=data.get("agent_prompt"),
@@ -382,6 +390,9 @@ def _dispatch_provider(config: ForecasterConfig):
         return forecast
     if config.provider == "grok":
         from .grok import forecast
+        return forecast
+    if config.provider == "dhruv_gemini":
+        from .dhruv_gemini import forecast
         return forecast
     if config.provider in (
         "claude_agent",

@@ -39,6 +39,20 @@
       "system_prompt_path": "src/prep/forecasters/prompts/gemini_context_forecasting_system.txt"
     },
     {
+      "name": "dhruv_gemini_lane",
+      "provider": "dhruv_gemini",
+      "model": "gemini-3-flash-preview",
+      "api_key_env": "GEMINI_API_KEY",
+      "enabled": false,
+      "weight": 0.9,
+      "temperature": 0.1,
+      "max_tokens": 1100,
+      "enable_google_search": true,
+      "adapter_config_path": "config/dhruv_gemini.default.json",
+      "deadline_seconds": 480,
+      "use_live_data": false
+    },
+    {
       "name": "claude_lane",
       "provider": "openrouter",
       "model": "anthropic/claude-opus-4.7",
