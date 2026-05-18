@@ -23,6 +23,10 @@ TradeRecommendation = Literal["BUY_YES", "BUY_NO", "NO_TRADE", "BUY_YES_SMALL", 
 BINARY_OUTCOMES = ("YES", "NO")
 
 
+def is_yes_no_outcomes(outcomes: list[str] | tuple[str, ...]) -> bool:
+    return [str(outcome).casefold() for outcome in outcomes] == ["yes", "no"]
+
+
 def clamp_prob(value: float, lo: float = 0.01, hi: float = 0.99) -> float:
     return max(lo, min(hi, float(value)))
 
@@ -105,7 +109,7 @@ class MarketPacket:
 
     @property
     def is_binary(self) -> bool:
-        return tuple(self.outcomes) == BINARY_OUTCOMES
+        return is_yes_no_outcomes(self.outcomes)
 
     def to_dict(self) -> dict[str, Any]:
         data = asdict(self)

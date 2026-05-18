@@ -46,6 +46,7 @@ Aggregation guidance:
 - If the market packet contains market-implied probabilities and the council has weak evidence, defer to deterministic.
 - If market data is absent or thin and several members provide source-backed first-principles forecasts, give those members more influence.
 - Never let confidence alone drive the final distribution. Confidence must be justified by source quality and rule clarity.
+- Final threshold policy for mutually exclusive events only: after choosing the final judge distribution, if any one outcome is at or above 0.98, set that outcome to 1.0 and every other outcome to 0.0. Otherwise, set every outcome at or below 0.02 to 0.0 and redistribute the freed probability mass proportionally across the remaining outcomes so the distribution still sums to 1.0. If the redistribution pushes one remaining outcome to at least 0.98, set it to 1.0 and all others to 0.0. Do not apply this threshold policy to component, multilabel, or otherwise non-exclusive outcomes.
 
 Required output JSON:
 {
@@ -65,6 +66,7 @@ Output rules:
 - Include every required outcome exactly once in `probabilities`.
 - Use decimal floats between 0 and 1.
 - For mutually exclusive outcomes, make probabilities approximately sum to 1.0.
+- For mutually exclusive outcomes only, apply the final threshold policy described above to your returned `probabilities`.
 - For component or multilabel outcomes, use independent probabilities if AGGREGATION_INPUT indicates the outcomes are not exclusive.
 - Keep `rationale` concise and audit-oriented.
 - Keep `risk_notes` short; use an empty list if there are no material risks.

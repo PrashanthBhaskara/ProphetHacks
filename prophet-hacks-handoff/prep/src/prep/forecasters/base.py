@@ -21,6 +21,7 @@ from prep.schemas import (
     ModelForecast,
     ReasoningTrack,
     clamp_prob,
+    is_yes_no_outcomes,
     normalize_distribution,
 )
 
@@ -344,8 +345,8 @@ def _market_mirror_model_forecast(
         except (TypeError, ValueError, AttributeError):
             mid = 0.5
 
-    if tuple(outs) == ("YES", "NO"):
-        probs = {"YES": mid, "NO": 1.0 - mid}
+    if is_yes_no_outcomes(outs):
+        probs = {outs[0]: mid, outs[1]: 1.0 - mid}
     else:
         market_probs = packet.retrieval.get("market_implied_probabilities")
         if isinstance(market_probs, dict):

@@ -36,11 +36,16 @@ from pydantic import BaseModel
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from prep.calibration import CalibrationConfig  # noqa: E402
-from prep.ensemble import JudgeConfig, aggregate_forecasts, forecast_members_parallel  # noqa: E402
+from prep.ensemble import (  # noqa: E402
+    JudgeConfig,
+    aggregate_forecasts,
+    final_mutually_exclusive_probabilities,
+    forecast_members_parallel,
+)
 from prep.forecasters import ForecasterConfig  # noqa: E402
 from prep.kalshi import get_market, list_markets  # noqa: E402
 from prep.packets import packet_from_arena_event  # noqa: E402
-from prep.schemas import KalshiQuote, MarketPacket, normalize_distribution  # noqa: E402
+from prep.schemas import KalshiQuote, MarketPacket, is_yes_no_outcomes, normalize_distribution  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -172,6 +177,89 @@ def _market_mid(m: dict) -> float | None:
     return None
 
 
+def _flag_value(data: dict, *keys: str) -> bool | None:
+    for key in keys:
+        value = data.get(key)
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str):
+            folded = value.strip().lower()
+            if folded in {"true", "yes", "1", "mutually_exclusive", "exclusive"}:
+                return True
+            if folded in {"false", "no", "0", "non_exclusive", "non-exclusive", "multilabel", "multi_label", "component"}:
+                return False
+    return None
+
+
+def _is_mutually_exclusive_event(event: ArenaEvent, packet: MarketPacket) -> bool:
+    """Best-effort exclusivity check for the final output-only threshold policy."""
+    event_data = event.model_dump()
+    retrieval = getattr(packet, "retrieval", {}) or {}
+
+    explicit = _flag_value(
+        event_data,
+        "is_mutually_exclusive",
+        "mutually_exclusive",
+        "exclusive",
+    )
+    if explicit is not None:
+        return explicit
+    explicit = _flag_value(
+        retrieval,
+        "is_mutually_exclusive",
+        "mutually_exclusive",
+        "exclusive",
+    )
+    if explicit is not None:
+        return explicit
+
+    structure_values = [
+        event_data.get("event_structure"),
+        event_data.get("outcome_structure"),
+        event_data.get("outcome_type"),
+        event_data.get("resolution_type"),
+        retrieval.get("event_structure"),
+        retrieval.get("outcome_structure"),
+        retrieval.get("outcome_type"),
+        retrieval.get("resolution_type"),
+    ]
+    non_exclusive = {"component", "components", "multilabel", "multi_label", "non_exclusive", "non-exclusive", "independent", "independent_binary"}
+    exclusive = {"binary", "mutually_exclusive", "exclusive", "range_bucket", "threshold_ladder", "single_winner", "winner"}
+    for value in structure_values:
+        if not isinstance(value, str):
+            continue
+        folded = value.strip().lower()
+        if folded in non_exclusive:
+            return False
+        if folded in exclusive:
+            return True
+
+    text = " ".join(
+        str(part or "") for part in (
+            event.title,
+            event.subtitle,
+            event.description,
+            event.context,
+            event.rules,
+        )
+    ).lower()
+    if any(phrase in text for phrase in ("multiple outcomes can", "multiple labels can", "select all", "each outcome independently")):
+        return False
+
+    return len(event.outcomes) > 1
+
+
+def _final_response_distribution(
+    dist: dict[str, float],
+    outcomes: list[str],
+    *,
+    mutually_exclusive: bool,
+) -> dict[str, float]:
+    if mutually_exclusive:
+        return final_mutually_exclusive_probabilities(dist, outcomes)
+    return {outcome: float(dist.get(outcome, 0.0)) for outcome in outcomes}
+
+
 def _match_market(outcome: str, markets: list[dict]) -> dict | None:
     """Match an outcome label to its Kalshi market by searching title/subtitle."""
     outcome_lower = outcome.lower()
@@ -278,12 +366,12 @@ def _market_price_response(packet, outcomes: list[str]) -> PredictionResponse:
     only used when no current market information is available.
     """
     kalshi = getattr(packet, "kalshi", None)
-    if tuple(outcomes) == ("YES", "NO") and kalshi is not None:
+    if is_yes_no_outcomes(outcomes) and kalshi is not None:
         try:
             mid = float(kalshi.market_mid)
         except (TypeError, ValueError, AttributeError):
             mid = 0.5
-        dist = {"YES": mid, "NO": 1.0 - mid}
+        dist = {outcomes[0]: mid, outcomes[1]: 1.0 - mid}
     else:
         market_probs = getattr(packet, "retrieval", {}).get("market_implied_probabilities")
         if isinstance(market_probs, dict):
@@ -342,8 +430,15 @@ def _compute_ensemble(event: ArenaEvent, deadline: float) -> PredictionResponse:
         judge=_judge,
     )
 
-    # Map calibrated distribution onto the event's outcomes exactly (preserve order).
-    dist = supervisor.calibrated_probabilities
+    # Map final distribution onto the event's outcomes exactly (preserve order).
+    # The 98%/2% threshold policy is output-only and only applies to mutually
+    # exclusive events; lane forecasts and non-exclusive/component outputs keep
+    # their native probabilities.
+    dist = _final_response_distribution(
+        supervisor.calibrated_probabilities,
+        event.outcomes,
+        mutually_exclusive=_is_mutually_exclusive_event(event, packet),
+    )
     return PredictionResponse(
         probabilities=[
             OutcomeProbability(market=o, probability=float(dist.get(o, 0.0)))

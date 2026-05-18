@@ -125,7 +125,7 @@ def normalize_category(category: str | None, event_ticker: str | None = None) ->
 
 def classify_event_structure(outcomes: list[str], title: str = "", rules: str | None = None) -> EventStructure:
     labels = " ".join(outcomes + [title, rules or ""]).lower()
-    if outcomes == ["YES", "NO"]:
+    if [str(outcome).casefold() for outcome in outcomes] == ["yes", "no"]:
         return "binary"
     if any(token in labels for token in ("above", "over", "under", "below", "at least", "less than", ">")):
         return "threshold_ladder"

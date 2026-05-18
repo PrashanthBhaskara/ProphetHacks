@@ -42,6 +42,7 @@ from .base import (
     system_prompt_for_config,
 )
 from prep.schemas import MarketPacket, normalize_distribution
+from prep.schemas import is_yes_no_outcomes
 
 
 OPENROUTER_CHAT_COMPLETIONS = "https://openrouter.ai/api/v1/chat/completions"
@@ -106,7 +107,7 @@ def _resolve_system_prompt(config: ForecasterConfig) -> str:
 
 def _bidir_enabled(config: ForecasterConfig, packet: MarketPacket) -> bool:
     """Bidirectional prompting only makes sense for binary YES/NO markets."""
-    if tuple(packet.outcomes) != ("YES", "NO"):
+    if not is_yes_no_outcomes(packet.outcomes):
         return False
     raw = getattr(config, "extra", None) or {}
     if isinstance(raw, dict) and "bidir" in raw:
@@ -173,8 +174,8 @@ def _market_mirror_response(packet: MarketPacket, reason: str) -> dict:
         except (TypeError, ValueError, AttributeError):
             mid = 0.5
 
-    if outs == ("YES", "NO"):
-        probs = {"YES": mid, "NO": 1.0 - mid}
+    if is_yes_no_outcomes(outs):
+        probs = {outs[0]: mid, outs[1]: 1.0 - mid}
     else:
         market_probs = packet.retrieval.get("market_implied_probabilities")
         if isinstance(market_probs, dict):

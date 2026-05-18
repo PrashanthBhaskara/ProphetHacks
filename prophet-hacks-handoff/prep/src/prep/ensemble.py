@@ -27,11 +27,14 @@ from .schemas import (
     ModelForecast,
     SupervisorForecast,
     clamp_prob,
+    is_yes_no_outcomes,
     normalize_distribution,
 )
 
 
 OPENROUTER_CHAT_COMPLETIONS = "https://openrouter.ai/api/v1/chat/completions"
+FINAL_HIGH_CONFIDENCE_THRESHOLD = 0.98
+FINAL_LOW_CONFIDENCE_THRESHOLD = 0.02
 
 
 @dataclass
@@ -217,7 +220,7 @@ def _aligned_distribution(
     fallback: dict[str, float],
 ) -> dict[str, float]:
     """Project any lane distribution onto the canonical outcome labels."""
-    is_binary = tuple(outcomes) == ("YES", "NO")
+    is_binary = is_yes_no_outcomes(outcomes)
     n = max(1, len(outcomes))
     uniform = 1.0 / n
     aligned = {}
@@ -250,7 +253,7 @@ def _pool_distributions(
         return {}
     n = len(outcomes)
     uniform = 1.0 / n
-    is_binary = tuple(outcomes) == ("YES", "NO")
+    is_binary = is_yes_no_outcomes(outcomes)
     raw: dict[str, float] = {}
     for outcome in outcomes:
         weighted_sum = 0.0
@@ -272,6 +275,68 @@ def _pool_distributions(
         else:
             raw[outcome] = inv_logit(weighted_sum / total_w)
     return normalize_distribution(raw)
+
+
+def final_mutually_exclusive_probabilities(
+    probs: dict[str, float],
+    outcomes: list[str],
+    *,
+    high_threshold: float = FINAL_HIGH_CONFIDENCE_THRESHOLD,
+    low_threshold: float = FINAL_LOW_CONFIDENCE_THRESHOLD,
+) -> dict[str, float]:
+    """Apply final-only thresholding for mutually exclusive output distributions.
+
+    This intentionally does not use `normalize_distribution`, because the shared
+    schema normalizer clamps probabilities away from exact 0/1 for internal
+    model and audit stability. The Prophet Arena response can emit exact 0/1
+    when the final ensemble distribution crosses the requested thresholds.
+    """
+    if not outcomes:
+        return {}
+
+    cleaned: dict[str, float] = {}
+    for outcome in outcomes:
+        try:
+            value = float(probs.get(outcome, 0.0))
+        except (TypeError, ValueError):
+            value = 0.0
+        cleaned[outcome] = max(0.0, min(1.0, value))
+
+    total = sum(cleaned.values())
+    if total <= 0.0:
+        share = 1.0 / len(outcomes)
+        normalized = {outcome: share for outcome in outcomes}
+    else:
+        normalized = {outcome: value / total for outcome, value in cleaned.items()}
+
+    top_outcome = max(outcomes, key=lambda outcome: normalized.get(outcome, 0.0))
+    if normalized[top_outcome] >= high_threshold:
+        return {outcome: 1.0 if outcome == top_outcome else 0.0 for outcome in outcomes}
+
+    low_outcomes = {
+        outcome for outcome, value in normalized.items()
+        if value <= low_threshold
+    }
+    if not low_outcomes:
+        return normalized
+    if len(low_outcomes) == len(outcomes):
+        return normalized
+
+    remaining_total = sum(
+        value for outcome, value in normalized.items()
+        if outcome not in low_outcomes
+    )
+    if remaining_total <= 0.0:
+        return normalized
+
+    adjusted = {
+        outcome: 0.0 if outcome in low_outcomes else normalized[outcome] / remaining_total
+        for outcome in outcomes
+    }
+    top_after_adjustment = max(outcomes, key=lambda outcome: adjusted.get(outcome, 0.0))
+    if adjusted[top_after_adjustment] >= high_threshold:
+        return {outcome: 1.0 if outcome == top_after_adjustment else 0.0 for outcome in outcomes}
+    return adjusted
 
 
 def _json_excerpt(value: Any, *, max_chars: int = 1200) -> Any:
@@ -332,7 +397,19 @@ def _judge_prompt(
         "retrieval": {
             key: _json_excerpt(value)
             for key, value in packet.retrieval.items()
-            if key in {"description", "sources", "market_data", "market_implied_probabilities"}
+            if key in {
+                "description",
+                "sources",
+                "market_data",
+                "market_implied_probabilities",
+                "is_mutually_exclusive",
+                "mutually_exclusive",
+                "exclusive",
+                "event_structure",
+                "outcome_structure",
+                "outcome_type",
+                "resolution_type",
+            }
         },
     }
     payload = {
@@ -511,10 +588,11 @@ def aggregate_forecasts(
     calibration = calibration or CalibrationConfig()
     # Calibration shrinks each outcome toward the market anchor by the same
     # per-event weight. Multi-outcome non-Kalshi events get the uniform anchor.
-    if tuple(outcomes) == ("YES", "NO") and packet.kalshi is not None and packet.kalshi.market_mid != 0.5:
+    if is_yes_no_outcomes(outcomes) and packet.kalshi is not None and packet.kalshi.market_mid != 0.5:
         # Reuse existing binary calibrate_to_market on YES side, mirror to NO
-        cal_yes, shrink_weight = calibrate_to_market(raw_dist.get("YES", 0.5), packet, calibration)
-        calibrated_dist = normalize_distribution({"YES": cal_yes, "NO": 1.0 - cal_yes})
+        yes_label, no_label = outcomes[0], outcomes[1]
+        cal_yes, shrink_weight = calibrate_to_market(raw_dist.get(yes_label, 0.5), packet, calibration)
+        calibrated_dist = normalize_distribution({yes_label: cal_yes, no_label: 1.0 - cal_yes})
     else:
         # Multi-outcome shrinkage: pull each prob toward the market anchor.
         # Use market_implied_probabilities from retrieval when available (populated

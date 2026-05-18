@@ -75,7 +75,7 @@ class FeaturePacket:
 
     @property
     def is_binary_yes_no(self) -> bool:
-        return self.outcomes == ["YES", "NO"]
+        return [str(outcome).casefold() for outcome in self.outcomes] == ["yes", "no"]
 
     def compact_dict(self) -> dict[str, Any]:
         return {

@@ -15,7 +15,19 @@ def packet_from_arena_event(arena_event: dict) -> MarketPacket:
     only needs the event fields + outcomes.
     """
     retrieval = dict(arena_event.get("retrieval") or {})
-    for key in ("description", "sources", "market_data", "market_implied_probabilities"):
+    for key in (
+        "description",
+        "sources",
+        "market_data",
+        "market_implied_probabilities",
+        "is_mutually_exclusive",
+        "mutually_exclusive",
+        "exclusive",
+        "event_structure",
+        "outcome_structure",
+        "outcome_type",
+        "resolution_type",
+    ):
         if arena_event.get(key) is not None and key not in retrieval:
             retrieval[key] = arena_event.get(key)
     return MarketPacket(
