@@ -405,6 +405,9 @@ def _dispatch_provider(config: ForecasterConfig):
     if config.provider == "dhruv_gemini":
         from .dhruv_gemini import forecast
         return forecast
+    if config.provider == "claude_agent":
+        from .claude import forecast
+        return forecast
     raise ValueError(f"Unknown forecaster provider: {config.provider}")
 
 

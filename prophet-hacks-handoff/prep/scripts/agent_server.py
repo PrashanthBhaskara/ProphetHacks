@@ -328,14 +328,17 @@ def _enrich_packet(packet: MarketPacket) -> MarketPacket:
             if m is None:
                 continue
             mid = _market_mid(m)
+            # Kalshi floor: bid=0, ask=0.01 → mid=0.005. Anything at or below
+            # the minimum tick is a confirmed-eliminated outcome; store as 0.0
+            # so models and the logit pool don't treat it as a live signal.
             if mid is not None:
-                implied[outcome] = round(mid, 4)
+                implied[outcome] = 0.0 if mid <= 0.01 else round(mid, 4)
             market_data.append({
                 "outcome": outcome,
                 "ticker": m.get("ticker"),
                 "yes_bid": _f(m.get("yes_bid_dollars")),
                 "yes_ask": _f(m.get("yes_ask_dollars")),
-                "mid": mid,
+                "mid": 0.0 if (mid is not None and mid <= 0.01) else mid,
                 "volume": _f(m.get("volume_fp")),
                 "open_interest": _f(m.get("open_interest_fp")),
             })

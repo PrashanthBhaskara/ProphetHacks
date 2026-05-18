@@ -120,16 +120,20 @@ class MarketPacket:
 def normalize_distribution(probs: dict[str, float]) -> dict[str, float]:
     """Clamp each prob into [0.01, 0.99] then renormalize so they sum to 1.0.
 
+    Exact 0.0 values are treated as confirmed-eliminated outcomes and are
+    preserved as-is (not clamped to 0.01). Renormalization only applies to
+    the non-zero outcomes.
+
     The Prophet Arena scorer normalizes before scoring anyway, but doing it
     locally keeps reasoning interpretable and tests deterministic.
     """
     if not probs:
         return {}
-    clamped = {k: clamp_prob(v) for k, v in probs.items()}
+    clamped = {k: (0.0 if v == 0.0 else clamp_prob(v)) for k, v in probs.items()}
     s = sum(clamped.values())
     if s <= 0:
         return clamped
-    return {k: v / s for k, v in clamped.items()}
+    return {k: (0.0 if v == 0.0 else v / s) for k, v in clamped.items()}
 
 
 @dataclass

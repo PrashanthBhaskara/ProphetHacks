@@ -30,15 +30,14 @@
     },
     {
       "name": "claude_lane",
-      "provider": "openrouter",
-      "model": "anthropic/claude-sonnet-4-6",
+      "provider": "claude_agent",
+      "model": "anthropic/claude-sonnet-4-6:online",
       "api_key_env": "OPENROUTER_API_KEY",
       "api_key_fallback_envs": ["OPENROUTER_API_KEY2"],
       "enabled": true,
       "weight": 1.0,
-      "temperature": 0.1,
-      "max_tokens": 3800,
-      "reasoning_effort": "medium"
+      "temperature": 0.0,
+      "max_tokens": 4000
     },
     {
       "name": "grok_lane",

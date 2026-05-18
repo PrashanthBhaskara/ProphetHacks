@@ -509,6 +509,28 @@ def _call_judge_llm(
     return parsed
 
 
+def _apply_eliminated_mask(
+    dist: dict[str, float],
+    outcomes: list[str],
+    market_implied: dict[str, float],
+    *,
+    floor: float = 0.01,
+) -> dict[str, float]:
+    """Zero outcomes that Kalshi prices at or below the minimum tick.
+
+    A Kalshi mid of ≤ 0.01 means bid=0, ask=0.01 — the market's way of saying
+    the outcome is confirmed eliminated. We preserve these as exact 0.0 so they
+    don't dilute probability mass for outcomes still in play.
+    Only applied to multi-outcome events where market data is available.
+    """
+    if not market_implied or is_yes_no_outcomes(outcomes):
+        return dist
+    zeroed = {o for o in outcomes if float(market_implied.get(o, 1.0)) <= floor}
+    if not zeroed or len(zeroed) >= len(outcomes):
+        return dist
+    return normalize_distribution({o: (0.0 if o in zeroed else v) for o, v in dist.items()})
+
+
 def _apply_judge(
     packet: MarketPacket,
     members: list[EnsembleMember],
@@ -606,6 +628,13 @@ def aggregate_forecasts(
             )
             for o in outcomes
         })
+
+    # Zero out Kalshi-confirmed eliminated outcomes so they don't dilute the
+    # live contenders. Must run after calibration so the shrinkage math uses
+    # the real Kalshi floor values, not zeros.
+    market_implied_for_mask = packet.retrieval.get("market_implied_probabilities") or {}
+    raw_dist = _apply_eliminated_mask(raw_dist, outcomes, market_implied_for_mask)
+    calibrated_dist = _apply_eliminated_mask(calibrated_dist, outcomes, market_implied_for_mask)
 
     judge_result: dict[str, Any] | None = None
     judge_confidence: float | None = None
