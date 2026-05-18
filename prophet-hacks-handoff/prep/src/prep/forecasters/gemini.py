@@ -21,6 +21,15 @@ from prep.schemas import MarketPacket
 
 
 GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+GOOGLE_SEARCH_GROUNDING_INSTRUCTION = """
+
+Google Search grounding is required for this live forecast. Use it to check
+current, timestamped source-of-truth facts before setting probabilities. Prefer
+official sources, primary releases, market pages, league/team sources, filings,
+and reputable reporting. Include source names, timestamps, and why each source
+was used or excluded in source_audit. If Search returns weak or conflicting
+evidence, say so and shrink toward the Kalshi market-implied prior.
+"""
 
 
 class GeminiParseError(RuntimeError):
@@ -63,6 +72,50 @@ def _response_text(raw: dict) -> str:
 
 def _finish_reason(raw: dict) -> str | None:
     return raw.get("candidates", [{}])[0].get("finishReason")
+
+
+def _grounding_enabled(config: ForecasterConfig) -> bool:
+    return bool(config.enable_google_search or config.require_google_search_grounding)
+
+
+def _grounded_system_prompt(config: ForecasterConfig) -> str:
+    prompt = system_prompt_for_config(config)
+    if _grounding_enabled(config):
+        return prompt + GOOGLE_SEARCH_GROUNDING_INSTRUCTION
+    return prompt
+
+
+def _grounding_summary(raw: dict, *, enabled: bool, required: bool) -> dict:
+    candidate = (raw.get("candidates") or [{}])[0]
+    grounding = candidate.get("groundingMetadata") if isinstance(candidate, dict) else None
+    if not isinstance(grounding, dict):
+        return {
+            "enabled": enabled,
+            "required": required,
+            "present": False,
+            "web_search_queries": [],
+            "sources": [],
+        }
+    chunks = grounding.get("groundingChunks") or []
+    sources = []
+    for chunk in chunks:
+        if not isinstance(chunk, dict):
+            continue
+        web = chunk.get("web") or {}
+        if isinstance(web, dict):
+            sources.append({
+                "title": web.get("title"),
+                "uri": web.get("uri"),
+                "domain": web.get("domain"),
+            })
+    return {
+        "enabled": enabled,
+        "required": required,
+        "present": True,
+        "web_search_queries": grounding.get("webSearchQueries") or [],
+        "sources": sources[:12],
+        "support_count": len(grounding.get("groundingSupports") or []),
+    }
 
 
 def _balanced_object_at(text: str, start: int) -> str | None:
@@ -199,7 +252,8 @@ def _repair_json_response(
 
 def forecast(config: ForecasterConfig, packet: MarketPacket):
     url = GEMINI_ENDPOINT.format(model=config.model)
-    system_prompt = system_prompt_for_config(config)
+    grounding_enabled = _grounding_enabled(config)
+    system_prompt = _grounded_system_prompt(config)
     payload = {
         "systemInstruction": {"parts": [{"text": system_prompt}]},
         "contents": [{"role": "user", "parts": [{"text": build_user_prompt(packet)}]}],
@@ -209,7 +263,7 @@ def forecast(config: ForecasterConfig, packet: MarketPacket):
             "responseMimeType": "application/json",
         },
     }
-    if config.enable_google_search:
+    if grounding_enabled:
         payload["tools"] = [{"google_search": {}}]
     raw = _post_generate(url, config, payload)
     text = _response_text(raw)
@@ -246,5 +300,10 @@ def forecast(config: ForecasterConfig, packet: MarketPacket):
             "repair_api_response": repair_raw,
             "parsed_response": parsed,
             "recovered_from_truncation": recovered_from_truncation,
+            "grounding": _grounding_summary(
+                raw,
+                enabled=grounding_enabled,
+                required=config.require_google_search_grounding,
+            ),
         },
     )

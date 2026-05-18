@@ -1,0 +1,48 @@
+# Render Blueprint: Prophet Hacks forecast agent.
+#
+# Deploys prophet-hacks-handoff/prep/scripts/agent_server.py.
+# POST /predict returns:
+#   {"probabilities": [{"market": <str>, "probability": <float>}, ...]}
+#
+# Secrets must be configured in Render, not committed:
+#   GEMINI_API_KEY, OPENROUTER_API_KEY_1, OPENROUTER_API_KEY
+# Optional fallbacks:
+#   GOOGLE_API_KEY, GEMINI_API_KEY1, GEMINI_API_KEY2, OPENROUTER_API_KEY2
+
+services:
+  - type: web
+    name: prophet-hacks-forecast
+    runtime: python
+    region: oregon
+    plan: free
+    branch: main
+    rootDir: prophet-hacks-handoff/prep
+    autoDeploy: true
+    healthCheckPath: /health
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: uvicorn scripts.agent_server:app --host 0.0.0.0 --port $PORT --workers 1 --log-level info
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: PROPHET_CONFIG
+        value: config/FINAL.json
+      - key: ENSEMBLE_TIMEOUT_SECONDS
+        value: "585"
+      - key: LANE_TIMEOUT_SECONDS
+        value: "450"
+      - key: GROK_TIMEOUT_SECONDS
+        value: "450"
+      - key: KALSHI_TIMEOUT_SECONDS
+        value: "5"
+      - key: KALSHI_MAX_ATTEMPTS
+        value: "2"
+      - key: ARENA_ENABLE_LIVE_DATA
+        value: "1"
+      - key: ARENA_ENABLE_GROUNDED_RESEARCH
+        value: "1"
+      - key: ARENA_ENABLE_BACKTEST_INTERNET
+        value: "0"
+      - key: ARENA_LIVE_PIT_EXTERNAL_NETWORK
+        value: "0"
+      - key: ARENA_RESPONSE_DEADLINE_SECONDS
+        value: "450"

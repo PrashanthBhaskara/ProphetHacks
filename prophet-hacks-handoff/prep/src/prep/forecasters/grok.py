@@ -41,7 +41,7 @@ from .base import (
     stable_prompt_hash,
     system_prompt_for_config,
 )
-from prep.schemas import MarketPacket
+from prep.schemas import MarketPacket, normalize_distribution
 
 
 OPENROUTER_CHAT_COMPLETIONS = "https://openrouter.ai/api/v1/chat/completions"
@@ -49,7 +49,7 @@ OPENROUTER_CHAT_COMPLETIONS = "https://openrouter.ai/api/v1/chat/completions"
 # Wall-clock budget for the whole Grok lane (covers bidir's two calls + parsing).
 # On timeout we fall back to a market-mirror forecast so the ensemble still has
 # a valid distribution to aggregate. Override with GROK_TIMEOUT_SECONDS.
-DEFAULT_TIMEOUT_BUDGET_SECONDS = 480.0
+DEFAULT_TIMEOUT_BUDGET_SECONDS = 450.0
 
 
 # Trust-extreme calibration guidance. Composed with the team's structured user
@@ -176,8 +176,19 @@ def _market_mirror_response(packet: MarketPacket, reason: str) -> dict:
     if outs == ("YES", "NO"):
         probs = {"YES": mid, "NO": 1.0 - mid}
     else:
-        n = max(1, len(outs))
-        probs = {o: 1.0 / n for o in outs}
+        market_probs = packet.retrieval.get("market_implied_probabilities")
+        if isinstance(market_probs, dict):
+            n = max(1, len(outs))
+            raw = {}
+            for outcome in outs:
+                try:
+                    raw[outcome] = float(market_probs.get(outcome, 1.0 / n))
+                except (TypeError, ValueError):
+                    raw[outcome] = 1.0 / n
+            probs = normalize_distribution(raw)
+        else:
+            n = max(1, len(outs))
+            probs = {o: 1.0 / n for o in outs}
 
     return {
         "forecast": {
@@ -330,7 +341,7 @@ def forecast(config: ForecasterConfig, packet: MarketPacket):
                 raw_response={"filter_skip": {"reason": reason}},
             )
 
-    # 8-minute wall-clock budget across the whole lane. On timeout (or any
+    # 7.5-minute wall-clock budget across the whole lane. On timeout (or any
     # transport-level failure during a call), fall back to market mirror so the
     # ensemble still gets a valid distribution.
     budget = float(os.environ.get("GROK_TIMEOUT_SECONDS", DEFAULT_TIMEOUT_BUDGET_SECONDS))

@@ -5,7 +5,7 @@ Matches the wire contract from https://prophetarena.co/developer :
   - Returns {"probabilities": [{"market": <outcome_label>, "probability": <float>}, ...]}
 
 Behavior:
-  - Loads `config/ensemble.example.json` (or path from PROPHET_CONFIG env var)
+  - Loads `config/FINAL.json` (or path from PROPHET_CONFIG env var)
   - Runs every enabled forecaster lane in parallel via ThreadPoolExecutor
   - Aggregates with the existing ensemble + calibration stack
   - Returns the calibrated distribution, mapping back onto the event's `outcomes`
@@ -40,7 +40,7 @@ from prep.ensemble import JudgeConfig, aggregate_forecasts, forecast_members_par
 from prep.forecasters import ForecasterConfig  # noqa: E402
 from prep.kalshi import get_market, list_markets  # noqa: E402
 from prep.packets import packet_from_arena_event  # noqa: E402
-from prep.schemas import KalshiQuote, MarketPacket  # noqa: E402
+from prep.schemas import KalshiQuote, MarketPacket, normalize_distribution  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -48,11 +48,10 @@ DEFAULT_CONFIG_PATH = Path(__file__).resolve().parents[1] / "config" / "FINAL.js
 CONFIG_PATH = Path(os.environ.get("PROPHET_CONFIG", DEFAULT_CONFIG_PATH))
 
 # Wall-clock budget for the entire /predict call (lane fan-out + aggregation +
-# judge). 9m30s — leaves ~90s of slack over the grok lane's 8-minute budget so
-# a stuck grok call can fall back cleanly before the outer deadline fires.
-# On timeout we return market price: market_mid for binary Kalshi events,
-# uniform across `outcomes` otherwise. Override with ENSEMBLE_TIMEOUT_SECONDS.
-DEFAULT_ENSEMBLE_TIMEOUT_SECONDS = 570.0
+# judge). 9m45s keeps the whole call under the 10-minute Prophet Arena ceiling
+# after 7.5-minute lane budgets and a 2-minute judge budget. On timeout we
+# return the current Kalshi market-implied distribution when available.
+DEFAULT_ENSEMBLE_TIMEOUT_SECONDS = 585.0
 
 
 # --- Wire schema (Prophet Arena dev docs) ---------------------------------
@@ -172,7 +171,7 @@ def _enrich_packet(packet: MarketPacket) -> MarketPacket:
 
     try:
         # --- Binary: try fetching by market_ticker first ---
-        if market_ticker:
+        if packet.is_binary and market_ticker and market_ticker.startswith("KX"):
             market = get_market(market_ticker)
             if market:
                 packet.kalshi = KalshiQuote(
@@ -200,6 +199,8 @@ def _enrich_packet(packet: MarketPacket) -> MarketPacket:
         # --- Multi-outcome: fetch all markets under the event ---
         ticker = event_ticker or market_ticker
         if not ticker:
+            return packet
+        if not ticker.startswith("KX"):
             return packet
 
         markets = list_markets(event_ticker=ticker, status=None, limit=100)
@@ -248,8 +249,9 @@ def _market_price_response(packet, outcomes: list[str]) -> PredictionResponse:
     """Build a market-price response mapped onto `outcomes`.
 
     Used as the timeout/error fallback. Binary YES/NO events with a Kalshi
-    quote return market_mid; everything else returns uniform across outcomes
-    (best we can do when no market price is available).
+    quote return market_mid. Multi-outcome events use live
+    market_implied_probabilities when Kalshi enrichment found them. Uniform is
+    only used when no current market information is available.
     """
     kalshi = getattr(packet, "kalshi", None)
     if tuple(outcomes) == ("YES", "NO") and kalshi is not None:
@@ -259,8 +261,19 @@ def _market_price_response(packet, outcomes: list[str]) -> PredictionResponse:
             mid = 0.5
         dist = {"YES": mid, "NO": 1.0 - mid}
     else:
-        share = 1.0 / max(1, len(outcomes))
-        dist = {o: share for o in outcomes}
+        market_probs = getattr(packet, "retrieval", {}).get("market_implied_probabilities")
+        if isinstance(market_probs, dict):
+            share = 1.0 / max(1, len(outcomes))
+            raw = {}
+            for outcome in outcomes:
+                try:
+                    raw[outcome] = float(market_probs.get(outcome, share))
+                except (TypeError, ValueError):
+                    raw[outcome] = share
+            dist = normalize_distribution(raw)
+        else:
+            share = 1.0 / max(1, len(outcomes))
+            dist = {o: share for o in outcomes}
     return PredictionResponse(
         probabilities=[
             OutcomeProbability(market=o, probability=float(dist.get(o, 0.0)))
@@ -280,15 +293,12 @@ def _compute_ensemble(event: ArenaEvent, deadline: float) -> PredictionResponse:
     packet = _enrich_packet(packet)
 
     if not _models:
-        # No lanes enabled — uniform over outcomes is the best we can do.
-        share = 1.0 / max(1, len(event.outcomes))
-        return PredictionResponse(
-            probabilities=[OutcomeProbability(market=o, probability=share) for o in event.outcomes]
-        )
+        logger.warning("no lanes enabled for %s; returning market fallback", packet.market_ticker)
+        return _market_price_response(packet, event.outcomes)
 
     # Inner parallel exec is delegated to forecast_members_parallel. Per-lane
-    # 8-minute budgets live in forecasters/base.py's forecast_from_config; the
-    # outer 9m30s budget is enforced by predict_endpoint via fut.result(timeout=).
+    # 7.5-minute budgets live in forecasters/base.py's forecast_from_config; the
+    # outer 9m45s budget is enforced by predict_endpoint via fut.result(timeout=).
     run = forecast_members_parallel(_models, packet, continue_on_error=True)
     forecasts = run.members
     errors = run.errors
@@ -296,10 +306,9 @@ def _compute_ensemble(event: ArenaEvent, deadline: float) -> PredictionResponse:
         logger.warning("lane failed: %s", error)
 
     if not forecasts:
-        # All lanes failed or timed out. Don't 502 the eval — degrade to the
-        # anchor distribution that the empty-members path in aggregate_forecasts
-        # already produces (market_mid for binary Kalshi, uniform otherwise).
+        # All lanes failed or timed out. Use the live Kalshi fallback directly.
         logger.warning("all lanes failed for %s: %s", packet.market_ticker, "; ".join(errors))
+        return _market_price_response(packet, event.outcomes)
 
     supervisor = aggregate_forecasts(
         packet,
@@ -325,7 +334,7 @@ def predict_endpoint(event: ArenaEvent) -> PredictionResponse:
 
     Runs the full ensemble (lane fan-out + calibration + judge) inside a
     deadline. If the whole flow hasn't returned within ENSEMBLE_TIMEOUT_SECONDS
-    (default 480s = 8 min), we abandon it and return market price.
+    (default 585s = 9m45s), we abandon it and return market price.
     """
     budget = float(os.environ.get("ENSEMBLE_TIMEOUT_SECONDS", DEFAULT_ENSEMBLE_TIMEOUT_SECONDS))
     deadline = time.monotonic() + budget
@@ -336,14 +345,14 @@ def predict_endpoint(event: ArenaEvent) -> PredictionResponse:
         try:
             return fut.result(timeout=budget)
         except FuturesTimeoutError:
-            packet = packet_from_arena_event(event.model_dump())
+            packet = _fallback_packet(event)
             logger.warning(
                 "ensemble exceeded %.0fs budget for %s; returning market price",
                 budget, packet.market_ticker,
             )
             return _market_price_response(packet, event.outcomes)
         except Exception as exc:  # noqa: BLE001
-            packet = packet_from_arena_event(event.model_dump())
+            packet = _fallback_packet(event)
             logger.exception(
                 "ensemble raised %s for %s; returning market price",
                 type(exc).__name__, packet.market_ticker,
@@ -351,6 +360,15 @@ def predict_endpoint(event: ArenaEvent) -> PredictionResponse:
             return _market_price_response(packet, event.outcomes)
     finally:
         supervisor_pool.shutdown(wait=False, cancel_futures=True)
+
+
+def _fallback_packet(event: ArenaEvent) -> MarketPacket:
+    packet = packet_from_arena_event(event.model_dump())
+    try:
+        return _enrich_packet(packet)
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("fallback Kalshi enrichment failed for %s: %s", packet.market_ticker, exc)
+        return packet
 
 
 # --- Local predict() entrypoint for `prophet forecast predict --local` ---

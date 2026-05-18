@@ -15,7 +15,7 @@ from __future__ import annotations
 import json
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -66,7 +66,8 @@ class JudgeConfig:
     enabled: bool = False
     provider: str = "openrouter"
     model: str = "openai/gpt-5.4"
-    api_key_env: str = "OPENROUTER_API_KEY_JUDGE"
+    api_key_env: str = "OPENROUTER_API_KEY"
+    api_key_fallback_envs: list[str] = field(default_factory=list)
     system_prompt_path: str = "src/prep/forecasters/prompts/judge_aggregator_system.md"
     temperature: float = 0.0
     max_tokens: int = 1400
@@ -81,7 +82,8 @@ class JudgeConfig:
             enabled=bool(data.get("enabled", False)),
             provider=str(data.get("provider", "openrouter")),
             model=str(data.get("model", "openai/gpt-5.4")),
-            api_key_env=str(data.get("api_key_env", "OPENROUTER_API_KEY_JUDGE")),
+            api_key_env=str(data.get("api_key_env", "OPENROUTER_API_KEY")),
+            api_key_fallback_envs=list(data.get("api_key_fallback_envs") or []),
             system_prompt_path=str(data.get("system_prompt_path", "src/prep/forecasters/prompts/judge_aggregator_system.md")),
             temperature=float(data.get("temperature", 0.0)),
             max_tokens=int(data.get("max_tokens", 1400)),
@@ -171,12 +173,23 @@ def _anchor_distribution(packet: MarketPacket) -> dict[str, float]:
     """Prior distribution used as the market-anchor in the logit pool.
 
     Binary Kalshi events: YES = market_mid, NO = 1 - market_mid.
-    Multi-outcome: uniform over the listed outcomes.
+    Multi-outcome: live market-implied probabilities when available, otherwise
+    uniform over the listed outcomes.
     """
     outs = packet.outcomes or ["YES", "NO"]
     if tuple(outs) == ("YES", "NO") and packet.kalshi is not None:
         mid = packet.kalshi.market_mid
         return {"YES": mid, "NO": 1.0 - mid}
+    market_implied = packet.retrieval.get("market_implied_probabilities")
+    if isinstance(market_implied, dict):
+        n = max(1, len(outs))
+        dist: dict[str, float] = {}
+        for outcome in outs:
+            try:
+                dist[outcome] = float(market_implied.get(outcome, 1.0 / n))
+            except (TypeError, ValueError):
+                dist[outcome] = 1.0 / n
+        return normalize_distribution(dist)
     n = max(1, len(outs))
     return {o: 1.0 / n for o in outs}
 
@@ -376,9 +389,15 @@ def _call_judge_llm(
 ) -> dict[str, Any]:
     if judge.provider != "openrouter":
         raise ValueError(f"Unsupported judge provider: {judge.provider}")
-    api_key = os.environ.get(judge.api_key_env) or os.environ.get("OPENROUTER_API_KEY")
+    api_key = None
+    checked_envs = [judge.api_key_env, *judge.api_key_fallback_envs]
+    for env_name in checked_envs:
+        api_key = os.environ.get(env_name)
+        if api_key:
+            break
     if not api_key:
-        raise RuntimeError(f"{judge.api_key_env} or OPENROUTER_API_KEY must be set for judge aggregation")
+        checked = ", ".join(dict.fromkeys(checked_envs))
+        raise RuntimeError(f"One of {checked} must be set for judge aggregation")
     payload = {
         "model": judge.model,
         "messages": _judge_prompt(

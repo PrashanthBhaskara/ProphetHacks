@@ -1,0 +1,42 @@
+name: Render auto-deploy
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**/*.md"
+      - ".gitignore"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Trigger Render deploy
+        env:
+          HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          python3 <<'PY'
+          import os, sys, urllib.request, urllib.error
+
+          url = os.environ.get("HOOK_URL", "")
+          if not url:
+              print("RENDER_DEPLOY_HOOK secret is not configured", file=sys.stderr)
+              sys.exit(1)
+
+          req = urllib.request.Request(url, method="POST")
+          try:
+              with urllib.request.urlopen(req, timeout=30) as resp:
+                  status = resp.status
+          except urllib.error.HTTPError as exc:
+              status = exc.code
+          except Exception as exc:
+              print(f"Request to Render failed: {type(exc).__name__}: {exc}", file=sys.stderr)
+              sys.exit(1)
+
+          print(f"Render Deploy Hook responded: HTTP {status}")
+          if status not in (200, 201, 202):
+              print(f"Unexpected HTTP {status} from Render", file=sys.stderr)
+              sys.exit(1)
+          PY

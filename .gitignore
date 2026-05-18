@@ -1,9 +1,21 @@
 __pycache__/
 *.py[cod]
 .pytest_cache/
+.ruff_cache/
 .DS_Store
 .env
 .env.*
 !.env.example
 logs/
-dhruv_GPT_forecasting/logs/
+
+# Historical/local data is intentionally excluded from the production branch.
+Kalshitopvolmarkets/
+NonBinaryMarkets/
+Notes/
+ProphetHacks-github-main/
+events.json
+test/
+dhruv_GPT_forecasting/
+prophet-hacks-handoff/prep/data/
+prophet-hacks-handoff/prep/reference/
+prophet-hacks-handoff/prep/runs/

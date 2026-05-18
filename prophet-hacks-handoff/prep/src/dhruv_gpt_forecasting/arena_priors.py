@@ -1,4 +1,4 @@
-"""Deterministic Prophet Arena priors and historical analogs."""
+"""Deterministic Prophet Arena priors for live forecasts."""
 
 from __future__ import annotations
 
@@ -8,18 +8,15 @@ from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from functools import lru_cache
-from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 from .arena_types import ArenaForecastPacket, ArenaPrior
 from .constraints import enforce_constraints, normalize_distribution
-from .data_loaders import PREP_DATA, REPO_ROOT, TOPVOL_ROOT, iter_jsonl_rows
 from .features import classify_event_structure, normalize_category, parse_dt
 from .kalshi_contracts import parse_kalshi_multileg_contract
 
 
 TOKEN_RE = re.compile(r"[a-z0-9]+")
-NONBINARY_ROOT = REPO_ROOT / "NonBinaryMarkets"
 
 
 @dataclass(frozen=True)
@@ -35,7 +32,7 @@ class HistoricalRecord:
     tokens: frozenset[str]
 
 
-def build_arena_packet(event: dict[str, Any], *, include_historical_analogs: bool = True) -> ArenaForecastPacket:
+def build_arena_packet(event: dict[str, Any], *, include_historical_analogs: bool = False) -> ArenaForecastPacket:
     outcomes = _clean_outcomes(event.get("outcomes"))
     title = str(event.get("title") or "")
     description = event.get("description") or event.get("context")
@@ -431,78 +428,4 @@ def _entity_stats() -> dict[str, tuple[int, int]]:
 
 @lru_cache(maxsize=1)
 def _historical_records() -> tuple[HistoricalRecord, ...]:
-    records: list[HistoricalRecord] = []
-    records.extend(_topvol_records(TOPVOL_ROOT))
-    records.extend(_nonbinary_component_records(NONBINARY_ROOT))
-    records.extend(_eval_pack_records(PREP_DATA / "eval_pack_live_clean.jsonl"))
-    records.extend(_eval_pack_records(PREP_DATA / "eval_pack.jsonl"))
-    return tuple(records)
-
-
-def _topvol_records(root: Path) -> Iterable[HistoricalRecord]:
-    for path in sorted((root / "markets").glob("*_selected_markets.jsonl")):
-        for row in iter_jsonl_rows(path):
-            result = str(row.get("result") or "").lower()
-            if result not in {"yes", "no"}:
-                continue
-            label = str(row.get("yes_sub_title") or row.get("subtitle") or "")
-            title = str(row.get("title") or "")
-            rules = row.get("rules_primary")
-            category = normalize_category(row.get("category"), row.get("event_ticker"))
-            yield HistoricalRecord(
-                market_ticker=str(row.get("ticker") or ""),
-                event_ticker=str(row.get("event_ticker") or ""),
-                title=title,
-                rules=rules,
-                subtitle=label or None,
-                category=category,
-                label=label or "YES",
-                outcome=1 if result == "yes" else 0,
-                tokens=_event_tokens(title, rules, label, category),
-            )
-
-
-def _nonbinary_component_records(root: Path) -> Iterable[HistoricalRecord]:
-    """Resolved component markets from the new nonbinary context dataset."""
-    for path in sorted((root / "markets").glob("*_component_markets.jsonl")):
-        for row in iter_jsonl_rows(path):
-            result = str(row.get("result") or "").lower()
-            if result not in {"yes", "no"}:
-                continue
-            label = str(row.get("yes_sub_title") or row.get("subtitle") or "")
-            title = str(row.get("title") or "")
-            rules = row.get("rules_primary")
-            category = normalize_category(row.get("category"), row.get("event_ticker"))
-            yield HistoricalRecord(
-                market_ticker=str(row.get("ticker") or ""),
-                event_ticker=str(row.get("event_ticker") or ""),
-                title=title,
-                rules=rules,
-                subtitle=label or None,
-                category=category,
-                label=label or "YES",
-                outcome=1 if result == "yes" else 0,
-                tokens=_event_tokens(title, rules, label, category),
-            )
-
-
-def _eval_pack_records(path: Path) -> Iterable[HistoricalRecord]:
-    for row in iter_jsonl_rows(path):
-        event = row.get("event") or {}
-        if row.get("outcome") not in {0, 1}:
-            continue
-        title = str(event.get("title") or "")
-        rules = event.get("rules")
-        subtitle = event.get("subtitle")
-        category = normalize_category(event.get("category"), event.get("event_ticker"))
-        yield HistoricalRecord(
-            market_ticker=str(event.get("market_ticker") or ""),
-            event_ticker=str(event.get("event_ticker") or ""),
-            title=title,
-            rules=rules,
-            subtitle=subtitle,
-            category=category,
-            label=str(subtitle or "YES"),
-            outcome=int(row["outcome"]),
-            tokens=_event_tokens(title, rules, subtitle, category),
-        )
+    return tuple()

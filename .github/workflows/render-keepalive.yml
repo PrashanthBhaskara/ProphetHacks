@@ -1,0 +1,26 @@
+name: Render keepalive
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Ping /health
+        run: |
+          for attempt in 1 2 3; do
+            echo "Attempt $attempt..."
+            if curl -sf --max-time 90 \
+                -w "\nstatus=%{http_code} time=%{time_total}s\n" \
+                https://prophet-hacks-forecast.onrender.com/health; then
+              exit 0
+            fi
+            echo "Attempt $attempt failed."
+            sleep 30
+          done
+          echo "All 3 attempts failed."
+          exit 1

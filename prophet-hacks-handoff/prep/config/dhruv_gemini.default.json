@@ -1,12 +1,12 @@
 {
   "model": {
     "name": "arena_probability_model",
-    "provider": "gemini",
-    "model": "gemini-3-flash-preview",
-    "api_key_env": "GEMINI_API_KEY",
-    "api_key_fallback_envs": ["GOOGLE_API_KEY"],
+    "provider": "openrouter",
+    "model": "google/gemini-3-flash-preview",
+    "api_key_env": "OPENROUTER_API_KEY_1",
+    "api_key_fallback_envs": ["OPENROUTER_API_KEY", "OPENROUTER_API_KEY2"],
     "temperature": 0.1,
-    "max_tokens": 1400,
+    "max_tokens": 4096,
     "enabled": true,
     "search_grounding": {
       "enabled": true,
@@ -22,23 +22,23 @@
     "second_pass_enabled": true,
     "probability_floor": 0.001,
     "probability_ceiling": 0.999,
-    "prior_shrink_weight": 0.00,
+    "prior_shrink_weight": 0.0,
     "second_pass_delta_pp": 0.12,
     "second_pass_low_confidence": 0.40,
     "second_pass_high_entropy": 0.92,
     "live_cache_ttl_seconds": 900,
-    "max_historical_analogs": 8,
+    "max_historical_analogs": 0,
     "max_live_evidence": 12,
     "pit_external_enabled_default": false,
-    "pit_external_root": "data/external_evidence",
-    "pit_external_sources": ["local_jsonl", "reddit", "gdelt", "espn", "wrds", "lseg"],
+    "pit_external_root": "runs/live_evidence",
+    "pit_external_sources": ["reddit", "gdelt", "espn", "wrds", "lseg"],
     "pit_external_strict_collected_at": true,
     "pit_external_live_lookback_hours": 24,
     "pit_external_max_records": 12,
     "pit_external_max_live_age_minutes": 10,
     "pit_external_clock_tolerance_seconds": 300,
-    "pit_external_archive_live_fetches": true,
-    "response_deadline_seconds": 480,
+    "pit_external_archive_live_fetches": false,
+    "response_deadline_seconds": 450,
     "evidence_source_timeout_seconds": 5,
     "total_evidence_timeout_seconds": 45,
     "llm_timeout_seconds": 90,
@@ -56,10 +56,8 @@
     "dry_run_default": true,
     "log_dir": "runs/dhruv_gemini",
     "estimated_prices_per_1m_tokens": {
-      "openai/gpt-5-nano": {"input": 0.05, "output": 0.40},
-      "openai/gpt-5.4": {"input": 5.00, "output": 30.00},
-      "openai/gpt-5.5": {"input": 5.00, "output": 30.00},
-      "gemini-3-flash-preview": {"input": 0.50, "output": 3.00}
+      "openai/gpt-5.4": {"input": 5.0, "output": 30.0},
+      "google/gemini-3-flash-preview": {"input": 0.5, "output": 3.0}
     }
   }
 }

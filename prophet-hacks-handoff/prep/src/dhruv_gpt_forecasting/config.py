@@ -96,7 +96,7 @@ class ArenaConfig:
     second_pass_low_confidence: float = 0.40
     second_pass_high_entropy: float = 0.92
     live_cache_ttl_seconds: int = 900
-    max_historical_analogs: int = 8
+    max_historical_analogs: int = 0
     max_live_evidence: int = 12
     pit_external_enabled_default: bool = False
     pit_external_root: str = "data/external_evidence"
@@ -106,8 +106,8 @@ class ArenaConfig:
     pit_external_max_records: int = 12
     pit_external_max_live_age_minutes: int = 10
     pit_external_clock_tolerance_seconds: int = 300
-    pit_external_archive_live_fetches: bool = True
-    response_deadline_seconds: float = 480.0
+    pit_external_archive_live_fetches: bool = False
+    response_deadline_seconds: float = 450.0
     evidence_source_timeout_seconds: float = 5.0
     total_evidence_timeout_seconds: float = 45.0
     llm_timeout_seconds: float = 90.0

@@ -1,99 +1,67 @@
 {
   "models": [
     {
-      "name": "gemini_flash_mock",
-      "provider": "mock",
-      "model": "gemini-3-flash-preview-mock",
-      "enabled": true,
-      "weight": 0.8,
-      "mock_edge_bps": 20
-    },
-    {
-      "name": "gemini_pro_mock",
-      "provider": "mock",
-      "model": "gemini-3.1-pro-preview-mock",
-      "enabled": true,
-      "weight": 1.0,
-      "mock_edge_bps": 35
-    },
-    {
-      "name": "gemini_flash",
-      "provider": "gemini",
-      "model": "gemini-3-flash-preview",
-      "api_key_env": "GEMINI_API_KEY",
-      "enabled": false,
-      "weight": 0.8,
-      "temperature": 0.1,
-      "max_tokens": 1400,
-      "enable_google_search": true,
-      "system_prompt_path": "src/prep/forecasters/prompts/gemini_context_forecasting_system.txt"
-    },
-    {
       "name": "gemini_pro",
       "provider": "gemini",
-      "model": "gemini-3.1-pro-preview",
+      "model": "gemini-3-pro-preview",
       "api_key_env": "GEMINI_API_KEY",
-      "enabled": false,
+      "api_key_fallback_envs": ["GOOGLE_API_KEY", "GEMINI_API_KEY1", "GEMINI_API_KEY2"],
+      "enabled": true,
       "weight": 1.15,
       "temperature": 0.1,
-      "max_tokens": 1800,
+      "max_tokens": 8192,
       "enable_google_search": true,
+      "require_google_search_grounding": true,
       "system_prompt_path": "src/prep/forecasters/prompts/gemini_context_forecasting_system.txt"
     },
     {
       "name": "dhruv_gemini_lane",
       "provider": "dhruv_gemini",
-      "model": "gemini-3-flash-preview",
-      "api_key_env": "GEMINI_API_KEY",
-      "enabled": false,
+      "model": "google/gemini-3-flash-preview",
+      "api_key_env": "OPENROUTER_API_KEY_1",
+      "api_key_fallback_envs": ["OPENROUTER_API_KEY", "OPENROUTER_API_KEY2"],
+      "enabled": true,
       "weight": 0.9,
       "temperature": 0.1,
-      "max_tokens": 1400,
+      "max_tokens": 4096,
       "enable_google_search": true,
       "adapter_config_path": "config/dhruv_gemini.default.json",
-      "deadline_seconds": 480,
+      "llm_backend": "openrouter",
+      "deadline_seconds": 450,
       "use_live_data": true
     },
     {
       "name": "claude_lane",
       "provider": "openrouter",
-      "model": "anthropic/claude-opus-4.7",
-      "api_key_env": "OPENROUTER_API_KEY_CLAUDE_LANE",
-      "enabled": false,
+      "model": "anthropic/claude-sonnet-4-6",
+      "api_key_env": "OPENROUTER_API_KEY",
+      "api_key_fallback_envs": ["OPENROUTER_API_KEY2"],
+      "enabled": true,
       "weight": 1.0,
       "temperature": 0.1,
-      "max_tokens": 1800,
+      "max_tokens": 3800,
       "reasoning_effort": "medium"
     },
     {
-      "name": "openai_lane",
-      "provider": "openrouter",
-      "model": "openai/gpt-5.5",
-      "api_key_env": "OPENROUTER_API_KEY_OPENAI_LANE",
-      "enabled": false,
+      "name": "grok_lane",
+      "provider": "grok",
+      "model": "x-ai/grok-4.20",
+      "api_key_env": "OPENROUTER_API_KEY",
+      "api_key_fallback_envs": ["OPENROUTER_API_KEY2"],
+      "enabled": true,
       "weight": 1.0,
       "temperature": 0.1,
-      "max_tokens": 1800,
-      "reasoning_effort": "medium"
-    },
-    {
-      "name": "deepseek_lane",
-      "provider": "openrouter",
-      "model": "deepseek/deepseek-v4-pro",
-      "api_key_env": "OPENROUTER_API_KEY_DEEPSEEK_LANE",
-      "enabled": false,
-      "weight": 0.75,
-      "temperature": 0.1,
-      "max_tokens": 1600
+      "max_tokens": 3600
     }
   ],
   "ensemble": {
     "market_anchor_weight": 1.5,
     "judge": {
-      "enabled": false,
+      "enabled": true,
       "provider": "openrouter",
       "model": "openai/gpt-5.4",
-      "api_key_env": "OPENROUTER_API_KEY_JUDGE",
+      "api_key_env": "OPENROUTER_API_KEY",
+      "api_key_fallback_envs": ["OPENROUTER_API_KEY2"],
       "system_prompt_path": "src/prep/forecasters/prompts/judge_aggregator_system.md",
       "temperature": 0.0,
       "max_tokens": 1400,
@@ -118,17 +86,5 @@
       "under_24h": 0.70,
       "over_24h": 1.00
     }
-  },
-  "risk": {
-    "min_edge": 0.06,
-    "spread_buffer": 0.01,
-    "fee_buffer": 0.01,
-    "uncertainty_buffer": 0.02,
-    "max_stake": 1.0,
-    "kelly_fraction": 0.10,
-    "min_confidence": 0.35
-  },
-  "execution": {
-    "fee_rate": 0.0
   }
 }

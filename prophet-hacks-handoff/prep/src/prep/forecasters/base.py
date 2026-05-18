@@ -21,16 +21,16 @@ from prep.schemas import (
     ModelForecast,
     ReasoningTrack,
     clamp_prob,
+    normalize_distribution,
 )
 
 logger = logging.getLogger(__name__)
 
 # Per-lane wall-clock budget. Every dispatched forecaster gets at most this
-# long before we drop a market-mirror placeholder into the ensemble in its
-# place. The grok adapter has its own finer-grained 480s timeout internally
-# (per-request, bidir-aware); this is the outer safety net for every lane
-# including grok. Override with LANE_TIMEOUT_SECONDS.
-DEFAULT_LANE_TIMEOUT_SECONDS = 480.0
+# long before we drop a market-mirror placeholder into the ensemble. The
+# default is 7.5 minutes so the judge and API response fit under the 10-minute
+# Prophet Arena ceiling. Override with LANE_TIMEOUT_SECONDS.
+DEFAULT_LANE_TIMEOUT_SECONDS = 450.0
 
 
 SYSTEM_PROMPT = """\
@@ -243,22 +243,15 @@ class ForecasterConfig:
     system_prompt: str | None = None
     system_prompt_path: str | None = None
     enable_google_search: bool = True
-    mock_edge_bps: float = 0.0
+    require_google_search_grounding: bool = False
     adapter_config_path: str | None = None
     deadline_seconds: float | None = None
     use_live_data: bool | None = None
     use_gpt: bool | None = None
-    # Claude agent fields
-    backtest_mode: bool = False
-    evidence_cutoff: str | None = None  # ISO-8601 UTC or "auto" (uses packet.as_of)
-    agent_prompt: str | None = None     # filename under forecasters/prompts/
-    use_polymarket_prior: bool | None = None
-    polymarket_map_only: bool = True
     llm_backend: str | None = None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "ForecasterConfig":
-        poly = data.get("use_polymarket_prior")
         return cls(
             name=data["name"],
             provider=data["provider"],
@@ -273,16 +266,11 @@ class ForecasterConfig:
             system_prompt=data.get("system_prompt"),
             system_prompt_path=data.get("system_prompt_path"),
             enable_google_search=bool(data.get("enable_google_search", True)),
-            mock_edge_bps=float(data.get("mock_edge_bps", 0.0)),
+            require_google_search_grounding=bool(data.get("require_google_search_grounding", False)),
             adapter_config_path=data.get("adapter_config_path"),
             deadline_seconds=None if data.get("deadline_seconds") is None else float(data.get("deadline_seconds")),
             use_live_data=None if data.get("use_live_data") is None else bool(data.get("use_live_data")),
             use_gpt=None if data.get("use_gpt") is None else bool(data.get("use_gpt")),
-            backtest_mode=bool(data.get("backtest_mode", False)),
-            evidence_cutoff=data.get("evidence_cutoff"),
-            agent_prompt=data.get("agent_prompt"),
-            use_polymarket_prior=None if poly is None else bool(poly),
-            polymarket_map_only=bool(data.get("polymarket_map_only", True)),
             llm_backend=data.get("llm_backend"),
         )
 
@@ -315,6 +303,8 @@ def stable_prompt_hash(packet: MarketPacket, config: ForecasterConfig) -> str:
         "model": config.model,
         "provider": config.provider,
         "prompt": system_prompt,
+        "enable_google_search": config.enable_google_search,
+        "require_google_search_grounding": config.require_google_search_grounding,
     }
     return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
 
@@ -339,7 +329,8 @@ def _market_mirror_model_forecast(
     """Build a market-mirror ModelForecast for the lane-timeout path.
 
     Binary YES/NO with Kalshi quote: probabilities track market_mid.
-    Multi-outcome (or non-Kalshi): uniform across packet.outcomes.
+    Multi-outcome: current market-implied probabilities from live Kalshi
+    enrichment when available, otherwise uniform across packet.outcomes.
 
     Marks `should_defer_to_market=True` so the ensemble aggregator weights
     this lane down rather than treating it as an opinionated forecast.
@@ -356,8 +347,19 @@ def _market_mirror_model_forecast(
     if tuple(outs) == ("YES", "NO"):
         probs = {"YES": mid, "NO": 1.0 - mid}
     else:
-        n = max(1, len(outs))
-        probs = {o: 1.0 / n for o in outs}
+        market_probs = packet.retrieval.get("market_implied_probabilities")
+        if isinstance(market_probs, dict):
+            n = max(1, len(outs))
+            probs = {}
+            for outcome in outs:
+                try:
+                    probs[outcome] = float(market_probs.get(outcome, 1.0 / n))
+                except (TypeError, ValueError):
+                    probs[outcome] = 1.0 / n
+            probs = normalize_distribution(probs)
+        else:
+            n = max(1, len(outs))
+            probs = {o: 1.0 / n for o in outs}
 
     response = {
         "forecast": {
@@ -390,9 +392,6 @@ def _market_mirror_model_forecast(
 
 def _dispatch_provider(config: ForecasterConfig):
     """Resolve the provider-specific forecast() callable."""
-    if config.provider == "mock":
-        from .mock import forecast
-        return forecast
     if config.provider == "gemini":
         from .gemini import forecast
         return forecast
@@ -405,19 +404,11 @@ def _dispatch_provider(config: ForecasterConfig):
     if config.provider == "dhruv_gemini":
         from .dhruv_gemini import forecast
         return forecast
-    if config.provider in (
-        "claude_agent",
-        "claude_filtered_research",
-        "claude_independent",
-        "claude_grounded",
-    ):
-        from .claude_agent import forecast
-        return forecast
     raise ValueError(f"Unknown forecaster provider: {config.provider}")
 
 
 def forecast_from_config(config: ForecasterConfig, packet: MarketPacket) -> ModelForecast:
-    """Run a provider-specific forecaster under an 8-minute wall-clock budget.
+    """Run a provider-specific forecaster under a 7.5-minute wall-clock budget.
 
     On timeout, returns a market-mirror ModelForecast so the ensemble still
     receives a valid distribution from this lane. Other exceptions (unknown

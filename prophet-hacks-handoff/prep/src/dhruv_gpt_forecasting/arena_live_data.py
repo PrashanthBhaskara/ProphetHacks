@@ -14,9 +14,8 @@ import requests
 
 from .arena_types import ArenaForecastPacket
 from .config import ForecastConfig
-from .context import build_related_context_evidence
 from .evidence_sources import annotate_evidence_items
-from .features import build_feature_packet, parse_dt
+from .features import parse_dt
 from .kalshi_auth import kalshi_auth_headers
 from .lseg_query import plan_lseg_news_query
 from .pit_evidence import build_evidence_query, gather_pit_external_evidence
@@ -92,8 +91,6 @@ def gather_live_evidence(
             cfg,
             allow_network=_env_bool("ARENA_LIVE_PIT_EXTERNAL_NETWORK", False),
         ))
-    if "local_linked_markets" in source_plan and _can_continue(deadline_at):
-        evidence.extend(_local_linked_market_evidence(packet))
     if "kalshi" in source_plan and _can_continue(deadline_at):
         evidence.extend(_kalshi_market_evidence(packet, cfg, deadline_at=deadline_at))
     if "polymarket" in source_plan and _can_continue(deadline_at):
@@ -127,7 +124,7 @@ def gather_live_evidence(
 
 
 def _live_source_plan(packet: ArenaForecastPacket) -> set[str]:
-    base = {"pit_external", "local_linked_markets", "kalshi", "polymarket"}
+    base = {"pit_external", "kalshi", "polymarket"}
     category = packet.category
     if category == "Sports":
         return base | {"espn", "oddspipe", "lseg"}
@@ -208,37 +205,6 @@ def _kalshi_market_evidence(
             "open_interest_fp": market.get("open_interest_fp"),
         },
     }]
-
-
-def _local_linked_market_evidence(packet: ArenaForecastPacket) -> list[dict[str, Any]]:
-    """Attach local linked-market model output for KX tickers when available."""
-    if not packet.market_ticker.startswith("KX"):
-        return []
-    feature_packet = build_feature_packet(
-        {
-            "event_ticker": packet.event_ticker,
-            "market_ticker": packet.market_ticker,
-            "title": packet.title,
-            "subtitle": packet.subtitle,
-            "description": packet.description,
-            "category": packet.category,
-            "rules": packet.rules,
-            "close_time": packet.close_time,
-            "outcomes": packet.outcomes,
-        },
-        {
-            "ticker": packet.market_ticker,
-            "event_ticker": packet.event_ticker,
-            "snapshot_time": packet.as_of,
-            "last_price": 0.5,
-        },
-        as_of=packet.as_of,
-    )
-    return [
-        item
-        for item in build_related_context_evidence(feature_packet)
-        if item.get("source") in {"linked_market_model", "kalshi_nonbinary_context", "kalshi_topvol_same_event"}
-    ][:4]
 
 
 def _polymarket_search_evidence(

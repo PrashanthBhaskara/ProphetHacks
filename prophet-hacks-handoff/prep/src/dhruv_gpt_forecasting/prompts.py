@@ -135,8 +135,8 @@ def _arena_model_handoff(
             ),
         },
         "final_probability_rule": (
-            "Choose calibrated final probabilities after weighing event text, rules, historical analogs, "
-            "time-series or market-derived priors, live evidence, and information gaps. The runtime will "
+            "Choose calibrated final probabilities after weighing event text, rules, market-derived priors, "
+            "live evidence, and information gaps. The runtime will "
             "only validate labels, clamp impossible numeric values, and normalize the distribution."
         ),
         "kalshi_multileg_contract_rule": (

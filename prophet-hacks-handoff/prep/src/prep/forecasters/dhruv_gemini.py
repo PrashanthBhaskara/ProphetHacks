@@ -31,9 +31,10 @@ def forecast(config: ForecasterConfig, packet: MarketPacket) -> ModelForecast:
     dhruv_cfg.model = replace(
         dhruv_cfg.model,
         name=config.name,
-        provider="gemini",
+        provider=config.llm_backend or dhruv_cfg.model.provider,
         model=config.model,
         api_key_env=config.api_key_env or dhruv_cfg.model.api_key_env,
+        api_key_fallback_envs=list(config.api_key_fallback_envs or dhruv_cfg.model.api_key_fallback_envs),
         temperature=config.temperature,
         max_tokens=config.max_tokens,
         native_search_grounding_enabled=bool(
@@ -213,7 +214,7 @@ def _base_rate_note(audit: dict[str, Any]) -> str:
         reasons = prior.get("reason_codes") or []
         if source or reasons:
             return f"Deterministic prior {source or ''} used {', '.join(map(str, reasons[:6]))}.".strip()
-    return "Dhruv lane builds a deterministic prior from category rates, historical analogs, and linked context."
+    return "Dhruv lane builds a deterministic prior from the live packet, market context, and grounded evidence."
 
 
 def _market_note(arena_forecast, audit: dict[str, Any]) -> str:
