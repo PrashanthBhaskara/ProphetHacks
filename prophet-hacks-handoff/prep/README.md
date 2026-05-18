@@ -5,7 +5,7 @@ Production forecasting service for the Prophet Arena `/predict` contract.
 The default runtime is `config/FINAL.json`. It runs four lanes in parallel:
 
 - `gemini_pro`: direct Gemini API, `gemini-3-pro-preview`, Google Search grounding required.
-- `dhruv_gemini_lane`: Dhruv lane adapter using `google/gemini-3-flash-preview` through OpenRouter with live grounding enabled.
+- `dhruv_gemini_lane`: Dhruv lane adapter using direct Gemini API, `gemini-3-flash-preview`, with live grounding enabled.
 - `claude_lane`: Claude through OpenRouter.
 - `grok_lane`: Grok through OpenRouter.
 
@@ -31,16 +31,14 @@ cp .env.example .env
 
 Fill `prophet-hacks-handoff/prep/.env` from `.env.example`. The agent server loads it automatically before reading `PROPHET_CONFIG`. Required keys for the full production config:
 
-- `GEMINI_PRO_API_KEY` for the Gemini Pro lane.
-- `DHRUV_OPENROUTER_API_KEY` for the Dhruv Gemini Flash lane.
-- `CLAUDE_OPENROUTER_API_KEY` for the Claude lane.
-- `GROK_OPENROUTER_API_KEY` for the Grok lane.
-- `OPENAI_JUDGE_OPENROUTER_API_KEY` for the OpenAI judge.
+- `PA_SERVER_API_KEY` for Prophet Arena/server authentication.
+- `GEMINI_API_KEY1` for the Gemini Pro lane.
+- `GEMINI_API_KEY2` for the Dhruv Gemini Flash lane. Use a different Gemini key from `GEMINI_API_KEY1`.
+- `OPENROUTER_API_KEY` for the Claude lane, Grok lane, and OpenAI judge.
 
-Optional fallbacks:
+Optional OpenRouter fallback:
 
-- `GEMINI_FALLBACK_API_KEY` for Gemini Pro.
-- `OPENROUTER_FALLBACK_API_KEY` shared by Dhruv, Claude, Grok, and the OpenAI judge.
+- `OPENROUTER_API_KEY2` shared by Claude, Grok, and the OpenAI judge.
 
 Run locally:
 

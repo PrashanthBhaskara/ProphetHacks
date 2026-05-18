@@ -749,7 +749,7 @@ def _can_continue(deadline_at: float | None) -> bool:
 
 def _search_grounding_enabled(packet: ArenaForecastPacket, cfg: ForecastConfig) -> bool:
     model = cfg.model
-    env_value = os.environ.get("GEMINI_NATIVE_SEARCH_GROUNDING", os.environ.get("OPENROUTER_NATIVE_SEARCH_GROUNDING"))
+    env_value = os.environ.get("GEMINI_NATIVE_SEARCH_GROUNDING")
     if env_value is not None:
         enabled = env_value.strip().lower() in {"1", "true", "yes", "on"}
     else:

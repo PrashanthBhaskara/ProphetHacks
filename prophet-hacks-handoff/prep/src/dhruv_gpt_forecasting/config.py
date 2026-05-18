@@ -14,8 +14,9 @@ HANDOFF_ROOT = PACKAGE_ROOT.parent
 WORKSPACE_ROOT = HANDOFF_ROOT.parent
 DEFAULT_CONFIG_PATH = PACKAGE_ROOT / "config" / "dhruv_gemini.default.json"
 ENV_ALIASES = {
-    "GEMINI_API_KEY_1": "GEMINI_API_KEY",
-    "GOOGLE_GEMINI_API_KEY": "GEMINI_API_KEY",
+    "GEMINI_API_KEY_1": "GEMINI_API_KEY1",
+    "GEMINI_API_KEY_2": "GEMINI_API_KEY2",
+    "GOOGLE_GEMINI_API_KEY": "GEMINI_API_KEY1",
     "KALSHI-ACCESS-KEY": "KALSHI_API_KEY_ID",
     "KALSHI_ACCESS_KEY": "KALSHI_API_KEY_ID",
     "KALSHI_API_KEY": "KALSHI_API_KEY_ID",
@@ -207,6 +208,8 @@ class ForecastConfig:
 
 def load_local_env(path: Path | None = None) -> None:
     """Load key=value pairs from a local .env without printing secrets."""
+    if os.environ.get("PROPHET_SKIP_DOTENV"):
+        return
     candidates = []
     if path is not None:
         candidates.append(path)
