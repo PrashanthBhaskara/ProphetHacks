@@ -328,14 +328,36 @@ def _compute_ensemble(event: ArenaEvent, deadline: float) -> PredictionResponse:
     )
 
 
+def _coerce_single_event(event: ArenaEvent | dict | list[ArenaEvent] | list[dict]) -> ArenaEvent:
+    """Accept a single event object or a one-item events list.
+
+    The Prophet CLI reads an events JSON array and normally posts one event at a
+    time. This also handles callers that pass the one-item array directly.
+    """
+    if isinstance(event, list):
+        if len(event) != 1:
+            raise ValueError("/predict expects one event per request")
+        event = event[0]
+    if isinstance(event, ArenaEvent):
+        return event
+    if isinstance(event, dict):
+        return ArenaEvent(**event)
+    raise TypeError(f"unsupported event payload type: {type(event).__name__}")
+
+
 @app.post("/predict", response_model=PredictionResponse)
-def predict_endpoint(event: ArenaEvent) -> PredictionResponse:
+def predict_endpoint(event: ArenaEvent | list[ArenaEvent]) -> PredictionResponse:
     """Wall-clock-bounded /predict.
 
     Runs the full ensemble (lane fan-out + calibration + judge) inside a
     deadline. If the whole flow hasn't returned within ENSEMBLE_TIMEOUT_SECONDS
     (default 585s = 9m45s), we abandon it and return market price.
     """
+    try:
+        event = _coerce_single_event(event)
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
     budget = float(os.environ.get("ENSEMBLE_TIMEOUT_SECONDS", DEFAULT_ENSEMBLE_TIMEOUT_SECONDS))
     deadline = time.monotonic() + budget
 
@@ -373,7 +395,7 @@ def _fallback_packet(event: ArenaEvent) -> MarketPacket:
 
 # --- Local predict() entrypoint for `prophet forecast predict --local` ---
 
-def predict(event: dict) -> dict:
+def predict(event: dict | list[dict]) -> dict:
     """For `prophet forecast predict --local scripts.agent_server`.
 
     Mirrors the wire contract of `POST /predict`. Returns a dict shaped
@@ -382,6 +404,6 @@ def predict(event: dict) -> dict:
     global _models, _calibration, _market_anchor_weight, _judge
     if not _models:
         _models, _calibration, _market_anchor_weight, _judge = _load_models()
-    arena = ArenaEvent(**event)
+    arena = _coerce_single_event(event)
     response = predict_endpoint(arena)
     return response.model_dump()
