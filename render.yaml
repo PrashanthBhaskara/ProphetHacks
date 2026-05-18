@@ -5,9 +5,11 @@
 #   {"probabilities": [{"market": <str>, "probability": <float>}, ...]}
 #
 # Secrets must be configured in Render, not committed:
-#   GEMINI_API_KEY, OPENROUTER_API_KEY_1, OPENROUTER_API_KEY
+#   GEMINI_PRO_API_KEY, DHRUV_OPENROUTER_API_KEY,
+#   CLAUDE_OPENROUTER_API_KEY, GROK_OPENROUTER_API_KEY,
+#   OPENAI_JUDGE_OPENROUTER_API_KEY
 # Optional fallbacks:
-#   GOOGLE_API_KEY, GEMINI_API_KEY1, GEMINI_API_KEY2, OPENROUTER_API_KEY2
+#   GEMINI_FALLBACK_API_KEY, OPENROUTER_FALLBACK_API_KEY
 
 services:
   - type: web

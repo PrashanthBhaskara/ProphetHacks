@@ -29,16 +29,18 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-Fill `.env` from `.env.example`. Required keys for the full production config:
+Fill `prophet-hacks-handoff/prep/.env` from `.env.example`. The agent server loads it automatically before reading `PROPHET_CONFIG`. Required keys for the full production config:
 
-- `GEMINI_API_KEY` for the Gemini Pro lane.
-- `OPENROUTER_API_KEY_1` for the Dhruv Gemini Flash lane.
-- `OPENROUTER_API_KEY` for Claude, Grok, and the OpenAI judge.
+- `GEMINI_PRO_API_KEY` for the Gemini Pro lane.
+- `DHRUV_OPENROUTER_API_KEY` for the Dhruv Gemini Flash lane.
+- `CLAUDE_OPENROUTER_API_KEY` for the Claude lane.
+- `GROK_OPENROUTER_API_KEY` for the Grok lane.
+- `OPENAI_JUDGE_OPENROUTER_API_KEY` for the OpenAI judge.
 
 Optional fallbacks:
 
-- `GOOGLE_API_KEY`, `GEMINI_API_KEY1`, `GEMINI_API_KEY2`
-- `OPENROUTER_API_KEY2`
+- `GEMINI_FALLBACK_API_KEY` for Gemini Pro.
+- `OPENROUTER_FALLBACK_API_KEY` shared by Dhruv, Claude, Grok, and the OpenAI judge.
 
 Run locally:
 

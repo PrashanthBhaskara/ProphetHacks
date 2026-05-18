@@ -88,7 +88,7 @@ class BudgetConfig:
 class ArenaConfig:
     gpt_enabled_default: bool = True
     live_data_enabled_default: bool = False
-    second_pass_enabled: bool = True
+    second_pass_enabled: bool = False
     probability_floor: float = 0.001
     probability_ceiling: float = 0.999
     prior_shrink_weight: float = 0.00

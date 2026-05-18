@@ -44,7 +44,31 @@ from prep.schemas import KalshiQuote, MarketPacket, normalize_distribution  # no
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_CONFIG_PATH = Path(__file__).resolve().parents[1] / "config" / "FINAL.json"
+PREP_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = PREP_ROOT.parent.parent
+
+
+def _load_local_env() -> None:
+    """Load local .env values without overriding exported environment vars."""
+    if os.environ.get("PROPHET_SKIP_DOTENV"):
+        return
+    for env_path in (Path.cwd() / ".env", PREP_ROOT / ".env", REPO_ROOT / ".env"):
+        if not env_path.exists():
+            continue
+        for raw in env_path.read_text(encoding="utf-8").splitlines():
+            line = raw.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            key = key.strip()
+            value = value.strip().strip('"').strip("'")
+            if key and key not in os.environ:
+                os.environ[key] = value
+
+
+_load_local_env()
+
+DEFAULT_CONFIG_PATH = PREP_ROOT / "config" / "FINAL.json"
 CONFIG_PATH = Path(os.environ.get("PROPHET_CONFIG", DEFAULT_CONFIG_PATH))
 
 # Wall-clock budget for the entire /predict call (lane fan-out + aggregation +

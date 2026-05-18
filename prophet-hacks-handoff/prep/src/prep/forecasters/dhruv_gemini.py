@@ -169,7 +169,7 @@ def _to_model_forecast(config: ForecasterConfig, packet: MarketPacket, arena_for
         ),
         raw_response={
             "dhruv_arena_forecast": arena_forecast.to_dict(),
-            "dhruv_ensemble_envelope": ensemble_response_from_forecast(
+            "dhruv_lane_envelope": ensemble_response_from_forecast(
                 arena_forecast,
                 mode="handoff_ensemble_lane",
             ),
