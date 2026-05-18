@@ -9,7 +9,7 @@
     "enabled": true,
     "search_grounding": {
       "enabled": true,
-      "live_only": true,
+      "live_only": false,
       "engine": "google_search",
       "max_results": 5,
       "max_total_results": 8

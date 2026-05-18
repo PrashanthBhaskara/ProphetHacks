@@ -195,6 +195,7 @@ def test_dhruv_lane_uses_flash_with_native_google_search() -> None:
     assert cfg.model.model == "gemini-3-flash-preview"
     assert cfg.model.api_key_env == "GEMINI_API_KEY2"
     assert cfg.model.native_search_grounding_enabled is True
+    assert cfg.model.native_search_grounding_live_only is False
     assert cfg.model.search_grounding_engine == "google_search"
 
 
