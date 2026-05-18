@@ -17,9 +17,10 @@
 #
 # IMPORTANT: API keys must be added in the Render dashboard (Settings ->
 # Environment) and are NOT in this file. Required:
-#   - OPENROUTER_API_KEY  (for Claude lane, Grok lane, GPT judge)
-#   - GEMINI_API_KEY      (for Gemini lane)
-# Optional fallbacks: OPENROUTER_API_KEY2, GOOGLE_API_KEY.
+#   - OPENROUTER_API_KEY   (Claude lane, Grok lane, GPT judge)
+#   - OPENROUTER_API_KEY2  (fallback for the OpenRouter providers)
+#   - GEMINI_API_KEY1      (Gemini lane primary)
+#   - GEMINI_API_KEY2      (Gemini lane fallback)
 
 services:
   - type: web

@@ -28,7 +28,7 @@ class GeminiParseError(RuntimeError):
 
 
 def _api_key(config: ForecasterConfig) -> str:
-    key = resolve_api_key(config, "GEMINI_API_KEY")
+    key = resolve_api_key(config, "GEMINI_API_KEY1")
     if not key:
         raise RuntimeError(f"No API key found for {config.name} (checked {config.api_key_env} and fallbacks)")
     return key
