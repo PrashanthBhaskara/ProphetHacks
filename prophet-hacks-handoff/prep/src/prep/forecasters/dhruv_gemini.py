@@ -23,6 +23,7 @@ from prep.schemas import (
     MarketPacket,
     ModelForecast,
     ReasoningTrack,
+    normalize_distribution,
 )
 
 
@@ -131,6 +132,11 @@ def _to_model_forecast(config: ForecasterConfig, packet: MarketPacket, arena_for
     authority = audit.get("final_probability_authority")
     should_defer = bool(fallback_reason) or arena_forecast.source == "deterministic_arena_prior"
     should_defer = should_defer or (authority is None and arena_forecast.confidence < 0.45)
+    probabilities = (
+        _fallback_distribution(packet)
+        if fallback_reason
+        else dict(arena_forecast.probabilities)
+    )
 
     return ModelForecast(
         model_id=config.model,
@@ -138,7 +144,7 @@ def _to_model_forecast(config: ForecasterConfig, packet: MarketPacket, arena_for
         as_of=packet.as_of,
         market_ticker=packet.market_ticker,
         forecast=ForecastValues(
-            probabilities=dict(arena_forecast.probabilities),
+            probabilities=probabilities,
             confidence=arena_forecast.confidence,
             uncertainty=arena_forecast.uncertainty,
         ),
@@ -169,6 +175,28 @@ def _to_model_forecast(config: ForecasterConfig, packet: MarketPacket, arena_for
             ),
         },
     )
+
+
+def _fallback_distribution(packet: MarketPacket) -> dict[str, float]:
+    """Market/default distribution for Dhruv runs that never reached a model.
+
+    If the Dhruv lane falls back because the model key is missing, the model
+    call fails, or the lane runs out of budget, it should not act like a
+    separate opinionated forecast. It should mirror current market-implied
+    probabilities when supplied by the main packet, otherwise use uniform.
+    """
+    outcomes = packet.outcomes or ["YES", "NO"]
+    market_probs = _clean_probabilities(
+        (packet.retrieval or {}).get("market_implied_probabilities"),
+        outcomes,
+    )
+    if market_probs:
+        return normalize_distribution(market_probs)
+    if _has_quote(packet.kalshi) and packet.is_binary:
+        mid = packet.kalshi.market_mid
+        return {"YES": mid, "NO": 1.0 - mid}
+    share = 1.0 / max(1, len(outcomes))
+    return {outcome: share for outcome in outcomes}
 
 
 def _has_quote(quote: KalshiQuote | None) -> bool:

@@ -46,6 +46,25 @@ SYNTHETIC_EVENT = {
     "resolved_outcome": None,
 }
 
+SYNTHETIC_MULTIOUTCOME_EVENT = {
+    "event_ticker": "task-hormuz-001",
+    "market_ticker": "task-hormuz-001",
+    "title": "When will traffic at the Strait of Hormuz return to normal?",
+    "subtitle": None,
+    "description": "Predict the time window when shipping traffic through the Strait of Hormuz returns to normal levels.",
+    "category": "Geopolitics",
+    "rules": "Resolves to the first listed time window in which authoritative shipping and traffic data show normal Strait of Hormuz transit levels have resumed.",
+    "close_time": "2026-07-31T23:59:59Z",
+    "outcomes": [
+        "Before June 1",
+        "June 1 to June 15",
+        "June 16 to June 30",
+        "July 1 to July 31",
+        "After July 31",
+    ],
+    "resolved_outcome": None,
+}
+
 
 def _load_events(path: Path) -> list[dict]:
     text = path.read_text().strip()
@@ -102,6 +121,14 @@ def _validate(event: dict, response: dict) -> list[str]:
         problems.append(f"missing outcomes in response: {sorted(missing)}")
     if extra:
         problems.append(f"unexpected outcomes in response: {sorted(extra)}")
+    if probs:
+        total = sum(
+            float(item.get("probability"))
+            for item in probs
+            if isinstance(item, dict) and isinstance(item.get("probability"), (int, float))
+        )
+        if abs(total - 1.0) > 1e-6:
+            problems.append(f"probabilities sum to {total:.6f}, expected 1.0")
 
     return problems
 
@@ -116,7 +143,7 @@ def main() -> int:
                         help="Only test the first N events.")
     args = parser.parse_args()
 
-    events = _load_events(args.events) if args.events else [SYNTHETIC_EVENT]
+    events = _load_events(args.events) if args.events else [SYNTHETIC_EVENT, SYNTHETIC_MULTIOUTCOME_EVENT]
     if args.limit:
         events = events[: args.limit]
     if not events:
