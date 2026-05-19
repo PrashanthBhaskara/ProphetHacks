@@ -180,9 +180,9 @@ def _anchor_distribution(packet: MarketPacket) -> dict[str, float]:
     uniform over the listed outcomes.
     """
     outs = packet.outcomes or ["YES", "NO"]
-    if tuple(outs) == ("YES", "NO") and packet.kalshi is not None:
+    if is_yes_no_outcomes(outs) and packet.kalshi is not None:
         mid = packet.kalshi.market_mid
-        return {"YES": mid, "NO": 1.0 - mid}
+        return {outs[0]: mid, outs[1]: 1.0 - mid}
     market_implied = packet.retrieval.get("market_implied_probabilities")
     if isinstance(market_implied, dict):
         n = max(1, len(outs))
