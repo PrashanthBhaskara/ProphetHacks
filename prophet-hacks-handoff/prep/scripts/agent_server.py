@@ -425,12 +425,30 @@ def _compute_ensemble(event: ArenaEvent, deadline: float) -> PredictionResponse:
         logger.warning("all lanes failed for %s: %s", packet.market_ticker, "; ".join(errors))
         return _market_price_response(packet, event.outcomes)
 
+    for member in forecasts:
+        fc = member.forecast
+        deferred = getattr(fc.diagnostics, "should_defer_to_market", False) if fc.diagnostics else False
+        logger.info(
+            "lane result  model=%s  title=%r  probs=%s  weight=%.2f  deferred=%s",
+            fc.model_id,
+            packet.title,
+            {k: round(v, 3) for k, v in fc.probabilities.items()},
+            member.configured_weight,
+            deferred,
+        )
+
     supervisor = aggregate_forecasts(
         packet,
         forecasts,
         calibration=_calibration,
         market_anchor_weight=_market_anchor_weight,
         judge=_judge,
+    )
+
+    logger.info(
+        "ensemble result  market=%s  final=%s",
+        packet.market_ticker,
+        {k: round(v, 3) for k, v in supervisor.calibrated_probabilities.items()},
     )
 
     # Map final distribution onto the event's outcomes exactly (preserve order).
