@@ -47,6 +47,12 @@ from prep.kalshi import get_market, list_markets  # noqa: E402
 from prep.packets import packet_from_arena_event  # noqa: E402
 from prep.schemas import KalshiQuote, MarketPacket, is_yes_no_outcomes, normalize_distribution  # noqa: E402
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)-7s %(name)s  %(message)s",
+    stream=sys.stdout,
+    force=True,
+)
 logger = logging.getLogger(__name__)
 
 PREP_ROOT = Path(__file__).resolve().parents[1]
@@ -427,15 +433,23 @@ def _compute_ensemble(event: ArenaEvent, deadline: float) -> PredictionResponse:
 
     for member in forecasts:
         fc = member.forecast
-        deferred = getattr(fc.diagnostics, "should_defer_to_market", False) if fc.diagnostics else False
+        rt = fc.reasoning_track
+        diag = fc.diagnostics
+        deferred = getattr(diag, "should_defer_to_market", False) if diag else False
         logger.info(
-            "lane result  model=%s  title=%r  probs=%s  weight=%.2f  deferred=%s",
+            "lane result  model=%s  probs=%s  conf=%.2f  evidence=%s  deferred=%s",
             fc.model_id,
-            packet.title,
             {k: round(v, 3) for k, v in fc.probabilities.items()},
-            member.configured_weight,
+            fc.forecast.confidence,
+            getattr(diag, "evidence_quality", "?"),
             deferred,
         )
+        if rt and rt.summary:
+            logger.info("  summary: %s", rt.summary[:200])
+        for ev in (rt.key_evidence if rt else [])[:2]:
+            if isinstance(ev, dict):
+                logger.info("  evidence: [%s] %s", ev.get("source", "?")[:40], str(ev.get("claim", ""))[:120])
+
 
     supervisor = aggregate_forecasts(
         packet,
@@ -446,10 +460,18 @@ def _compute_ensemble(event: ArenaEvent, deadline: float) -> PredictionResponse:
     )
 
     logger.info(
-        "ensemble result  market=%s  final=%s",
+        "ensemble result  market=%s  final=%s  disagreement=%s",
         packet.market_ticker,
         {k: round(v, 3) for k, v in supervisor.calibrated_probabilities.items()},
+        supervisor.disagreement_summary,
     )
+    judge_entry = next((a for a in supervisor.model_assessment if a.get("role") == "judge"), None)
+    if judge_entry:
+        logger.info(
+            "  judge: %s — %s",
+            judge_entry.get("decision", "?"),
+            str(judge_entry.get("summary", ""))[:200],
+        )
 
     # Map final distribution onto the event's outcomes exactly (preserve order).
     # The 98%/2% threshold policy is output-only and only applies to mutually

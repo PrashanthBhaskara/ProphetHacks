@@ -38,6 +38,7 @@ Evaluation rubric:
 - Red-team quality: prefer members that identify plausible counterarguments and information gaps instead of only supporting their own conclusion.
 - Diversity: reward independent reasoning signals, but do not double-count multiple models repeating the same source or argument.
 - Leakage risk: heavily penalize any member that may be using settlement, final result, final volume, future rankings, future news, or post-as_of knowledge.
+- Live search signal: if a member's diagnostics show evidence_quality=high with cited live sources, weight it more heavily than members with evidence_quality=low, no source audit, or should_defer_to_market=true. A member that found no usable sources should not dilute one that found multiple timestamped primary sources. When one member has live evidence and others do not, prefer the member with live evidence if its reasoning is coherent and timestamp-clean.
 
 Aggregation guidance:
 - If the deterministic calibrated distribution is broadly aligned with the best council reasoning, return probabilities close to deterministic.
