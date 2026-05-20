@@ -459,12 +459,6 @@ def _compute_ensemble(event: ArenaEvent, deadline: float) -> PredictionResponse:
         judge=_judge,
     )
 
-    logger.info(
-        "ensemble result  market=%s  final=%s  disagreement=%s",
-        packet.market_ticker,
-        {k: round(v, 3) for k, v in supervisor.calibrated_probabilities.items()},
-        supervisor.disagreement_summary,
-    )
     judge_entry = next((a for a in supervisor.model_assessment if a.get("role") == "judge"), None)
     if judge_entry:
         logger.info(
@@ -481,6 +475,13 @@ def _compute_ensemble(event: ArenaEvent, deadline: float) -> PredictionResponse:
         supervisor.calibrated_probabilities,
         event.outcomes,
         mutually_exclusive=_is_mutually_exclusive_event(event, packet),
+    )
+    logger.info(
+        "ensemble result  market=%s  calibrated=%s  final=%s  disagreement=%s",
+        packet.market_ticker,
+        {k: round(v, 3) for k, v in supervisor.calibrated_probabilities.items()},
+        {k: round(v, 3) for k, v in dist.items()},
+        supervisor.disagreement_summary,
     )
     return PredictionResponse(
         probabilities=[
