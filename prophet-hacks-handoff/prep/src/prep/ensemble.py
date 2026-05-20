@@ -34,7 +34,7 @@ from .schemas import (
 
 OPENROUTER_CHAT_COMPLETIONS = "https://openrouter.ai/api/v1/chat/completions"
 FINAL_HIGH_CONFIDENCE_THRESHOLD = 0.98
-FINAL_LOW_CONFIDENCE_THRESHOLD = 0.02
+FINAL_LOW_CONFIDENCE_THRESHOLD = 0.01
 
 
 @dataclass
