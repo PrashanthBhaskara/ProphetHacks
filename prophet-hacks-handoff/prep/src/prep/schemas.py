@@ -111,6 +111,13 @@ class MarketPacket:
     def is_binary(self) -> bool:
         return is_yes_no_outcomes(self.outcomes)
 
+    @property
+    def is_mutually_exclusive(self) -> bool:
+        val = self.retrieval.get("mutually_exclusive")
+        if isinstance(val, bool):
+            return val
+        return True
+
     def to_dict(self) -> dict[str, Any]:
         data = asdict(self)
         data["kalshi"] = self.kalshi.to_dict()
@@ -152,10 +159,14 @@ class ForecastValues:
     max_yes_buy_price: float | None = None
     max_no_buy_price: float | None = None
     trade_recommendation: TradeRecommendation = "NO_TRADE"
+    is_mutually_exclusive: bool = True
 
     def __post_init__(self) -> None:
         if self.probabilities:
-            self.probabilities = normalize_distribution(self.probabilities)
+            if is_yes_no_outcomes(list(self.probabilities.keys())) or self.is_mutually_exclusive:
+                self.probabilities = normalize_distribution(self.probabilities)
+            else:
+                self.probabilities = {k: (0.0 if v == 0.0 else clamp_prob(v)) for k, v in self.probabilities.items()}
         self.confidence = max(0.0, min(1.0, float(self.confidence)))
         self.uncertainty = max(0.0, min(1.0, float(self.uncertainty)))
         py = self.p_yes
@@ -261,9 +272,15 @@ class SupervisorForecast:
     final_trade_thesis: str
     risk_notes: list[str] = field(default_factory=list)
 
+    is_mutually_exclusive: bool = True
+
     def __post_init__(self) -> None:
-        self.raw_probabilities = normalize_distribution(self.raw_probabilities)
-        self.calibrated_probabilities = normalize_distribution(self.calibrated_probabilities)
+        if self.is_mutually_exclusive:
+            self.raw_probabilities = normalize_distribution(self.raw_probabilities)
+            self.calibrated_probabilities = normalize_distribution(self.calibrated_probabilities)
+        else:
+            self.raw_probabilities = {k: (0.0 if v == 0.0 else clamp_prob(v)) for k, v in self.raw_probabilities.items()}
+            self.calibrated_probabilities = {k: (0.0 if v == 0.0 else clamp_prob(v)) for k, v in self.calibrated_probabilities.items()}
         self.confidence = max(0.0, min(1.0, float(self.confidence)))
 
     # Back-compat scalars for trading code that reads `.raw_p_yes` / `.calibrated_p_yes`.

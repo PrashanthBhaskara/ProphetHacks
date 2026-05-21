@@ -152,3 +152,11 @@ def get_market(ticker: str) -> dict | None:
         return data.get("market") or data
     except requests.HTTPError:
         return None
+
+
+def get_event(ticker: str) -> dict | None:
+    try:
+        data = _get(f"/events/{ticker}")
+        return data.get("event") or data
+    except requests.HTTPError:
+        return None

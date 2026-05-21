@@ -190,6 +190,7 @@ def forecast_from_response(
         max_yes_buy_price=forecast.get("max_yes_buy_price"),
         max_no_buy_price=forecast.get("max_no_buy_price"),
         trade_recommendation=forecast.get("trade_recommendation", "NO_TRADE"),
+        is_mutually_exclusive=packet.is_mutually_exclusive,
     )
     return ModelForecast(
         model_id=model_id,
@@ -357,7 +358,8 @@ def _market_mirror_model_forecast(
                     probs[outcome] = float(market_probs.get(outcome, 1.0 / n))
                 except (TypeError, ValueError):
                     probs[outcome] = 1.0 / n
-            probs = normalize_distribution(probs)
+            if packet.is_mutually_exclusive:
+                probs = normalize_distribution(probs)
         else:
             n = max(1, len(outs))
             probs = {o: 1.0 / n for o in outs}

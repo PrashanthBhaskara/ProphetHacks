@@ -43,9 +43,9 @@ from prep.ensemble import (  # noqa: E402
     forecast_members_parallel,
 )
 from prep.forecasters import ForecasterConfig  # noqa: E402
-from prep.kalshi import get_market, list_markets  # noqa: E402
+from prep.kalshi import get_event, get_market, list_markets  # noqa: E402
 from prep.packets import packet_from_arena_event  # noqa: E402
-from prep.schemas import KalshiQuote, MarketPacket, is_yes_no_outcomes, normalize_distribution  # noqa: E402
+from prep.schemas import KalshiQuote, MarketPacket, clamp_prob, is_yes_no_outcomes, normalize_distribution  # noqa: E402
 
 logging.basicConfig(
     level=logging.INFO,
@@ -354,10 +354,15 @@ def _enrich_packet(packet: MarketPacket) -> MarketPacket:
         if market_data:
             packet.retrieval["market_data"] = market_data
 
+        ev = get_event(ticker)
+        if ev is not None and "mutually_exclusive" in ev:
+            packet.retrieval["mutually_exclusive"] = bool(ev["mutually_exclusive"])
+
         logger.info(
-            "Enriched multi-outcome %s: %d/%d outcomes matched, implied=%s",
+            "Enriched multi-outcome %s: %d/%d outcomes matched, implied=%s, mutually_exclusive=%s",
             ticker, len(implied), len(packet.outcomes),
             {k: f"{v:.3f}" for k, v in implied.items()},
+            packet.retrieval.get("mutually_exclusive", "unknown"),
         )
 
     except Exception as exc:  # noqa: BLE001
@@ -391,7 +396,10 @@ def _market_price_response(packet, outcomes: list[str]) -> PredictionResponse:
                     raw[outcome] = float(market_probs.get(outcome, share))
                 except (TypeError, ValueError):
                     raw[outcome] = share
-            dist = normalize_distribution(raw)
+            if packet.is_mutually_exclusive:
+                dist = normalize_distribution(raw)
+            else:
+                dist = {o: (0.0 if raw[o] == 0.0 else clamp_prob(raw[o])) for o in outcomes}
         else:
             share = 1.0 / max(1, len(outcomes))
             dist = {o: share for o in outcomes}

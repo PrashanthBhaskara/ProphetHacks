@@ -192,7 +192,9 @@ def _anchor_distribution(packet: MarketPacket) -> dict[str, float]:
                 dist[outcome] = float(market_implied.get(outcome, 1.0 / n))
             except (TypeError, ValueError):
                 dist[outcome] = 1.0 / n
-        return normalize_distribution(dist)
+        if packet.is_mutually_exclusive:
+            return normalize_distribution(dist)
+        return {k: (0.0 if v == 0.0 else clamp_prob(v)) for k, v in dist.items()}
     n = max(1, len(outs))
     return {o: 1.0 / n for o in outs}
 
@@ -218,6 +220,8 @@ def _aligned_distribution(
     probs: dict[str, float],
     outcomes: list[str],
     fallback: dict[str, float],
+    *,
+    is_mutually_exclusive: bool = True,
 ) -> dict[str, float]:
     """Project any lane distribution onto the canonical outcome labels."""
     is_binary = is_yes_no_outcomes(outcomes)
@@ -229,18 +233,24 @@ def _aligned_distribution(
         if p is None:
             p = fallback.get(outcome, uniform)
         aligned[outcome] = clamp_prob(p)
-    return normalize_distribution(aligned)
+    if is_mutually_exclusive:
+        return normalize_distribution(aligned)
+    return aligned
 
 
 def _pool_distributions(
     distributions: list[tuple[dict[str, float], float]],
     outcomes: list[str],
+    *,
+    is_mutually_exclusive: bool = True,
 ) -> dict[str, float]:
     """Weighted logit-pool, per outcome.
 
     `distributions` is a list of (probs, weight). For each outcome label we
-    average weighted logits, then inv-logit, then renormalize across outcomes.
-    Missing outcomes in a lane's distribution fall back to uniform (1/N).
+    average weighted logits, then inv-logit, then renormalize across outcomes
+    only for mutually exclusive events. For independent binary markets (non-ME)
+    each outcome is pooled independently and the results are clamped but not
+    renormalized, preserving the CDF structure.
 
     For binary YES/NO events specifically, a case-insensitive secondary
     lookup is used if the exact-case match misses, so a lane that returned
@@ -274,7 +284,9 @@ def _pool_distributions(
             raw[outcome] = uniform
         else:
             raw[outcome] = inv_logit(weighted_sum / total_w)
-    return normalize_distribution(raw)
+    if is_mutually_exclusive:
+        return normalize_distribution(raw)
+    return {k: clamp_prob(v) for k, v in raw.items()}
 
 
 def final_mutually_exclusive_probabilities(
@@ -515,6 +527,7 @@ def _apply_eliminated_mask(
     market_implied: dict[str, float],
     *,
     floor: float = 0.01,
+    is_mutually_exclusive: bool = True,
 ) -> dict[str, float]:
     """Zero outcomes that Kalshi prices at or below the minimum tick.
 
@@ -528,7 +541,10 @@ def _apply_eliminated_mask(
     zeroed = {o for o in outcomes if float(market_implied.get(o, 1.0)) <= floor}
     if not zeroed or len(zeroed) >= len(outcomes):
         return dist
-    return normalize_distribution({o: (0.0 if o in zeroed else v) for o, v in dist.items()})
+    masked = {o: (0.0 if o in zeroed else v) for o, v in dist.items()}
+    if is_mutually_exclusive:
+        return normalize_distribution(masked)
+    return masked
 
 
 def _apply_judge(
@@ -540,6 +556,7 @@ def _apply_judge(
     raw_dist: dict[str, float],
     calibrated_dist: dict[str, float],
     judge: JudgeConfig | None,
+    is_mutually_exclusive: bool = True,
 ) -> tuple[dict[str, float], float | None, dict[str, Any] | None, list[str]]:
     if judge is None or not judge.enabled or len(members) < judge.min_members:
         return calibrated_dist, None, None, []
@@ -555,12 +572,19 @@ def _apply_judge(
     judge_probs = judge_result.get("probabilities")
     if not isinstance(judge_probs, dict):
         raise ValueError("judge response missing probabilities object")
-    judge_dist = _aligned_distribution(judge_probs, packet.outcomes or ["YES", "NO"], calibrated_dist)
+    judge_dist = _aligned_distribution(
+        judge_probs, packet.outcomes or ["YES", "NO"], calibrated_dist,
+        is_mutually_exclusive=is_mutually_exclusive,
+    )
     blend_weight = max(0.0, min(1.0, judge.blend_weight))
-    final_dist = normalize_distribution({
+    blended = {
         outcome: calibrated_dist.get(outcome, 0.0) * (1.0 - blend_weight) + judge_dist.get(outcome, 0.0) * blend_weight
         for outcome in (packet.outcomes or ["YES", "NO"])
-    })
+    }
+    if is_mutually_exclusive:
+        final_dist = normalize_distribution(blended)
+    else:
+        final_dist = {k: clamp_prob(v) for k, v in blended.items()}
     try:
         judge_confidence = max(0.0, min(1.0, float(judge_result.get("confidence", 0.5))))
     except (TypeError, ValueError):
@@ -581,6 +605,7 @@ def aggregate_forecasts(
     judge: JudgeConfig | dict[str, Any] | None = None,
 ) -> SupervisorForecast:
     outcomes = packet.outcomes or ["YES", "NO"]
+    is_me = packet.is_mutually_exclusive
     anchor = _anchor_distribution(packet)
     judge_config = JudgeConfig.from_dict(judge) if isinstance(judge, dict) else judge
 
@@ -592,7 +617,10 @@ def aggregate_forecasts(
         assessments = []
         for member in members:
             w = member.effective_weight
-            mp = _aligned_distribution(dict(member.forecast.probabilities), outcomes, anchor)
+            mp = _aligned_distribution(
+                dict(member.forecast.probabilities), outcomes, anchor,
+                is_mutually_exclusive=is_me,
+            )
             contributions.append((mp, w))
             assessments.append({
                 "model_id": member.forecast.model_id,
@@ -605,7 +633,7 @@ def aggregate_forecasts(
                 "summary": member.forecast.reasoning_track.summary,
                 "defer_to_market": member.forecast.diagnostics.should_defer_to_market,
             })
-        raw_dist = _pool_distributions(contributions, outcomes)
+        raw_dist = _pool_distributions(contributions, outcomes, is_mutually_exclusive=is_me)
 
     calibration = calibration or CalibrationConfig()
     # Calibration shrinks each outcome toward the market anchor by the same
@@ -622,19 +650,31 @@ def aggregate_forecasts(
         shrink_weight = calibration.shrink_weight(packet)
         market_implied = packet.retrieval.get("market_implied_probabilities") or {}
         n = max(1, len(outcomes))
-        calibrated_dist = normalize_distribution({
-            o: market_implied.get(o, 1.0 / n) + shrink_weight * (
-                raw_dist.get(o, 1.0 / n) - market_implied.get(o, 1.0 / n)
-            )
-            for o in outcomes
-        })
+        if is_me:
+            calibrated_dist = normalize_distribution({
+                o: market_implied.get(o, 1.0 / n) + shrink_weight * (
+                    raw_dist.get(o, 1.0 / n) - market_implied.get(o, 1.0 / n)
+                )
+                for o in outcomes
+            })
+        else:
+            # Non-ME: shrink each outcome's probability independently toward its
+            # own market anchor; no normalization across outcomes.
+            calibrated_dist = {
+                o: clamp_prob(
+                    market_implied.get(o, raw_dist.get(o, 0.5)) + shrink_weight * (
+                        raw_dist.get(o, 0.5) - market_implied.get(o, raw_dist.get(o, 0.5))
+                    )
+                )
+                for o in outcomes
+            }
 
     # Zero out Kalshi-confirmed eliminated outcomes so they don't dilute the
     # live contenders. Must run after calibration so the shrinkage math uses
     # the real Kalshi floor values, not zeros.
     market_implied_for_mask = packet.retrieval.get("market_implied_probabilities") or {}
-    raw_dist = _apply_eliminated_mask(raw_dist, outcomes, market_implied_for_mask)
-    calibrated_dist = _apply_eliminated_mask(calibrated_dist, outcomes, market_implied_for_mask)
+    raw_dist = _apply_eliminated_mask(raw_dist, outcomes, market_implied_for_mask, is_mutually_exclusive=is_me)
+    calibrated_dist = _apply_eliminated_mask(calibrated_dist, outcomes, market_implied_for_mask, is_mutually_exclusive=is_me)
 
     judge_result: dict[str, Any] | None = None
     judge_confidence: float | None = None
@@ -649,6 +689,7 @@ def aggregate_forecasts(
                 raw_dist=raw_dist,
                 calibrated_dist=calibrated_dist,
                 judge=judge_config,
+                is_mutually_exclusive=is_me,
             )
         except Exception as exc:  # noqa: BLE001
             judge_risk_notes.append(f"Judge aggregation failed; used deterministic ensemble. {type(exc).__name__}: {exc}")
@@ -710,4 +751,5 @@ def aggregate_forecasts(
         disagreement_summary=disagreement_summary,
         final_trade_thesis=thesis,
         risk_notes=risk_notes,
+        is_mutually_exclusive=is_me,
     )
